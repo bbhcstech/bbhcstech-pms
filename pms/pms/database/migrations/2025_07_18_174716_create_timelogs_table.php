@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('timelogs', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('project_id')->constrained()->onDelete('cascade');
+        $table->foreignId('task_id')->constrained()->onDelete('cascade');
+        $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
+        $table->date('start_date');
+        $table->time('start_time');
+        $table->date('end_date')->nullable();
+        $table->time('end_time')->nullable();
+        $table->text('memo')->nullable();
+        $table->float('total_hours')->default(0);
+        $table->timestamps();
+    });
+
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('timelogs');
+    }
+};

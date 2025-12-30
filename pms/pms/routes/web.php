@@ -1,0 +1,634 @@
+<?php
+
+use App\Http\Controllers\AdminActivityController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AwardController;
+use App\Http\Controllers\ClientCategoryController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientSubCategoryController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\Frontend\FrontendController;
+use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ParentDepartmentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectFileController;
+use App\Http\Controllers\ProjectMilestoneController;
+use App\Http\Controllers\ProjectNoteController;
+use App\Http\Controllers\ProjectUserController;
+use App\Http\Controllers\SubTaskController;
+use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskCommentController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskLabelController;
+use App\Http\Controllers\TaskTimerController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TimeLogController;
+use App\Mail\EmployeeInvite;
+use App\Models\Task;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Route;
+
+
+
+
+use App\Exports\AttendanceExport;
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])
+        ->name('attendance.clockIn');
+});
+
+
+
+Route::get('/smtp-test', function () {
+    try {
+        Mail::raw('SMTP Test Successful', function ($msg) {
+            $msg->to('pallabk825@gmail.com')
+                ->subject('SMTP Working - PMS');
+        });
+
+        return 'Email sent. Check your Gmail inbox or spam.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+
+Route::get('designations/next-code', [DesignationController::class, 'nextCode'])
+     ->name('designations.next-code');
+
+Route::get('/employees/next-id', [EmployeeController::class, 'nextId'])
+    ->name('employees.next-id')
+    ->middleware('auth'); 
+
+Route::get('attendance/export/excel', [AttendanceExport::class, 'exportExcel'])
+    ->name('attendance.export.excel');
+
+Route::get('attendance/export/pdf', [AttendanceExport::class, 'exportPdf'])
+    ->name('attendance.export.pdf');
+    
+    
+    
+Route::get('attendance/filter', [App\Http\Controllers\AttendanceController::class, 'filter'])->name('attendance.filter');
+
+
+/*
+|--------------------------------------------------------------------------
+| Utility / Debug routes (mostly dev helpers)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('attendance/export/multi-pdf', [AttendanceController::class, 'exportMultiPdf'])
+    ->name('attendance.export.multi_pdf');
+
+
+Route::get('/get-subdepartments/{parentId}', function ($parentId) {
+    return \App\Models\Department::where('parent_dpt_id', $parentId)->get();
+})->name('get.subdepartments');
+
+
+
+
+
+Route::get(
+    '/employees/parent-departments/{id}/sub-departments',
+    [EmployeeController::class, 'getSubDepartments']
+)->name('employees.sub-departments');
+
+Route::delete('/tickets/bulk-delete', [TicketController::class, 'bulkDelete'])
+     ->name('tickets.bulk-delete');
+
+
+
+
+Route::delete('timelogs/bulk-delete', [TimeLogController::class, 'bulkDelete'])
+    ->name('timelogs.bulk-delete');
+
+
+Route::get('/test-email', function () {
+    $fakeUser = new User([
+        'id'    => 999,
+        'name'  => 'Test User',
+        'email' => 'pallabk825@gmail.com',
+    ]);
+
+    $inviteUrl = url('/dummy-invite-link');
+
+    try {
+        Mail::to($fakeUser->email)->send(
+            new EmployeeInvite($fakeUser, "This is a test email", $inviteUrl)
+        );
+
+        return "Email sent successfully!";
+    } catch (\Exception $e) {
+        return "Failed: " . $e->getMessage();
+    }
+});
+
+Route::get('/debug-whos-logged', function () {
+    $u = auth()->user();
+
+    return response()->json([
+        'auth_id' => $u?->id,
+        'class'   => $u ? (method_exists($u, 'getMorphClass') ? $u->getMorphClass() : get_class($u)) : null,
+        'email'   => $u?->email,
+    ]);
+})->middleware(['web', 'auth']);
+
+Route::get('/debug-create-notif', function () {
+    $u = auth()->user();
+    if (! $u) {
+        return response()->json(['error' => 'not logged in'], 401);
+    }
+
+    $task = Task::first() ?: Task::create([
+        'task_short_code' => 'DBG1',
+        'title'           => 'Debug Task',
+        'project_id'      => 1,
+    ]);
+
+    $u->notify(new \App\Notifications\TaskAssignedNotification($task));
+
+    return response()->json([
+        'status'  => 'ok',
+        'message' => 'notification created for current user',
+        'user_id' => $u->id,
+    ]);
+})->middleware(['web', 'auth']);
+
+/*
+|--------------------------------------------------------------------------
+| Public / auth scaffolding routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/verify-otp', function () {
+    return view('auth.verify-otp');
+})->name('verify-otp');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+// Front Controller (landing)
+Route::get('/', [FrontendController::class, 'index'])->name('home');
+
+// Simple logout that clears custom session key
+Route::get('/logout', function () {
+    Session::forget('auth_id');
+    return redirect()->route('home');
+})->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    /*
+    |----------------------------------------------------------------------
+    | Notifications
+    |----------------------------------------------------------------------
+    */
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+    Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+
+    /*
+    |----------------------------------------------------------------------
+    | Dashboard helpers / sticky notes / timers / search
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('/sticky-notes', [DashboardController::class, 'notestore'])->name('sticky_notes.store');
+    Route::post('/timers/store', [DashboardController::class, 'timersstore'])->name('dashboard-timers.store');
+
+    Route::post('/dashboard/clock-in', [DashboardController::class, 'clockIn'])->name('dashboard.clockin');
+    Route::post('/dashboard/clock-out', [DashboardController::class, 'clockOut'])->name('dashboard.clockout');
+
+    Route::get('/search', [DashboardController::class, 'globalSearch'])->name('dashboard.search');
+
+    /*
+    |----------------------------------------------------------------------
+    | User profile
+    |----------------------------------------------------------------------
+    */
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    /*
+    |----------------------------------------------------------------------
+    | Designations / Departments / Employees (HR)
+    |----------------------------------------------------------------------
+    */
+
+    // Designation hierarchy
+    Route::get('designations/designation-hierarchy', [DesignationController::class, 'hierarchy'])
+        ->name('designations.hierarchy');
+    Route::post('designations/save-hierarchy', [DesignationController::class, 'saveHierarchy'])
+        ->name('designations.save-hierarchy');
+
+    // Bulk delete designations
+Route::post('designations/bulk-delete', [DesignationController::class, 'bulkDelete'])
+    ->name('designations.bulk-delete');
+
+Route::resource('designations', DesignationController::class);
+
+
+    // Ajax create designation from employee form
+    Route::post('/designations/ajax-store', [EmployeeController::class, 'storeDesignation'])
+        ->name('designations.ajax.store');
+
+    // Resource
+    Route::resource('designations', DesignationController::class);
+
+    // Parent departments
+    Route::post('parent-departments/bulk-delete', [ParentDepartmentController::class, 'bulkDestroy'])
+        ->name('parent-departments.bulk-delete');
+    Route::resource('parent-departments', ParentDepartmentController::class);
+
+    // Departments
+    Route::post('departments/bulk-delete', [DepartmentController::class, 'bulkDestroy'])
+        ->name('departments.bulk-delete');
+    Route::resource('departments', DepartmentController::class);
+
+    // Employees
+    Route::delete('/employees/bulk-delete', [EmployeeController::class, 'bulkDelete'])
+        ->name('employees.bulk.delete');
+    Route::post('employees/bulk-update-status', [EmployeeController::class, 'bulkUpdateStatus'])
+        ->name('employees.bulkUpdateStatus');
+
+    Route::resource('employees', EmployeeController::class);
+    Route::get('employees/{id}', [EmployeeController::class, 'show'])->name('employees.show');
+
+    // Employee invites
+    Route::get('employees/invite/accept', [EmployeeController::class, 'acceptInvite'])
+        ->name('employees.invite.accept')
+        ->middleware('signed');
+    Route::post('employees/invite/accept', [EmployeeController::class, 'acceptInviteSubmit'])
+        ->name('employees.invite.complete');
+    Route::post('employees/send-invite', [EmployeeController::class, 'sendInvite'])
+        ->name('employees.sendInvite');
+// add this
+Route::post('employees/store-department', [\App\Http\Controllers\EmployeeController::class, 'storeDepartment'])
+    ->name('employees.storeDepartment');
+
+    /*
+    |----------------------------------------------------------------------
+    | Attendance
+    |----------------------------------------------------------------------
+    */
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
+
+    // Filter (remove duplicate below)
+    Route::get('/attendance/filter', [AttendanceController::class, 'filter'])->name('attendance.filter');
+
+    Route::get('/attendance/details', [AttendanceController::class, 'showAttendanceDetails'])->name('attendance.details');
+
+    // Settings
+    Route::get('/attendance/settings', [AttendanceController::class, 'settings'])->name('attendance.settings');
+    Route::post('/attendance/settings', [AttendanceController::class, 'updateSettings'])->name('attendance.settings.update');
+
+    // Remove this duplicate ↓ (same name + same controller)
+    // Route::get('/admin/attendance/filter', [AttendanceController::class, 'filter'])->name('attendance.filter');
+
+    // Create / Store
+    Route::get('/attendance/create', [AttendanceController::class, 'create'])->name('attendance.create');
+    Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
+
+    // Old single-user report
+    Route::get('/attendance-report', [AttendanceController::class, 'attendanceReport'])->name('attendance.report');
+
+    // Exports (keep your URL & names exactly SAME)
+    Route::get('/attendance-export-excel', [AttendanceController::class, 'exportExcel'])->name('attendance.export.excel');
+    Route::get('/attendance-export-pdf',   [AttendanceController::class, 'exportPdf'])->name('attendance.export.pdf');
+
+    // Edit
+    Route::get('attendance/edit', [AttendanceController::class, 'edit'])->name('attendance.edit');
+    Route::put('attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
+
+    // Map view
+    Route::get('/attendance/today/map', [AttendanceController::class, 'todayAttendanceByMap'])->name('attendance.today.map');
+
+    // Member-wise view
+    Route::get('/attendance/member', [AttendanceController::class, 'byMember'])->name('attendance.byMember');
+
+    // By-hour view
+    Route::get('/by-hour', [AttendanceController::class, 'byHour'])->name('attendance.byHour');
+});
+
+    /*
+    |----------------------------------------------------------------------
+    | Leaves
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('/leaves/bulk-delete', [LeaveController::class, 'bulkDelete'])
+        ->name('leaves.bulk-delete');
+    Route::post('/leaves/bulk-action', [LeaveController::class, 'bulkAction'])
+        ->name('leaves.bulkAction');
+    Route::post('/leaves/update-paid-status', [LeaveController::class, 'updatePaidStatus'])
+        ->name('leaves.updatePaidStatus');
+
+    Route::get('leaves/calendar', [LeaveController::class, 'calendar'])->name('leaves.calendar');
+    Route::get('/leaves/calendar/data', [LeaveController::class, 'calendarData'])->name('leaves.calendar.data');
+
+    Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
+    Route::get('/leaves/create', [LeaveController::class, 'create'])->name('leaves.create');
+    Route::post('/leaves/store', [LeaveController::class, 'store'])->name('leaves.store');
+    Route::delete('/leaves/{id}', [LeaveController::class, 'destroy'])->name('leaves.destroy');
+    Route::get('leaves/{leave}/edit', [LeaveController::class, 'edit'])->name('leaves.edit');
+    Route::put('leaves/{leave}', [LeaveController::class, 'update'])->name('leaves.update');
+    Route::get('/leaves/{leave}', [LeaveController::class, 'show'])->name('leaves.show');
+    Route::patch('/leaves/{leave}/status', [LeaveController::class, 'updateStatus'])->name('leaves.updateStatus');
+    Route::get('/admin/leaves/report', [LeaveController::class, 'leaveReport'])->name('admin.leave.report');
+
+    /*
+    |----------------------------------------------------------------------
+    | Holidays
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('/holidays/bulk-action', [HolidayController::class, 'bulkAction'])->name('holiday.bulkAction');
+    Route::resource('holidays', HolidayController::class)->except(['show']);
+
+    Route::get('employee-holidays', [HolidayController::class, 'employeeView'])->name('employee.holidays');
+    Route::get('calendar-holidays', [HolidayController::class, 'calendarView'])->name('holidays.calendar');
+    Route::post('/holidays/mark', [HolidayController::class, 'markHoliday'])->name('holidays.mark');
+
+    /*
+    |----------------------------------------------------------------------
+    | Awards / Appreciations
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('/awards/bulk-action', [AwardController::class, 'bulkAction'])->name('awards.bulkAction');
+    Route::post('/apreciation/bulk-action', [AwardController::class, 'apreciationbulkAction'])->name('apreciation.bulkAction');
+    Route::post('awards/bulk-delete', [AwardController::class, 'bulkDeleteAwards'])->name('awards.bulk-delete');
+
+    Route::post('/appreciations/{id}/status', [AwardController::class, 'updateStatus'])->name('appreciations.updateStatus');
+    Route::resource('awards', AwardController::class)->except(['show']);
+    Route::get('my-awards', [AwardController::class, 'myAwards'])->name('employee.awards');
+
+    Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationstore'])->name('awards.appreciation-store');
+    Route::get('/awards/apreciation-index', [AwardController::class, 'appreciationindex'])->name('awards.apreciation-index');
+    Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationedit'])->name('awards.appreciation-edit');
+    Route::get('/awards/apreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.apreciation-create');
+    Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationupdate'])->name('awards.appreciation-update');
+    Route::delete('/awards/appreciation/{id}', [AwardController::class, 'appreciationdestroy'])->name('awards.appreciation-destroy');
+
+    /*
+    |----------------------------------------------------------------------
+    | Clients
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
+    Route::post('clients/bulk-action', [ClientController::class, 'bulkAction'])->name('clients.bulkAction');
+
+    Route::get('/clients/pending', [ClientController::class, 'pending'])->name('clients.pending');
+    Route::post('/clients/pending/bulk-action', [ClientController::class, 'pendingBulkAction'])->name('clients.pendingbulkAction');
+
+    Route::resource('clients', ClientController::class);
+    Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
+
+    // client categories
+    Route::resource('client-categories', ClientCategoryController::class)->only(['store', 'index']);
+    Route::resource('client-sub-categories', ClientSubCategoryController::class)->only(['store', 'index']);
+
+    /*
+    |----------------------------------------------------------------------
+    | Projects
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('/projects/bulk-delete', [ProjectController::class, 'bulkDelete'])->name('projects.bulk-delete');
+    Route::post('/projects/bulk-status', [ProjectController::class, 'bulkStatus'])->name('projects.bulk-status');
+    Route::patch('admin/projects/{project}/status', [ProjectController::class, 'toggleStatus'])->name('projects.toggleStatus');
+
+    Route::get('projects/archive', [ProjectController::class, 'archive'])->name('projects.archive');
+    Route::post('projects/{project}/archive', [ProjectController::class, 'archiveProject'])->name('projects.archive.action');
+
+    Route::get('projects/project-calendar', [ProjectController::class, 'projectCalendar'])->name('projects.calendar');
+    Route::put('projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
+    Route::delete('projects/{project}/force-delete', [ProjectController::class, 'forceDelete'])->name('projects.forceDelete');
+
+    Route::resource('projects', ProjectController::class);
+    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+
+    // Project additional routes
+    Route::post('/project-categories', [ProjectController::class, 'categorystore'])->name('project-categories.store');
+    Route::delete('/project-categories/{id}', [ProjectController::class, 'categorydestroy'])->name('project-categories.destroy');
+    Route::post('/project/store', [ProjectController::class, 'clientstore'])->name('project.clientstore');
+    Route::post('/projects/{id}/duplicate', [ProjectController::class, 'duplicate'])->name('projects.duplicate');
+
+    // Archive-related
+    Route::get('projects/{project}/tasks/board', [TaskController::class, 'taskBoard'])->name('projects.tasks.board');
+
+    // Project members
+    Route::prefix('projects/{project}/members')->name('project-members.')->group(function () {
+        Route::get('/', [ProjectUserController::class, 'index'])->name('index');
+        Route::get('/add', [ProjectUserController::class, 'create'])->name('create');
+        Route::post('/', [ProjectUserController::class, 'store'])->name('store');
+        Route::delete('/{user}', [ProjectUserController::class, 'destroy'])->name('destroy');
+    });
+
+    // Project files
+    Route::prefix('projects/{project}/files')->name('project-files.')->group(function () {
+        Route::get('/', [ProjectFileController::class, 'index'])->name('index');
+        Route::post('/', [ProjectFileController::class, 'store'])->name('store');
+        Route::delete('/{file}', [ProjectFileController::class, 'destroy'])->name('destroy');
+    });
+
+    // Project milestones
+    Route::get('/projects/{project}/milestones', [ProjectMilestoneController::class, 'index'])->name('milestones.index');
+    Route::post('/milestones/store', [ProjectMilestoneController::class, 'store'])->name('milestones.store');
+    Route::delete('/milestones/{id}', [ProjectMilestoneController::class, 'destroy'])->name('milestones.destroy');
+
+    // Project notes
+    Route::prefix('projects/{project}/notes')->name('projects.notes.')->group(function () {
+        Route::get('/', [ProjectNoteController::class, 'index'])->name('index');
+        Route::get('/create', [ProjectNoteController::class, 'create'])->name('create');
+        Route::post('/', [ProjectNoteController::class, 'store'])->name('store');
+        Route::get('{note}/view', [ProjectNoteController::class, 'show'])->name('noteshow');
+        Route::get('{note}/edit', [ProjectNoteController::class, 'edit'])->name('edit');
+        Route::put('{note}', [ProjectNoteController::class, 'update'])->name('update');
+        Route::delete('{note}', [ProjectNoteController::class, 'destroy'])->name('destroy');
+    });
+
+    // Project discussions
+    Route::prefix('projects/{project}/discussions')->name('projects.discussions.')->group(function () {
+        Route::get('/', [DiscussionController::class, 'index'])->name('index');
+        Route::get('/create', [DiscussionController::class, 'create'])->name('create');
+        Route::post('/', [DiscussionController::class, 'store'])->name('store');
+        Route::get('{discussion}', [DiscussionController::class, 'show'])->name('show');
+        Route::delete('{discussion}', [DiscussionController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::post('/discussion-categories', [DiscussionController::class, 'disscatstore'])->name('discussion-categories.store');
+    Route::delete('/discussion-categories/{id}', [DiscussionController::class, 'disscatdestroy'])->name('discussion-categories.destroy');
+    Route::post('projects/{project}/discussions/{discussion}/replies', [DiscussionController::class, 'repliesstore'])->name('projects.discussions.replies.store');
+
+    // Project reports / advanced dashboards
+    Route::get('account/projects/{project}/burndown-chart', [ProjectController::class, 'burndown'])->name('projects.burndown');
+    Route::get('/admin/activity-log/project/{project}', [AdminActivityController::class, 'projectActivity'])->name('admin.activities.project');
+
+    Route::get('/account/dashboard-project', [DashboardController::class, 'project'])->name('dashproject');
+    Route::get('/account/dashboard-advanced', [DashboardController::class, 'clientDashboard'])->name('dashboard.client');
+    Route::get('/dashboard-advanced', [DashboardController::class, 'ticketDashboard'])->name('dashboard.ticket');
+    Route::get('/hr-dashboard', [DashboardController::class, 'hrindex'])->name('hr.dashboard');
+
+    // Gantt
+    Route::get('/projects/{project}/gantt', [ProjectController::class, 'ganttChart'])->name('projects.gantt');
+    Route::get('/projects/{project}/gantt-tasks', [ProjectController::class, 'getGanttTasks'])->name('projects.gantt-tasks');
+    Route::get('/projects/{project}/public-gantt', [ProjectController::class, 'publicGantt'])->name('projects.public-gantt');
+
+    /*
+    |----------------------------------------------------------------------
+    | Tasks
+    |----------------------------------------------------------------------
+    */
+
+    Route::delete('/tasks/bulk-delete', [TaskController::class, 'bulkDelete'])->name('tasks.bulkDelete');
+    Route::post('/tasks/bulk-status-update', [TaskController::class, 'bulkStatusUpdate'])->name('tasks.bulkStatusUpdate');
+
+    Route::resource('tasks', TaskController::class)->except(['show']);
+    Route::get('/projects/{project}/tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
+    Route::get('projects/{project}/tasks/board', [TaskController::class, 'taskBoard'])->name('projects.tasks.board');
+    Route::post('/tasks/{task}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+
+    Route::post('/tasks/{task}/notes', [TaskController::class, 'storeNote'])->name('tasks.notes.store');
+
+    Route::get('/projects/{id}/tasks', [TimeLogController::class, 'getTasks']); // helper for timelog forms
+
+    // Task calendar + boards
+    Route::get('/tasks/calendar', [TaskController::class, 'calendarView'])->name('tasks.calendar');
+    Route::get('/users/tasks/board', [TaskController::class, 'userTaskBoard'])->name('users.tasks.board');
+    Route::get('/tasks/waiting-approval', [TaskController::class, 'waitingApproval'])->name('tasks.waiting-approval');
+
+    // Task labels / categories
+    Route::post('/labels', [TaskController::class, 'storeLabel'])->name('labels.store');
+    Route::resource('task-categories', TaskCategoryController::class)->only(['store']);
+    Route::post('task-categories/{task_category}/delete', [TaskCategoryController::class, 'destroy'])->name('task-categories.force-delete');
+
+    // Second labels routes (overrides previous, kept exactly as original)
+    Route::post('/labels', [TaskLabelController::class, 'store'])->name('labels.store');
+    Route::post('/labels/{id}', [TaskLabelController::class, 'destroy'])->name('labels.destroy');
+
+    // Task show
+    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
+
+    // Task timers
+    Route::post('/tasks/{task}/timer/start', [TaskTimerController::class, 'start'])->name('task-timer.start');
+    Route::post('/timers/start', [TaskTimerController::class, 'store'])->name('timers.store');
+    Route::post('/globaltaskstimer/stop', [TaskTimerController::class, 'globalstop'])->name('globaltasktimer.stop');
+    Route::post('/tasks/{task}/timer/stop', [TaskTimerController::class, 'stop'])->name('task-timer.stop');
+    Route::post('/tasks/{task}/timer/pause', [TaskTimerController::class, 'pause'])->name('task-timer.pause');
+    Route::post('/tasks/{task}/timer/resume', [TaskTimerController::class, 'resume'])->name('task-timer.resume');
+
+    Route::get('/tasks/{task}/mark-complete', [TaskController::class, 'markComplete'])->name('tasks.markComplete');
+
+    // Task files
+    Route::post('/tasks/{task}/upload-file', [TaskController::class, 'uploadFile'])->name('tasks.uploadFile');
+    Route::delete('/tasks/{task}/file-delete', [TaskController::class, 'deleteFile'])->name('tasks.deleteFile');
+
+    // Subtasks
+    Route::post('/tasks/{task}/subtasks', [SubTaskController::class, 'store'])->name('subtasks.store');
+    Route::get('subtasks/{subtask}/edit', [SubTaskController::class, 'edit'])->name('subtasks.edit');
+    Route::put('subtasks/{subtask}', [SubTaskController::class, 'update'])->name('subtasks.update');
+    Route::delete('subtasks/{subtask}', [SubTaskController::class, 'destroy'])->name('subtasks.destroy');
+    Route::delete('/subtasks/{subtask}/file', [SubTaskController::class, 'deleteFile'])->name('subtask.file.delete');
+
+    // Task comments
+    Route::post('/tasks/{task}/comments', [TaskCommentController::class, 'store'])->name('task-comments.store');
+
+    /*
+    |----------------------------------------------------------------------
+    | Timelogs
+    |----------------------------------------------------------------------
+    */
+
+    Route::post('/timelogs/bulk-status-update', [TimeLogController::class, 'bulkStatusUpdate'])->name('timelogs.bulkStatusUpdate');
+
+    Route::prefix('projects/{project}')->name('projects.')->group(function () {
+        Route::get('timelogs', [TimeLogController::class, 'index'])->name('timelogs.index');
+        Route::get('timelogs/create', [TimeLogController::class, 'create'])->name('timelogs.create');
+    });
+
+    Route::get('timelogs/calendar', [TimeLogController::class, 'calendar'])->name('timelogs.calendar');
+    Route::get('timelogs/by-employee', [TimeLogController::class, 'byEmployee'])->name('timelogs.byEmployee');
+
+    Route::resource('timelogs', TimeLogController::class);
+    Route::get('/projects/{project}/timelogs', [TimeLogController::class, 'index'])->name('projects.timelogs.index');
+
+    Route::get('/timelogs/get-task-employee/{taskId}', [TimeLogController::class, 'getTaskEmployee']);
+    Route::get('/project/{projectId}/tasks', [TimeLogController::class, 'getTasksByProject'])->name('timelogs.tasks.byProject');
+
+    /*
+    |----------------------------------------------------------------------
+    | Expenses (per project)
+    |----------------------------------------------------------------------
+    */
+
+    Route::prefix('projects/{project}')->group(function () {
+        Route::resource('expenses', ExpenseController::class)->except(['show']);
+    });
+
+    /*
+    |----------------------------------------------------------------------
+    | Tickets
+    |----------------------------------------------------------------------
+    */
+
+    Route::resource('tickets', TicketController::class);
+    Route::post('/tickets/change-status', [TicketController::class, 'changeStatus'])->name('tickets.change-status');
+    Route::post('/ticket-groups/store', [TicketController::class, 'storeGroup'])->name('ticket-groups.store');
+    Route::get('/ticket-groups/fetch', [TicketController::class, 'fetchGroups'])->name('ticket-groups.fetch');
+    Route::delete('/ticket-groups/{id}', [TicketController::class, 'destroygroup'])->name('ticket-groups.destroy');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{id}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
+    Route::put('/tickets/{id}/update-details', [TicketController::class, 'updateDetails'])->name('tickets.updateDetails');
+    Route::get('/admin/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::post('tickets/bulk-action', [TicketController::class, 'bulkAction'])->name('tickets.bulk-action');
+
+    /*
+    |----------------------------------------------------------------------
+    | Misc dashboards
+    |----------------------------------------------------------------------
+    */
+
+    Route::get('/account/dashboard-project', [DashboardController::class, 'project'])->name('dashproject');
+    Route::get('/account/dashboard-advanced', [DashboardController::class, 'clientDashboard'])->name('dashboard.client');
+    Route::get('/dashboard-advanced', [DashboardController::class, 'ticketDashboard'])->name('dashboard.ticket');
+    Route::get('/hr-dashboard', [DashboardController::class, 'hrindex'])->name('hr.dashboard');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Auth scaffolding (Breeze / Jetstream / etc)
+|--------------------------------------------------------------------------
+*/
+
+require __DIR__.'/auth.php';

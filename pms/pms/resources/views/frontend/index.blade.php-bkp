@@ -1,0 +1,1179 @@
+@extends('partials.app')
+
+@section('title', 'Home')
+
+@section('content')
+
+
+             <!-- Carousel Start -->
+<div class="container" style="background-color: #F2E2B1;">
+            <div class="container-fluid p-0 mb-0">
+                <div class="row no-gutters">
+                    <!-- Carousel Section (Full Width) -->
+                    <div class="col-12" style="border-radius: 30px; position: relative;">
+                        <div class="owl-carousel header-carousel position-relative">
+                            @foreach($bannerImages as $banner)
+                                 <div class="owl-carousel-item position-relative">
+                                        <!-- Desktop Image -->
+                                        <img class="img-fluid d-none d-md-block" 
+                                             src="{{ asset('admin/uploads/banners/' . $banner->image) }}" 
+                                             alt="{{ $banner->name }}" 
+                                             style="object-fit: contain; background-size: cover;  height: auto; min-height: 30vh; max-height: 40vh; border-radius: 30px; width: 100%;">
+                                        
+                                        <!-- Mobile Image -->
+                                        <img class="img-fluid d-block d-md-none" 
+                                             src="{{ asset('admin/uploads/banners/' . $banner->mobile_image) }}" 
+                                             alt="{{ $banner->name }}" 
+                                             style="object-fit: cover; height: 25vh; border-radius: 30px; width: 100%;">
+                                    </div>
+                            @endforeach
+                        </div>
+            
+                        <!-- Search Section -->
+                        <div class="search-overlay" style="position: absolute; top: 10%; left: 50%; transform: translate(-50%, -10%); z-index: 10; width: 60%; border-radius: 10px; padding: 20px; margin-top: 50px;">
+                                    <div class="d-flex flex-column flex-md-row align-items-center" id="responsive-container">
+                                        <!-- Current State Section -->
+                                        <div class="state-box d-flex align-items-center" style=" display:none; background-color: transparent; border: 0 solid #000; border-radius: 10px; padding: 10px; display: flex; flex-direction: row; align-items: center;">
+                                                 <!--Location Icon -->
+                                                <i class="fas fa-map-marker-alt state-icon" style="display:none; color: #007BFF; margin-right: 8px;"></i>
+                                                 <!--Current State Display -->
+                                                <p class="mb-0 state-text" style="display:none; margin: 0; white-space: nowrap;">
+                                                    Your Current State: <span id="location">Loading...</span>
+                                                </p>
+                                            </div>
+
+                                
+                                        <!-- Search Form -->
+                                        <form id="search-form" method="GET" action="{{ route('search') }}" class="d-flex flex-grow-1" style="  margin-left: 5px;">
+                                            <div class="input-group w-100" style="border: 1px solid #000;">
+                                                <!-- Search Input -->
+                                                <input 
+                                                    type="text" 
+                                                    id="search-input" 
+                                                    name="query" 
+                                                    class="form-control" 
+                                                    placeholder="Type or speak to search from Doctora2z..."
+                                                    style="border:none;"
+                                                />
+                                                <!-- Voice Search Button -->
+                                                <span class="input-group-text voice-search" id="voice-search-btn" role="button" tabindex="0" style="border:none; background-color: #fff;">
+                                                    <img src="{{ asset('/img/voice-icon.png') }}" width="20">
+                                                </span>
+                                                <!-- Search Button -->
+                                                <button type="submit" style="border:none; background-color: #fff;">
+                                                    <img src="{{ asset('/img/web.png') }}" width="40" style="border-radius: 10px; background-color: #90dfb3; padding:5px;">
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                
+                                    <!-- Suggestions List (Initially Hidden) -->
+                                    <ul id="suggestions-list" class="list-group mt-2" style="display: none; position: absolute; z-index: 9999; width: 45%;"></ul>
+                                </div>
+
+                        </div>
+                    </div>
+                </div>
+            
+            <!-- Carousel End -->
+            
+       
+            
+               <!-- Category Start -->
+            <div id="category-section" class="search-results mt-0 animated-section" style="display:block; margin-left: 20px; margin-right: 20px; ">
+                <div class="container-xxl py-2">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <!-- Heading -->
+                            <h1 class="mb-5 wow fadeInUp" data-wow-delay="0.1s" style="font-size: 20px; font-weight: 600; color: #333;">
+                                DOCTOR SPECIALISATION
+                            </h1>
+                            <!-- Browse More Link -->
+                            <button id="browse-more-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer;">
+                    Load More →
+                </button>
+                        </div>
+                        <div class="row row-cols-10 g-3" id="category-list">
+                            <!-- Categories will be dynamically added here -->
+                        </div>
+                        <div class="text-end mt-2">
+                            <button id="browse-less-btn" 
+                                    style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer; display: none;">
+                                Load Less ←
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!--CLINIC SPECIALISATION Section-->
+            
+            <div id="categoryClinic-section" class="search-results mt-4 animated-section" style="display:none; margin-left: 20px; margin-right: 20px;">
+                <div class="container-xxl py-2">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-between">
+                             Heading 
+                            <h1 class="mb-5 wow fadeInUp" data-wow-delay="0.1s" style="font-size: 20px; font-weight: 600; color: #333;">
+                                CLINIC SPECIALISATION
+                            </h1>
+                             Browse More Link 
+                            <button id="clinic-more-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer;">
+                                Browse More →
+                            </button>
+                        </div>
+                        <div class="row row-cols-10 g-3 cat-list" id="cat-list">
+                             Categories will be dynamically added here 
+                        </div>
+                        <button id="clinic-less-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer; display: none;">
+                            Browse less ←
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--Hospital Section-->
+            <div id="hospital-section" class="search-results mt-4 animated-section" style="display:none; margin-left: 20px; margin-right: 20px;">
+                <div class="container-xxl py-2">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <!-- Heading -->
+                            <h1 class="mb-5 wow fadeInUp" data-wow-delay="0.1s" style="font-size: 20px; font-weight: 600; color: #333;">
+                                HOSPITALS
+                            </h1>
+                            <!-- Browse More Link -->
+                            <button id="more-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer;">
+                                Browse More →
+                            </button>
+                        </div>
+                        <div 
+                            class="row g-0 hospital-list"
+                            id="hospital-list" 
+                            style="gap: 0; ">
+                        </div>
+                        <button id="less-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer; display: none;">
+                            Browse less ←
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <!--MEDICARE SHOP SECTION-->
+            
+            <div id="medica-section" class="search-results mt-4 animated-section" style="display:none; margin-left: 20px; margin-right: 20px;">
+                <div class="container-xxl py-2">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <!-- Heading -->
+                            <h1 class="mb-5 wow fadeInUp" data-wow-delay="0.1s" style="font-size: 20px; font-weight: 600; color: #333;">
+                                MEDICAL SHOP
+                            </h1>
+                            <!-- Browse More Link -->
+                            <button id="medica-more-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer;">
+                                Browse More →
+                            </button>
+                        </div>
+                        <div 
+                            class="row g-0 medica-list" 
+                            id="medica-list" 
+                            style="gap: 0; ">
+                        </div>
+                        <button id="medica-less-btn" style="all: unset; font-size: 14px; font-weight: 500; color: #007bff; cursor: pointer; display: none;">
+                            Browse less ←
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- advertisement section start-->
+            @php
+            
+                $latestAd = $advertisements->first(); // Assuming $advertisements is a collection sorted by latest
+            @endphp
+            
+            @if ($latestAd)
+                <div class="col-12 mb-3">
+                    <div class="advertisement-box text-center">
+                        <a href="{{ $latestAd->url ?? '#' }}" target="_blank">
+                            <div style="position: relative; width: 100%; padding-top: 12.07%; overflow: hidden;margin-top:25px;">
+                               <img src="{{ asset('admin/uploads/advertisement/' . $latestAd->image) }}"
+                                 class="img-fluid rounded shadow-sm" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                                 alt="Advertisement">
+                            </div>
+                           
+                        </a>
+                    </div>
+                </div>
+            @endif
+            
+            <!-- advertisement section end-->
+            
+            
+           <div id="about-section" class="search-results mt-4 animated-section" style="display:block; margin-left: 20px; margin-right: 20px;">
+                 <div class="container-xxl py-2">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-start mb-5">
+                 </div>
+                 @php   $aboutus = DB::table('about_us')->get(); @endphp
+                 @if(isset($aboutus) )
+            <div class="row g-lg-5 g-3">
+                <div class="col-md-7">
+                    <!-- <h4 class="sec_title">WHO WE ARE</h4> -->
+                    <h2>{{$aboutus[0]->title}}</h2>
+                    <p style="text-align: justify;">{{$aboutus[0]->description}}
+                    </p>
+                    <div class="row g-xl-3 g-2 pt-lg-1 pb-lg-0">
+                        <div class="col-md-6">
+                            <div class="d-flex ">
+                                <!-- <div class="vr"></div> -->
+                                <div class="d-flex  py-2  why_point">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://cdn.apollohospitals.com/apollohospitals-live/wca/01-Counters-Hospitals-1.svg" alt="" class="point_icon"
+                                        style="margin-bottom: 10px;  border-radius: 10px; padding: 10px; background-color: #fff;">
+                                    </div>
+                                    <div class="flex-grow-1 why_ah_points">
+                                        <h4><span class="counter-holder">{{$totalDoctors}}</span>+</h4>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of Verified Doctors</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex ">
+                                <!-- <div class="vr"></div> -->
+                                <div class="d-flex  py-2  why_point">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://cdn.apollohospitals.com/apollohospitals-live/wca/02-Counters-Clinics-2.svg" alt="" class="point_icon"
+                                        style="margin-bottom: 10px;  border-radius: 10px; padding: 10px; background-color: #fff;">
+                                    </div>
+                                    <div class="flex-grow-1 why_ah_points">
+                                        <h4><span class="counter-holder">000</span>+</h4>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of Specialization</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <div class="d-flex py-2 why_point">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://cdn.apollohospitals.com/apollohospitals-live/wca/04-Pharmacies-2.svg" 
+                                             alt="" class="point_icon"
+                                             style="margin-bottom: 10px; border-radius: 10px; padding: 10px; background-color: #fff;">
+                                    </div>
+                                    <div class="flex-grow-1 why_ah_points d-flex flex-column align-items-center text-center" style="
+    margin-left: 68px;
+">
+                                        <h4><span class="counter-holder">{{$totalClinics}}</span>+</h4>
+                                        <div>Number of Hospitals</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <div class="d-flex py-2 why_point">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://cdn.apollohospitals.com/apollohospitals-live/wca/06-Doctors-2.svg" 
+                                             alt="" class="point_icon"
+                                             style="margin-bottom: 10px; border-radius: 10px; padding: 10px; background-color: #fff;">
+                                    </div>
+                                    <div class="flex-grow-1 why_ah_points d-flex flex-column align-items-center text-center" style="
+    margin-left: 68px;
+">
+                                        <h4><span class="counter-holder">{{$totalDoctors}}</span>+</h4>
+                                        <div>Number of Clinics</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                       
+    
+    
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <!--   <h5 class="pb-3 text-center">Apollo Awards</h5> -->
+                    <div class="card border-0 who-card" style="margin-top: 52px;">
+                         <img src="{{ asset('/admin/uploads/about/' . $aboutus[0]->page_image) }}" class="card-img " alt="..."> 
+                           
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+        </div>
+        </div>
+        
+        
+         <!-- advertisement section start-->
+            @php
+            
+                $latestAd = $advertisements->first(); // Assuming $advertisements is a collection sorted by latest
+            @endphp
+            
+            @if ($latestAd)
+                <div class="col-12 mb-3">
+                    <div class="advertisement-box text-center">
+                        <a href="{{ $latestAd->url ?? '#' }}" target="_blank">
+                            <div style="position: relative; width: 100%; padding-top: 12.07%; overflow: hidden;margin-top:25px;">
+                               <img src="{{ asset('admin/uploads/advertisement/' . $latestAd->image) }}"
+                                 class="img-fluid rounded shadow-sm" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                                 alt="Advertisement">
+                            </div>
+                           
+                        </a>
+                    </div>
+                </div>
+            @endif
+            
+            <!-- advertisement section end-->
+               
+            
+            <!--testimonial section-->
+            <div id="testimonial-section" class="search-results mt-3 animated-section" style="display:block;">
+                <div class="container-xxl py-2">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-start mb-5">
+                            <h1 class="wow fadeInUp" data-wow-delay="0.1s" style="font-size: 20px; font-weight: 600; color: #333; margin-right: 40px; margin-left: 20px;">
+                                Discover Testimonials From Our Thrilled Users
+                            </h1>
+                        </div>
+                        <div class="owl-carousel testimonial-carousel">
+                            @foreach ($pages as $page)
+                            <div class="testimonial-item bg-light rounded p-4">
+                                <div class="d-flex align-items-start">
+                                    <!-- Left: Image + Name + Designation -->
+                                    <div class="text-center me-4" style="width: 80px;">
+                                        <img class="img-fluid rounded-circle mb-2" src="{{ asset('/admin/uploads/pages/' . $page->banner_image) }}" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div>
+                                            <h6 class="mb-0" style="font-size: 14px;">{{ $page->title }}</h6>
+                                            <small style="font-size: 12px; color: #666;">{{ $page->slug }}</small>
+                                        </div>
+                                    </div>
+                                    <!-- Right: Description -->
+                                    <div>
+                                        <i class="fa fa-quote-left fa-2x text-primary mb-2"></i>
+                                        <p class="mb-0">{{ $page->desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!--testimonial section-->
+            
+            
+                 
+                 <!-- Contact Start -->
+            <div id="contact" class="search-results mt-4 animated-section" style="display:block; margin-left: 20px; margin-right: 20px; margin-bottom: 20px;">
+                <div class="container-xxl py-2">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-start mb-5">
+                            <!-- Heading -->
+                            <h1 class="wow fadeInUp" data-wow-delay="0.1s" style="font-size: 20px; font-weight: 600; color: #333; margin-right: 40px; margin-left: 20px;">
+                                {{$contactus-> title}}
+                            </h1>
+                        </div>
+                    
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <div class="row gy-4">
+                                        <!--<div class="col-md-4 wow fadeIn" data-wow-delay="0.1s">-->
+                                            
+                                        <!--<div class=" align-items-center bg-light rounded p-4">-->
+                                        <!--        <h5 class="mb-3 text-dark">Our Location</h5>-->
+                                        <!--        <div class="bg-white border rounded  flex-shrink-0 align-items-center justify-content-center me-3" style="width: 45px; height: 45px; float:left;">-->
+                                        <!--            <i class="fa fa-map-marker-alt text-primary mt-2"></i>-->
+                                        <!--        </div>-->
+                                        <!--        <span style="text-align:justify;">{{$contactus-> address}}</span>-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-md-4 wow fadeIn" data-wow-delay="0.3s" >-->
+                                        <!--    <div class=" align-items-center justify-content-center bg-light rounded p-4" style=" height: 159px;">-->
+                                        <!--        <h5 class="mb-3 text-dark">Drop an Email</h5>-->
+                                        <!--        <div class="bg-white border rounded flex-shrink-0 align-items-center justify-content-center me-3" style="width: 45px; height: 45px;float:left;">-->
+                                        <!--            <i class="fa fa-envelope-open text-primary mt-2"></i>-->
+                                        <!--        </div>-->
+                                        <!--        <span style="text-align: left;margin-right: 1px;">{{$contactus-> mail}}</span>-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-md-4 wow fadeIn" data-wow-delay="0.5s">-->
+                                        <!--    <div class="align-items-center bg-light rounded p-4" style=" height: 159px;">-->
+                                        <!--        <h5 class="mb-3 text-dark">Call Us</h5>-->
+                                        <!--        <div class="bg-white border rounded flex-shrink-0 align-items-center justify-content-center me-3" style="width: 45px; height: 45px;float:left;">-->
+                                        <!--            <i class="fa fa-phone-alt text-primary mt-2"></i>-->
+                                        <!--        </div>-->
+                                        <!--        <span style="text-align: left;margin-right: 1px;">{{$contactus-> phone}}</span>-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                        
+                                        
+                                               <div class="row text-dark">
+                                                <!-- Call Us -->
+                                                <div class="col-md-4 mb-3 wow fadeIn" data-wow-delay="0.1s">
+                                                    <div class="d-flex align-items-center bg-light rounded p-3">
+                                                        <div class="icon-box text-success me-3">
+                                                            <i class="fab fa-whatsapp fa-lg"></i>
+                                                        </div>
+                                                        <span class="small-text">{{$contactus-> phone}}</span>
+                                                    </div>
+                                                </div>
+                                            
+                                                <!-- Email -->
+                                                <div class="col-md-4 mb-3 wow fadeIn" data-wow-delay="0.3s">
+                                                    <div class="d-flex align-items-center bg-light rounded p-3">
+                                                        <div class="icon-box text-info me-3">
+                                                            <i class="fa fa-envelope fa-lg"></i>
+                                                        </div>
+                                                        <span class="small-text">{{$contactus-> mail}}</span>
+                                                    </div>
+                                                </div>
+                                            
+                                                <!-- Location -->
+                                                <div class="col-md-4 mb-3 wow fadeIn" data-wow-delay="0.5s">
+                                                    <div class="d-flex align-items-start bg-light rounded p-3">
+                                                        <div class="text-danger me-3">
+                                                            <i class="fa fa-map-marker-alt fa-lg"></i>
+                                                        </div>
+                                                        <span class="small-text">
+                                                            {{$contactus-> address}}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                    <iframe class="position-relative rounded w-100 h-100"
+                                        src="{{$contactus-> map_url}}"
+                                        frameborder="0" style="min-height: 300px; border:0;" allowfullscreen="" aria-hidden="false"
+                                        tabindex="0"></iframe>
+                                    
+                                    
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="wow fadeInUp" data-wow-delay="0.5s">
+                                        
+                                     {{-- Show Success Message --}}
+                                @if (session('success'))
+                                    <div id="success-alert" class="alert alert-success alert-dismissible fade show" role="alert">
+                                        {{ session('success') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                
+                                    <script>
+                                        // Wait 5 seconds then fade out the alert
+                                        setTimeout(function () {
+                                            const alert = document.getElementById('success-alert');
+                                            if (alert) {
+                                                alert.classList.remove('show');
+                                                alert.classList.add('fade');
+                                                setTimeout(() => alert.remove(), 500); // Remove from DOM
+                                            }
+                                        }, 50000); // 50000 milliseconds = 50 seconds
+                                    </script>
+                                @endif
+                                
+                                        {{-- Show Validation Errors --}}
+                                        @if ($errors->any())
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <ul class="mb-0">
+                                                    @foreach ($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>
+                                        @endif
+
+                                        
+                                        <!--<p class="mb-4">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done. <a href="https://htmlcodex.com/contact-form">Download Now</a>.</p>-->
+                                      <form action="{{ route('send.email') }}" method="POST">
+                                        @csrf
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required
+                                                    oninvalid="this.setCustomValidity('Please enter your name')" 
+                                                           oninput="this.setCustomValidity('')">
+                                                    <label for="name">Your Name</label>
+                                                </div>
+                                                
+            
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input type="email" name="email" class="form-control" id="email" placeholder="Your Email" required
+                                                   oninvalid="this.setCustomValidity('Please enter a valid email address')" 
+                                                       oninput="this.setCustomValidity('')">
+                                                <label for="email">Your Email</label>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-floating">
+                                                     <input type="text" pattern="\d{10}" maxlength="10" minlength="10" class="form-control" name="phone" id="phone" placeholder="Phone" required
+                                                    oninvalid="this.setCustomValidity('Please enter a phone number')" 
+                                                       oninput="this.setCustomValidity('')">
+                                                <label for="subject">Phone Number</label>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-floating">
+                                                    <input type="text" name="subject" class="form-control" id="subject" placeholder="Subject" required
+                                                    oninvalid="this.setCustomValidity('Please enter a subject')" 
+                                                       oninput="this.setCustomValidity('')">
+                                                <label for="subject">Subject</label>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-floating">
+                                                    <textarea name="message" class="form-control" placeholder="Leave a message here" id="message" style="height: 150px" required
+                                                    oninvalid="this.setCustomValidity('Please enter your message')" 
+                                                      oninput="this.setCustomValidity('')"></textarea>
+                                            <label for="message">Message</label>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="col-12">
+                                                <button class="btn btn-primary w-100 py-3" type="submit" style="background: linear-gradient(90deg, #4f99d9, #357ab7, #2E6B7C); border: none;">Send Message</button>
+                                            </div>
+                                        </div>
+                                    </form>
+            
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                <!-- Contact us end-->
+                
+            <div class="floating-modal">
+                <div class="modal-body">
+                    <a href="{{ route('listdoctor') }}" class="btn btn-primary rounded-0 px-lg-5 responsive-btn" style="border-radius: 10px !important;">
+                        List A Doctor<i class="fa fa-arrow-right ms-3"></i>
+                    </a>
+                </div>
+            </div>
+
+</div> 
+
+        @endsection
+        
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>      
+<script>
+ $(document).ready(function () {
+    const maxVisibleDoctorItems = 12; // Limit to one row for doctor section
+    let maxVisibleClinicItems = 6; 
+let maxVisibleHospitalItems = 6; 
+let maxVisibleMedicaItems = 6;
+
+// Function to update maxVisibleItems based on screen width
+function updateMaxVisibleItems() {
+    const screenWidth = window.innerWidth;
+
+    if (screenWidth <= 576) { // Mobile devices (small screens)
+       
+        maxVisibleClinicItems = 2;
+        maxVisibleHospitalItems = 2;
+        maxVisibleMedicaItems = 2;
+    } else if (screenWidth <= 768) { // Tablets (medium screens)
+        
+        maxVisibleClinicItems = 4;
+        maxVisibleHospitalItems = 4;
+        maxVisibleMedicaItems = 4;
+    } else { // Desktops (large screens)
+      
+        maxVisibleClinicItems = 6;
+        maxVisibleHospitalItems = 6;
+        maxVisibleMedicaItems = 6;
+    }
+
+    // Update visible items after changing the limits
+    adjustVisibility(".clinic-item", maxVisibleClinicItems);
+    adjustVisibility(".hospital-item", maxVisibleHospitalItems);
+    adjustVisibility(".medica-item", maxVisibleMedicaItems);
+}
+
+// Helper function to adjust visibility based on maxVisibleItems
+function adjustVisibility(itemClass, maxVisibleItems) {
+    $(itemClass).each(function (index) {
+        $(this).css("display", index < maxVisibleItems ? "block" : "none");
+    });
+}
+
+// Event listener for window resize to update values dynamically
+$(window).resize(updateMaxVisibleItems);
+
+// Initial call to set the correct visibility on page load
+updateMaxVisibleItems();
+
+
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                fetchCityAndState(lat, lon);
+            },
+            error => {
+                console.warn("Geolocation failed, showing default top categories.");
+                loadTopCategories(); // Ensure top categories are loaded if location access is denied
+            }
+        );
+    } else {
+        console.warn("Geolocation not supported, showing default top categories.");
+        loadTopCategories(); // Ensure top categories load if geolocation is unavailable
+    }
+
+
+
+// Function to fetch and display top 100 categories
+function loadTopCategories() {
+    fetch(`/public/get-top-categories`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.cat_doc && data.cat_doc.length > 0) {
+                displayData(data.cat_doc, "All", "All"); // Pass default city/state as 'All'
+            } else {
+                console.warn("No top categories found.");
+                document.getElementById("category-list").innerHTML = "<p>No categories available.</p>";
+            }
+        })
+        .catch(error => console.error("Error fetching top categories:", error));
+}
+
+
+
+function fetchCityAndState(lat, lon) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const city = data.address && (data.address.city || data.address.town || data.address.village) || "Unknown City";
+            const state = data.address && data.address.state ? data.address.state : "Unknown State";
+
+            console.log("Detected City:", city);
+            console.log("Detected State:", state);
+
+            document.getElementById("location").textContent = city;
+
+            fetchDataByCity(city, state);
+        })
+        .catch(error => console.error("Error fetching location details:", error));
+        loadTopCategories(); 
+}
+
+function fetchDataByCity(city, state) {
+    fetch(`/public/get-clinics-by-city/${encodeURIComponent(city)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.cat_doc && data.cat_doc.length > 0) {
+                displayData(data.cat_doc, city);
+            } else {
+                console.warn(`No data found for city: ${city}. Fetching state-wise data.`);
+                fetchDataByState(state); // Fallback to state-wise data
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching city-wise data:", error);
+            fetchDataByState(state); // If city fetch fails, fallback to state
+        });
+}
+
+function fetchDataByState(state) {
+    fetch(`/public/get-clinics-by-state/${encodeURIComponent(state)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.cat_doc && data.cat_doc.length > 0) {
+                displayData(data.cat_doc, state);
+            } else {
+                console.warn(`No data found for state: ${state}`);
+                loadTopCategories();
+            }
+        })
+        .catch(error => console.error("Error fetching state-wise data:", error));
+}
+
+function displayData(categoryData, state_name, city_name) {
+    const doctorList = document.getElementById("category-list");
+    doctorList.innerHTML = "";
+
+    categoryData.forEach((catdoc, index) => {
+        const doctorItem = document.createElement("div");
+        doctorItem.className = "col-lg-2 col-md-3 col-sm-6 col-6 text-center fadeInUp category-item";
+        doctorItem.style.display = index < 12 ? "block" : "none"; // Show first 10 items
+
+        doctorItem.innerHTML = `
+            <a href="https://doctora2z.com/public/categoryDetails/${catdoc.id}" 
+                style="text-decoration: none; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <img src="https://doctora2z.com/public/admin/uploads/category/${catdoc.image}" 
+                    alt="${catdoc.name}" 
+                    style="margin-bottom: 10px; border: 1px solid #939994f7; border-radius: 10px; background-color: #fff; height:120px; width:160px;">
+                <h6 style="font-weight: bold; font-size: 12px; color: #333; margin: 0;">${catdoc.name}</h6>
+                <p style="font-size: 12px; color: #666; margin: 0;">${catdoc.doctor_count} Doctors</p>
+            </a>
+        `;
+        doctorList.appendChild(doctorItem);
+    });
+
+    if (categoryData.length > 5) {
+        document.getElementById("browse-more-btn").style.display = "block";
+    }
+}
+
+
+
+
+
+
+    // Doctor Specialization Browse More/Less
+    $("#browse-more-btn").click(function () {
+        $(".category-item").show();
+        $(this).hide();
+        $("#browse-less-btn").show();
+    });
+
+    $("#browse-less-btn").click(function () {
+        $(".category-item").each(function (index) {
+            $(this).css("display", index < maxVisibleDoctorItems ? "block" : "none");
+        });
+        $(this).hide();
+        $("#browse-more-btn").show();
+    });
+    
+     $("#more-btn").click(function () {
+        $(".hospital-item").show();
+        $(this).hide();
+        $("#less-btn").show();
+    });
+
+    $("#less-btn").click(function () {
+        $(".hospital-item").each(function (index) {
+            $(this).css("display", index < maxVisibleHospitalItems ? "block" : "none");
+        });
+        $(this).hide();
+        $("#more-btn").show();
+    });
+    
+    $("#medica-more-btn").click(function () {
+        $(".medica-item").show();
+        $(this).hide();
+        $("#medica-less-btn").show();
+    });
+
+    $("#medica-less-btn").click(function () {
+        $(".medica-item").each(function (index) {
+            $(this).css("display", index < maxVisibleHospitalItems ? "block" : "none");
+        });
+        $(this).hide();
+        $("#medica-more-btn").show();
+    });
+    // Clinic Categories Browse More/Less
+    $("#clinic-more-btn").click(function () {
+        $(".clinic-item").show();
+        $(this).hide();
+        $("#clinic-less-btn").show();
+    });
+
+    $("#clinic-less-btn").click(function () {
+        $(".clinic-item").each(function (index) {
+            $(this).css("display", index < maxVisibleClinicItems ? "block" : "none");
+        });
+        $(this).hide();
+        $("#clinic-morebtn").show();
+    });
+});
+
+        
+
+    jQuery(document).ready(function($) {
+    const voiceSearchButton = $('#voice-search-btn');
+    const searchInput = $('#search-input');
+
+    voiceSearchButton.on('click', function() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Sorry, your browser does not support voice search.");
+            console.error("Browser does not support webkitSpeechRecognition.");
+            return;
+        }
+
+        try {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                console.log('Voice recognition result:', event);
+                const speechToText = event.results[0][0].transcript;
+                searchInput.val(speechToText);
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error: ', event.error);
+            };
+
+            recognition.onstart = function() {
+                console.log('Voice recognition started.');
+            };
+
+            recognition.onspeechend = function() {
+                console.log('Speech input ended.');
+                recognition.stop();
+            };
+
+        } catch (error) {
+            console.error('An error occurred while initializing voice recognition:', error);
+        }
+    });
+    
+    const placeholders = [
+        "Search from Doctora2z for clinic near me....",
+        "Search for doctor from Doctora2z near me....",
+        "Search by doctor specialization from Doctora2z ...."
+    ];
+    let index = 0;
+
+    function changePlaceholder() {
+        searchInput.attr('placeholder', placeholders[index]);
+        index = (index + 1) % placeholders.length; // Loop back to the first placeholder
+    }
+
+    // Change placeholder every 2 seconds
+    setInterval(changePlaceholder, 2000);
+    
+        function toggleModal() {
+        const modal = document.querySelector('.floating-modal');
+        modal.classList.toggle('hidden');
+    }
+});
+    
+
+
+</script>
+
+<style>
+/* Input Field Styling */
+#search-input {
+    padding-right: 80px; /* Adjust for icons */
+}
+
+/* Voice Search Icon Styling */
+.voice-search {
+    background-color: #fff;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #007bff; /* Adjust for your theme color */
+}
+
+.voice-search:hover {
+    color: #0056b3;
+}
+
+/* Search Button Icon */
+.btn-primary i {
+    padding: 5px;
+}
+
+
+</style>       
+        
+        
+        <style>
+        
+    /* If additional gaps persist, remove unnecessary padding or margins */
+    .container.mb-0 {
+        padding-top: 0 !important; 
+        margin-top: 0 !important;
+    }
+
+    
+   /* Container for Doctor and Clinic Categories */
+/* Light greenish background */
+#category-section {
+    background-color: #d6efe1; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+#categoryClinic-section {
+    background-color: #fff; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+}
+#hospital-section {
+    background-color: #d6efe1; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+}
+#medicare-section {
+    background-color: #fff; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+}
+#about-section {
+    background-color: #d6efe1; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+}
+#testimonial-section {
+    background-color: #fff; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+    width: 1131px;
+    margin-left: 17px;
+}
+#contact {
+    background-color: #d6efe1; /* Very light greenish shade */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    overflow: hidden;
+}
+
+/* Add animation */
+.animated-section {
+    animation: fadeInSlide 1s ease-in-out;
+}
+
+/* Keyframes for the animation */
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+#browse-more-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+/* Carousel Section */
+.header-carousel {
+    position: relative;
+    height: 30vh; /* Full height of the viewport */
+    overflow: hidden;
+}
+
+.owl-carousel-item img {
+    width: 100%;  /* Ensure the image covers the full width */
+    height: 100%; /* Ensure the image covers the full height */
+    object-fit: cover;  /* This ensures the image keeps its aspect ratio while covering the area */
+}
+
+/* Other Section */
+
+.other-section {
+    height: 28vh; /* Set height of the section */
+    background-color: #fff; /* Light background color */
+    padding: 20px;
+    width: 620px; /* Ensure the section takes full width */
+    border-radius: 20px;
+    margin-bottom: 10px;
+    margin-top:10px;
+}
+
+.other-section .row .col {
+    padding: 10px; /* Add padding inside each part */
+    border: 1px solid #ddd; /* Border for visibility */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #f9f9f9; /* Light gray background */
+    flex: 1; /* Equal width for each column */
+    max-width: calc(33.33% - 10px); /* Adjust width and include spacing */
+    margin: 0 5px; /* Add horizontal spacing */
+}
+
+.other-section .row .col:first-child {
+    margin-left: 0; /* Remove margin for the first column */
+}
+
+.other-section .row .col:last-child {
+    margin-right: 0; /* Remove margin for the last column */
+}
+
+.other-section .text-center {
+    text-align: center; /* Center align text */
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Image styling to ensure it fills the container */
+.image-container img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Maintain aspect ratio and cover container */
+}
+
+/* Overlay is hidden by default */
+.image-container .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white; /* White text for title */
+    font-size: 18px;
+    font-weight: bold;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade-in on hover */
+    text-align: center;
+}
+.image-container .overlay h2{
+    color: #fff;
+}
+
+/* Show the overlay on hover */
+.image-container:hover .overlay {
+    opacity: 1;
+}
+@media (max-width: 768px) {
+    .col-4 {
+        width: 100%;  /* Stack the columns on smaller screens */
+    }
+}
+
+@media (max-width: 768px) {
+    /* For mobile screens, stack the sections */
+    .col-12 {
+        width: 100%;
+    }
+}
+
+/*.fixed-bg {*/
+/*    height: 200px;*/
+    /*background-image: url('img/'); */
+/*    background-color:#fff;*/
+/*    background-size: cover;*/
+/*    background-position: center;*/
+/*    background-attachment: fixed;*/
+/*    background-repeat: no-repeat;*/
+/*}*/
+
+.floating-modal {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: auto;
+    background: none; /* No background */
+    box-shadow: none; /* No shadow */
+    border: none; /* No border */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.modal-header {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h5 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 0px;
+    /*font-size: 0.9rem;*/
+    /*color: #333;*/
+}
+
+.action-btn {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.action-btn:hover {
+    background-color: #218838;
+}
+
+.action-btn:active {
+    background-color: #1e7e34;
+}
+
+.testimonial-item {
+    min-height: 250px; /* Adjust as needed */
+}
+
+/*03-06-2025*/
+
+.icon-box {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+}
+
+.small-text {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+
+    </style>

@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Controllers;
+use App\Models\Client;
+use App\Models\DoctorList;
+
+use Illuminate\Http\Request;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        
+        // Get the total count of clinics
+        $totalClinics = Client::count();
+
+        // Get the total count of doctors
+        $totalDoctors = DoctorList::count();
+        return view('dashboard', compact(
+            'totalClinics','totalDoctors'
+        )); // Returns the 'dashboard' view
+    }
+}

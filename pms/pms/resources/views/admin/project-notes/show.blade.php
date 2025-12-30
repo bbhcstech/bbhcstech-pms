@@ -1,0 +1,105 @@
+@extends('admin.layout.app')
+
+@section('content')
+<div class="container">
+    <br>
+    <a href="{{ route('projects.index') }}" class="btn btn-secondary mb-3">← Back to Projects</a>
+
+    {{-- Sub-navigation bar --}}
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="{{ route('projects.show', $project->id) }}">Overview</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('project-members.index', $project->id)}}">Members</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('project-files.index', $project->id)}}">Files</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('milestones.index', $project->id)}}">Milestones</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('projects.tasks.index', $project->id) }}">Tasks</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('projects.tasks.board', $project->id) }}">Task Board</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('projects.gantt', $project->id) }}">Gantt Chart</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('projects.timelogs.index', $project->id) }}">Timesheet</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('expenses.index', $project->id) }}">Expenses</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('projects.notes.index', $project->id) }}">Notes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-primary" href="#" id="toggle-more">More ▾</a>
+        </li>
+    </ul>
+
+    {{-- Collapsible Extra Tabs --}}
+    <ul class="nav nav-tabs mb-4 d-none" id="more-tabs">
+        <li class="nav-item">
+                <a class="nav-link" href="{{ route('projects.discussions.index', $project->id) }}" >Discussion</a>
+            </li>
+            
+            <li class="nav-item">
+               <a class="nav-link" href="{{ route('projects.burndown', $project->id) }}">Burndown Chart</a>
+
+            </li>
+            
+            <li class="nav-item">
+               <a class="nav-link" href="{{ route('admin.activities.project', $project->id) }}">Activity</a>
+
+            </li>
+            
+             <li class="nav-item">
+               <a class="nav-link" href="{{ route('tickets.index') }}">Ticket</a>
+
+
+            </li>
+    </ul>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ $project->name }}</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Client:</strong> {{ optional($project->client)->name ?? 'N/A' }}</p>
+            <p><strong>Start Date:</strong> {{ \Carbon\Carbon::parse($project->start_date)->format('d M Y') }}</p>
+            <p><strong>Deadline:</strong> {{ \Carbon\Carbon::parse($project->deadline)->format('d M Y') }}</p>
+            <p><strong>Status:</strong> {{ ucfirst($project->status) }}</p>
+
+            <hr>
+
+            <p><strong>Description:</strong></p>
+            <div>{!! nl2br(e($project->description)) !!}</div>
+        </div>
+        <div class="card-footer text-end">
+            <small>Created at: {{ $project->created_at->format('d M Y, h:i A') }}</small><br>
+            <small>Last updated: {{ $project->updated_at->format('d M Y, h:i A') }}</small>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('js')
+<script>
+    document.getElementById('toggle-more').addEventListener('click', function(e) {
+        e.preventDefault();
+        const moreTabs = document.getElementById('more-tabs');
+        if (moreTabs.classList.contains('d-none')) {
+            moreTabs.classList.remove('d-none');
+            this.innerHTML = 'Less ▴';
+        } else {
+            moreTabs.classList.add('d-none');
+            this.innerHTML = 'More ▾';
+        }
+    });
+</script>
+@endpush

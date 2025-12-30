@@ -1,0 +1,11 @@
+[14-Nov-2025 12:24:05 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\ProjectController::codePreview() in /home/xinksof3/public_html/pms/app/Http/Controllers/ProjectController.php on line 722
+[14-Nov-2025 14:17:01 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\ProjectController::bulkStatus() in /home/xinksof3/public_html/pms/app/Http/Controllers/ProjectController.php on line 719
+[14-Nov-2025 14:17:20 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\ProjectController::bulkStatus() in /home/xinksof3/public_html/pms/app/Http/Controllers/ProjectController.php on line 719
+[14-Nov-2025 14:45:52 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\ProjectController::bulkStatus() in /home/xinksof3/public_html/pms/app/Http/Controllers/ProjectController.php on line 719
+[20-Nov-2025 11:05:24 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\DesignationController::bulkDelete() in /home/xinksof3/public_html/pms/app/Http/Controllers/DesignationController.php on line 157
+[21-Nov-2025 10:22:08 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\DesignationController::bulkDelete() in /home/xinksof3/public_html/pms/app/Http/Controllers/DesignationController.php on line 168
+[23-Nov-2025 20:57:05 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\TimeLogController::getTasks() in /home/xinksof3/public_html/pms/app/Http/Controllers/TimeLogController.php on line 269
+[27-Nov-2025 04:29:35 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\AttendanceController::exportPdf() in /home/xinksof3/public_html/pms/app/Http/Controllers/AttendanceController.php on line 703
+[27-Nov-2025 11:16:13 Asia/Kolkata] PHP Fatal error:  Cannot use Carbon\Carbon as Carbon because the name is already in use in /home/xinksof3/public_html/pms/app/Http/Controllers/AttendanceController.php on line 23
+[30-Nov-2025 20:01:05 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Mail as Mail because the name is already in use in /home/xinksof3/public_html/pms/routes/web.php on line 51
+[01-Dec-2025 00:04:27 Asia/Kolkata] PHP Fatal error:  Cannot use Carbon\Carbon as Carbon because the name is already in use in /home/xinksof3/public_html/pms/app/Http/Controllers/AttendanceController.php on line 24

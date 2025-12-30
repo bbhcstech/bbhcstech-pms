@@ -1,0 +1,228 @@
+@extends('admin.layout.app')
+
+@section('content')
+<main id="main" class="main">
+    <div class="container">
+     
+   
+       @if(isset($project))
+            {{-- Sub-navigation bar --}}
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('projects.show', $project->id) }}">Overview</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('project-members.index', $project->id)}}">Members</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('project-files.index', $project->id)}}">Files</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('milestones.index', $project->id)}}">Milestones</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ route('projects.tasks.index', $project->id)}}">Tasks</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{{ route('projects.tasks.board', $project->id) }}">Task Board</a>
+              
+            </li>
+            <li class="nav-item">
+                 <a class="nav-link" href="{{ route('projects.timelogs.create', $project->id) }}">Timesheet</a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="#">Expenses</a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="#">Notes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Discussion</a>
+            </li>
+            </ul>
+        
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Tasks for Project: {{ $project->name }}</h4>
+                <a href="{{ route('tasks.create') }}?project_id={{ $project->id }}" class="btn btn-primary">Add Task</a>
+                
+            </div>
+        @else
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>All Tasks</h4>
+                <a href="{{ route('tasks.create') }}" class="btn btn-primary">Add Task</a>
+            </div>
+        @endif
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+           <table id="taskTable" class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Project</th>
+                    <th>Title</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach($tasks->where('parent_id', null) as $task)
+                <tr>
+                    <td>{{ $task->project->name ?? 'N/A' }}</td>
+                    <td>
+                        <strong>{{ $task->title }}</strong>
+                        @if($task->subTasks->count())
+                            <button class="btn btn-sm btn-secondary toggle-subtasks" data-id="{{ $task->id }}">
+                                Show Sub-Tasks ({{ $task->subTasks->count() }})
+                            </button>
+                        @endif
+                    </td>
+                    <td>{{ $task->assignee->name ?? 'Unassigned' }}</td>
+                   <td>
+                    <select class="form-select form-select-sm status-dropdown"
+                            data-task-id="{{ $task->id }}">
+                        @php
+                            $statuses =  ['Waiting for Approval','To Do', 'Doing','Incomplete','Completed'];
+                        @endphp
+                        @foreach($statuses as $status)
+                            <option value="{{ $status }}"
+                                {{ $task->status === $status ? 'selected' : '' }}>
+                                {{ $status }}
+                            </option>
+                        @endforeach
+                    </select>
+                </td>
+
+                    <td>
+                        <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display:inline;">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-danger btn-sm" onclick="return confirm('Delete task?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+
+                {{-- Sub-tasks --}}
+                <tr class="subtasks-row" id="subtasks-{{ $task->id }}" style="display: none;">
+                    <td colspan="5">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Sub-Task</th>
+                                    <th>Assigned To</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($task->subTasks as $subtask)
+                                    <tr>
+                                        <td>↳ {{ $subtask->title }}</td>
+                                        <td>{{ $subtask->assignee->name ?? 'Unassigned' }}</td>
+                                        <td>
+                                            <select class="form-select form-select-sm status-dropdown"
+                                                    data-task-id="{{ $subtask->id }}">
+                                                @php
+                                                    $statuses = ['Waiting for Approval','To Do', 'Doing','Incomplete','Completed'];
+                                                @endphp
+                                                @foreach($statuses as $status)
+                                                    <option value="{{ $status }}"
+                                                        {{ $subtask->status === $status ? 'selected' : '' }}>
+                                                        {{ $status }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <a href="{{ route('tasks.edit', $subtask->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                            <form action="{{ route('tasks.destroy', $subtask->id) }}" method="POST" style="display:inline;">
+                                                @csrf @method('DELETE')
+                                                <button class="btn btn-danger btn-sm" onclick="return confirm('Delete sub-task?')">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
+</main>
+
+
+@endsection
+
+@section('js')
+<script>
+    console.log("✅ JS loaded successfully!");
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    // Toggle Sub-Tasks
+    document.querySelectorAll('.toggle-subtasks').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            const row = document.getElementById('subtasks-' + id);
+            if (row.style.display === 'none') {
+                row.style.display = '';
+                this.innerText = 'Hide Sub-Tasks';
+            } else {
+                row.style.display = 'none';
+                this.innerText = 'Show Sub-Tasks';
+            }
+        });
+    });
+
+    // Status Dropdown AJAX
+    document.querySelectorAll('.status-dropdown').forEach(function (dropdown) {
+        dropdown.setAttribute('data-prev', dropdown.value);
+
+        dropdown.addEventListener('change', function () {
+            const taskId = this.dataset.taskId;
+            const newStatus = this.value;
+            const previousStatus = this.getAttribute('data-prev');
+
+            const confirmed = confirm(`Are you sure you want to change the status to "${newStatus}"?`);
+            if (!confirmed) {
+                this.value = previousStatus;
+                return;
+            }
+
+               const url = "https:\/\/xinksoft.co.in\/pms\/public\/tasks\/:id\/update-status".replace(':id', taskId);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || 'Failed to update status.');
+                    this.value = previousStatus;
+                } else {
+                    this.setAttribute('data-prev', newStatus);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong!');
+                this.value = previousStatus;
+            });
+        });
+    });
+
+});
+
+</script>
+

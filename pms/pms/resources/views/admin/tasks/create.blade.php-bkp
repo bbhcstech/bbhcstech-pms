@@ -1,0 +1,95 @@
+@extends('admin.layout.app')
+
+@section('content')
+<main id="main" class="main">
+<div class="container">
+    @if(isset($project))
+      {{-- Sub-navigation bar --}}
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ route('projects.show', $project->id) }}">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('project-members.index', $project->id)}}">Members</a>
+            </li>
+            <li class="nav-item">
+                 <a class="nav-link" href="{{ route('project-files.index', $project->id)}}">Files</a>
+            </li>
+            <li class="nav-item">
+                 <a class="nav-link" href="{{ route('milestones.index', $project->id)}}">Milestones</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link active" href="{{ route('projects.tasks.index', $project->id)}}">Tasks</a>
+            </li>
+            <li class="nav-item">
+                 <a class="nav-link" href="{{ route('projects.tasks.board', $project->id) }}">Task Board</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Timesheet</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Discussion</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Notes</a>
+            </li>
+        </ul>
+          <br>
+   @endif
+   <br>
+
+    <h4>Create Task</h4>
+    <form method="POST" action="{{ route('tasks.store') }}">
+        @csrf
+        
+        <div class="mb-3">
+            @if(isset($project))
+                <label class="form-label">Project</label>
+                <input type="text" class="form-control" value="{{ $project->name }}" readonly>
+                <input type="hidden" name="project_id" value="{{ $project->id }}">
+            @else
+                <label class="form-label">Select Project</label>
+                <select name="project_id" class="form-control" required>
+                    @foreach($projects as $proj)
+                        <option value="{{ $proj->id }}">{{ $proj->name }}</option>
+                    @endforeach
+                </select>
+            @endif
+        </div>
+
+
+        <div class="mb-3">
+            <label>Parent Task (optional)</label>
+            <select name="parent_id" class="form-control">
+                <option value="">None</option>
+                @foreach($tasks as $t)
+                    <option value="{{ $t->id }}">{{ $t->title }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Assign To</label>
+            <select name="assigned_to" class="form-control">
+                <option value="">Unassigned</option>
+                @foreach($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Task</button>
+    </form>
+</div>
+</main>
+@endsection
