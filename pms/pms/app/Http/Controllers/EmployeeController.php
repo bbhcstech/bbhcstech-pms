@@ -17,7 +17,7 @@ use App\Mail\EmployeeInvite;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -86,7 +86,8 @@ public function index(Request $request)
         DB::raw('(SELECT COUNT(*) FROM employee_details ed WHERE ed.reporting_to = users.id) AS subordinate_count')
     );
 
-    $employees = $query->orderBy('created_at', 'desc')->get();
+    // FIXED: Changed from get() to paginate() for pagination to work
+    $employees = $query->orderBy('created_at', 'desc')->paginate(15);
 
     // prepare dropdown list options but exclude notice/probation entries so selects don't show them
     $employeeDetails = EmployeeDetail::with(['user', 'reportingTo'])->get()
@@ -288,11 +289,11 @@ public function store(Request $request)
             'prtdepartments' => ParentDepartment::latest()->get(),
         ]);
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     /**
  * Store a new Department (called from the Add Department modal)
  */
@@ -325,8 +326,8 @@ public function storeDepartment(Request $request)
             'dpt_name' => $request->input('dpt_name'),
             'parent_dpt_id' => $parentId,
             'dpt_code' => null,
-            'added_by' => auth()->id(),
-            'last_updated_by' => auth()->id(),
+            'added_by' => auth()->id() ?? null,
+            'last_updated_by' => auth()->id() ?? null,
         ]);
 
         return response()->json([

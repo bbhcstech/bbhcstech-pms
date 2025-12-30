@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mt-4">
 
-    {{-- Breadcrumb (inlined here so no separate partial required) --}}
+    {{-- Breadcrumb --}}
     <nav aria-label="breadcrumb" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
@@ -126,7 +126,7 @@
       </div>
     </div>
 
-    <!-- Blocked delete info modal (one-time) -->
+    <!-- Blocked delete info modal -->
     <div class="modal fade" id="blockedDeleteModal" tabindex="-1" aria-labelledby="blockedDeleteModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
@@ -153,7 +153,6 @@
           <select name="employee_id" class="form-select select2">
               <option value="">All</option>
               @php
-                // build dropdown options excluding notice/probation employees
                 $edOptions = $employeeDetails->filter(function($d){
                     $status = $d->employment_status ?? null;
                     $hasNotice = !empty($d->notice_end_date);
@@ -211,7 +210,7 @@
 
     &nbsp;
 
-    {{-- Show delete/error messages ONLY when actions attempted --}}
+    {{-- Show messages --}}
     @if($errors->any())
     <div class="alert alert-danger">
         {{ $errors->first() }}
@@ -224,7 +223,7 @@
     </div>
     @endif
 
-    {{-- ========== NEW: Export Selected Rows Buttons ========== --}}
+    {{-- Export Selected Rows --}}
     <div class="row mb-3">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
@@ -259,7 +258,6 @@
     </div>
 
     @php
-      // Prepare the visible employees collection by filtering out notice/probation entries
       $visibleEmployees = $employees->filter(function($emp) {
           $detail = $emp->employeeDetail ?? null;
           $status = $detail?->employment_status ?? null;
@@ -304,7 +302,6 @@
                           data-employee-id="{{ $employee->id }}">
 
                             <td>
-                                {{-- ===== REPORTING-TO INTEGRITY: disable checkbox if has subordinates ===== --}}
                                 <input type="checkbox" class="employee-checkbox" value="{{ $employee->id }}"
                                        @if(isset($employee->subordinate_count) && $employee->subordinate_count > 0) disabled @endif
                                        data-employee-id="{{ $employee->employeeDetail?->employee_id ?? '-' }}"
@@ -337,7 +334,6 @@
                                     @endphp
 
                                     <div class="mt-1">
-                                        {{-- Priority: Notice -> Intern -> Employee --}}
                                         @if ($status === 'notice')
                                             <span class="badge rounded-pill" style="background-color:#ffc107; color:#212529;">
                                                 On Notice Period
@@ -407,7 +403,6 @@
                                         </li>
 
                                         <li>
-                                            {{-- ===== REPORTING-TO INTEGRITY: disabled-looking item opens info modal when clicked ===== --}}
                                             @if(isset($employee->subordinate_count) && $employee->subordinate_count > 0)
                                                 <button class="dropdown-item text-muted blocked-delete-btn" type="button"
                                                     data-employee-name="{{ $employee->name }}"
@@ -434,7 +429,7 @@
             </tbody>
         </table>
 
-        {{-- Bulk delete control placed under the table (near the "Showing x to y" area) --}}
+        {{-- Pagination and Bulk Actions --}}
         <div class="d-flex justify-content-between align-items-center mt-2">
             <div>
                 <button id="btn-bulk-delete" class="btn btn-danger" disabled>
@@ -443,17 +438,29 @@
                 <span id="bulk-selected-count" class="ms-2 text-muted">0 selected</span>
             </div>
 
-            {{-- If you paginate in controller --}}
-            @if(method_exists($employees, 'links'))
-                <div>
-                    {{ $employees->links() }}
-                </div>
-            @endif
+            {{-- Next and Previous Buttons --}}
+            <div class="d-flex align-items-center gap-2">
+                @if(method_exists($employees, 'currentPage'))
+                    @if($employees->onFirstPage())
+                        <button class="btn btn-outline-secondary" disabled>Previous</button>
+                    @else
+                        <a href="{{ $employees->previousPageUrl() }}" class="btn btn-outline-primary">Previous</a>
+                    @endif
+
+                    <span class="mx-2">Page {{ $employees->currentPage() }} of {{ $employees->lastPage() }}</span>
+
+                    @if($employees->hasMorePages())
+                        <a href="{{ $employees->nextPageUrl() }}" class="btn btn-outline-primary">Next</a>
+                    @else
+                        <button class="btn btn-outline-secondary" disabled>Next</button>
+                    @endif
+                @endif
+            </div>
         </div>
     </div>
 </div>
 
-{{-- ========== FIXED: Custom CSS for Better UI ========== --}}
+{{-- Custom CSS --}}
 @section('styles')
 <style>
     /* Enhanced UI for export buttons */
@@ -497,7 +504,6 @@
 
     #employeeTable tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.02);
-        cursor: pointer;
     }
 
     /* Checkbox styling */
@@ -515,12 +521,33 @@
     /* Select All checkbox */
     #selectAll {
         cursor: pointer;
+        transform: scale(1.2);
+    }
+
+    /* Disabled checkbox styling */
+    .employee-checkbox:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    /* Pagination buttons styling */
+    .btn-outline-primary {
+        border-color: #0d6efd;
+        color: #0d6efd;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    .btn-outline-secondary:hover {
+        cursor: not-allowed;
     }
 </style>
 @append
 
 @push('js')
-{{-- ========== COMPLETELY FIXED JAVASCRIPT ========== --}}
 <script>
 $(document).ready(function () {
     // Store selected employee data
@@ -543,34 +570,23 @@ $(document).ready(function () {
             .trim();
     }
 
-    // ===== FIXED: CHECKBOX HANDLING =====
+    // ===== FIXED CHECKBOX HANDLING =====
 
-    // Select all checkboxes - COMPLETELY FIXED
+    // Select all checkboxes - FIXED
     $('#selectAll').on('click', function() {
         const isChecked = $(this).prop('checked');
-
-        // Get all enabled checkboxes
         const enabledCheckboxes = $('.employee-checkbox:not(:disabled)');
 
-        if (isChecked) {
-            // Select all enabled checkboxes
-            enabledCheckboxes.prop('checked', true);
-        } else {
-            // Deselect all checkboxes (including disabled ones if somehow checked)
-            $('.employee-checkbox').prop('checked', false);
-        }
-
-        // Trigger change event on all checkboxes
-        enabledCheckboxes.trigger('change');
+        enabledCheckboxes.prop('checked', isChecked).trigger('change');
     });
 
-    // Individual checkbox change - FIXED
+    // Individual checkbox change
     $(document).on('change', '.employee-checkbox', function() {
         updateSelectedEmployees();
         updateSelectAllCheckbox();
     });
 
-    // Row click to select/deselect - FIXED
+    // Row click to select/deselect
     $(document).on('click', 'tbody tr', function(e) {
         // Don't trigger if clicking on checkbox, dropdown, or link
         if ($(e.target).is('input[type="checkbox"]') ||
@@ -629,7 +645,6 @@ $(document).ready(function () {
         });
 
         const selectedCount = selectedEmployees.length;
-        const totalEmployees = $('.employee-checkbox:not(:disabled)').length;
 
         // Update UI counters
         $('#export-selected-count').text(selectedCount + ' row' + (selectedCount !== 1 ? 's' : '') + ' selected');
@@ -650,7 +665,7 @@ $(document).ready(function () {
         $('.employee-checkbox:checked:not(:disabled)').closest('tr').addClass('selected');
     }
 
-    // ===== FIXED: EXPORT FUNCTIONS =====
+    // ===== FIXED EXPORT FUNCTIONS =====
 
     // Function to get data for export
     function getDataForExport(exportAll = false) {
@@ -689,7 +704,7 @@ $(document).ready(function () {
         return data;
     }
 
-    // Copy selected rows to clipboard - FIXED
+    // Copy selected rows to clipboard
     $('#export-copy').on('click', function() {
         if (selectedEmployees.length === 0) {
             alert('Please select at least one row to copy.');
@@ -711,7 +726,7 @@ $(document).ready(function () {
             });
     });
 
-    // Export to CSV - FIXED
+    // Export to CSV
     $('#export-csv').on('click', function() {
         if (selectedEmployees.length === 0) {
             alert('Please select at least one row to export.');
@@ -734,7 +749,7 @@ $(document).ready(function () {
         document.body.removeChild(link);
     });
 
-    // Export to Excel with perfect alignment - FIXED
+    // Export to Excel with perfect alignment
     $('#export-excel').on('click', function() {
         if (selectedEmployees.length === 0) {
             alert('Please select at least one row to export.');
@@ -794,7 +809,7 @@ $(document).ready(function () {
         XLSX.writeFile(wb, `selected_employees_${new Date().toISOString().split('T')[0]}.xlsx`);
     });
 
-    // Export to PDF - FIXED
+    // Export to PDF
     $('#export-pdf').on('click', function() {
         if (selectedEmployees.length === 0) {
             alert('Please select at least one row to export.');
@@ -839,7 +854,7 @@ $(document).ready(function () {
         doc.save(`selected_employees_${new Date().toISOString().split('T')[0]}.pdf`);
     });
 
-    // Print selected rows - FIXED
+    // Print selected rows
     $('#export-print').on('click', function() {
         if (selectedEmployees.length === 0) {
             alert('Please select at least one row to print.');
@@ -913,7 +928,7 @@ $(document).ready(function () {
         printWindow.document.close();
     });
 
-    // Export ALL employees - FIXED
+    // Export ALL employees
     $('#export-all').on('click', function() {
         const totalEmployees = $('.employee-checkbox:not(:disabled)').length;
         if (totalEmployees === 0) {
@@ -941,118 +956,95 @@ $(document).ready(function () {
         XLSX.writeFile(wb, `all_employees_${new Date().toISOString().split('T')[0]}.xlsx`);
     });
 
-    // Initialize everything
-    updateSelectedEmployees();
-    updateSelectAllCheckbox();
-});
-</script>
+    // ===== EXISTING FUNCTIONALITY =====
 
-{{-- ========== REQUIRED LIBRARIES ========== --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    // Initialize Select2
+    $('.select2').select2({
+        allowClear: true,
+        width: '100%'
+    });
 
-{{-- ========== EXISTING FUNCTIONALITY (UNCHANGED) ========== --}}
-<script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            allowClear: true,
-            width: '100%'
+    // ---------- Invite by Email AJAX ----------
+    $('#inviteEmailForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const email = $('#inviteEmail').val().trim();
+        const message = $('#inviteMessage').val().trim();
+        const $btn = $('#sendInviteBtn');
+        const $spinner = $('#sendInviteSpinner');
+        const $alert = $('#inviteEmailAlert');
+
+        if (!email) {
+            $alert.removeClass().addClass('alert alert-danger').text('Please enter a valid email.').show();
+            return;
+        }
+
+        $alert.hide();
+        $btn.prop('disabled', true);
+        $spinner.removeClass('d-none');
+
+        $.ajax({
+            url: '{{ route("employees.sendInvite") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                email: email,
+                message: message
+            },
+            success: function(res) {
+                $alert.removeClass().addClass('alert alert-success').text(res.message || 'Invitation sent successfully.').show();
+                setTimeout(function() {
+                    $('#inviteModal').modal('hide');
+                    location.reload();
+                }, 900);
+            },
+            error: function(xhr) {
+                let errMsg = 'Failed to send invite.';
+                if (xhr?.responseJSON?.error) errMsg = xhr.responseJSON.error;
+                else if (xhr?.responseJSON?.message) errMsg = xhr.responseJSON.message;
+                else if (xhr?.statusText) errMsg = xhr.statusText;
+
+                $alert.removeClass().addClass('alert alert-danger').text(errMsg).show();
+                console.error('Invite error:', xhr);
+            },
+            complete: function() {
+                $btn.prop('disabled', false);
+                $spinner.addClass('d-none');
+            }
         });
     });
-</script>
 
-<script>
-$(document).ready(function () {
-
-  // ---------- Invite by Email AJAX ----------
-  $('#inviteEmailForm').on('submit', function(e) {
-    e.preventDefault();
-
-    const email = $('#inviteEmail').val().trim();
-    const message = $('#inviteMessage').val().trim();
-    const $btn = $('#sendInviteBtn');
-    const $spinner = $('#sendInviteSpinner');
-    const $alert = $('#inviteEmailAlert');
-
-    if (!email) {
-      $alert.removeClass().addClass('alert alert-danger').text('Please enter a valid email.').show();
-      return;
+    // ---------- Invite by Link ----------
+    function generateToken(length = 40) {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let token = '';
+        for (let i = 0; i < length; i++) {
+            token += chars.charAt(Math.floor(Math.random() * Math.random() * chars.length));
+        }
+        return token;
     }
 
-    $alert.hide();
-    $btn.prop('disabled', true);
-    $spinner.removeClass('d-none');
+    $('#createLinkBtn').on('click', function() {
+        const token = generateToken();
+        const link = `{{ rtrim(url('/'), '/') }}` + '/register?invitation=' + token;
 
-    $.ajax({
-      url: '{{ route("employees.sendInvite") }}',
-      type: 'POST',
-      data: {
-        _token: '{{ csrf_token() }}',
-        email: email,
-        message: message
-      },
-      success: function(res) {
-        $alert.removeClass().addClass('alert alert-success').text(res.message || 'Invitation sent successfully.').show();
-        setTimeout(function() {
-          $('#inviteModal').modal('hide');
-          location.reload();
-        }, 900);
-      },
-      error: function(xhr) {
-        let errMsg = 'Failed to send invite.';
-        if (xhr?.responseJSON?.error) errMsg = xhr.responseJSON.error;
-        else if (xhr?.responseJSON?.message) errMsg = xhr.responseJSON.message;
-        else if (xhr?.statusText) errMsg = xhr.statusText;
-
-        $alert.removeClass().addClass('alert alert-danger').text(errMsg).show();
-        console.error('Invite error:', xhr);
-      },
-      complete: function() {
-        $btn.prop('disabled', false);
-        $spinner.addClass('d-none');
-      }
+        $('#linkContainer').show();
+        $('#inviteLink').val(link);
     });
-  });
 
+    $('#copyLinkBtn').on('click', function() {
+        const linkInput = document.getElementById('inviteLink');
+        linkInput.select();
+        linkInput.setSelectionRange(0, 99999);
+        navigator.clipboard?.writeText(linkInput.value)
+            .then(() => alert('Invitation link copied successfully!'))
+            .catch(() => {
+                document.execCommand('copy');
+                alert('Invitation link copied successfully!');
+            });
+    });
 
-  // ---------- Invite by Link (client-side quick fallback) ----------
-  function generateToken(length = 40) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let token = '';
-    for (let i = 0; i < length; i++) {
-      token += chars.charAt(Math.floor(Math.random() * Math.random() * chars.length));
-    }
-    return token;
-  }
-
-  $('#createLinkBtn').on('click', function() {
-    const token = generateToken();
-    const link = `{{ rtrim(url('/'), '/') }}` + '/register?invitation=' + token;
-
-    $('#linkContainer').show();
-    $('#inviteLink').val(link);
-  });
-
-  $('#copyLinkBtn').on('click', function() {
-    const linkInput = document.getElementById('inviteLink');
-    linkInput.select();
-    linkInput.setSelectionRange(0, 99999);
-    navigator.clipboard?.writeText(linkInput.value)
-      .then(() => alert('Invitation link copied successfully!'))
-      .catch(() => {
-        document.execCommand('copy');
-        alert('Invitation link copied successfully!');
-      });
-  });
-
-});
-</script>
-
-<script>
-$(document).ready(function() {
-
-    // Show status dropdown if "Change Status" is selected
+    // ---------- Quick Actions ----------
     $('#quick-action-type').on('change', function() {
         if ($(this).val() === 'change-status') {
             $('#quick-action-status').removeClass('d-none');
@@ -1061,9 +1053,6 @@ $(document).ready(function() {
         }
         toggleApplyButton();
     });
-
-    // Enable apply button only if at least one employee is selected
-    $(document).on('change', '.employee-checkbox, #quick-action-type, #quick-action-status', toggleApplyButton);
 
     function toggleApplyButton() {
         let anyChecked = $('.employee-checkbox:checked').length > 0;
@@ -1120,7 +1109,7 @@ $(document).ready(function() {
         }
     });
 
-    // ---------- Bulk Delete button (under the table) ----------
+    // ---------- Bulk Delete button ----------
     $('#btn-bulk-delete').on('click', function() {
         let selectedIds = $('.employee-checkbox:checked').map(function() { return $(this).val(); }).get();
 
@@ -1158,7 +1147,7 @@ $(document).ready(function() {
         });
     });
 
-    // Optional: prevent double form submissions for dropdown single-delete forms (existing)
+    // Prevent double form submissions
     $(document).on('submit', 'form', function() {
         $(this).find('button[type="submit"]').prop('disabled', true);
     });
@@ -1174,7 +1163,7 @@ $(document).ready(function() {
 
         $('#blockedDeleteModal .modal-body').html('<p class="mb-0">' + msg + '</p>');
 
-        // Provide a link to the employee show page (adjust if your route differs)
+        // Provide a link to the employee show page
         const viewUrl = '{{ rtrim(url('/'), '/') }}' + '/employees/' + id;
         $('#blocked-view-subordinates').attr('href', viewUrl).removeClass('d-none');
 
@@ -1182,8 +1171,17 @@ $(document).ready(function() {
         modalEl.show();
     });
 
+    // Initialize everything
+    updateSelectedEmployees();
+    updateSelectAllCheckbox();
 });
 </script>
+
+{{-- REQUIRED LIBRARIES --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 @endpush
 
 @endsection

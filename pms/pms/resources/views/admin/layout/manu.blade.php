@@ -197,6 +197,15 @@ body.modal-open {
                                 <div class="text-truncate" data-i18n="Without menu">Sub Departments</div>
                             </a>
                         </li>
+
+
+                        <li class="menu-item">
+                            <a href="{{ route('leaves.index') }}" class="menu-link">
+                                <div class="text-truncate" data-i18n="Without menu">Leaves</div>
+                            </a>
+                        </li>
+
+
                     @endif
 
                      @if(in_array(auth()->user()->role, ['admin', 'employee']))

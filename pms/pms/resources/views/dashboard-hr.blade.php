@@ -1,5 +1,3 @@
-//hr dashboard
-
 @extends('admin.layout.app')
 
 @section('content')
@@ -225,6 +223,79 @@
     </div>
 </div>
 
+<!-- ============ LEAVE MANAGEMENT SECTION - ADDED HERE ============ -->
+<div class="row g-3 mt-3">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold">Leave Management</h6>
+                    <div>
+                        <a href="{{ route('leaves.index') }}" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="bi bi-list-ul me-1"></i> All Leaves
+                        </a>
+                        <a href="{{ route('leaves.create') }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> New Leave
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Leave Statistics -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3 col-6">
+                        <div class="text-center p-3 border rounded">
+                            <div class="text-warning fw-bold h4 mb-1">{{ $pendingLeaves ?? 0 }}</div>
+                            <small class="text-muted">Pending Leaves</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="text-center p-3 border rounded">
+                            <div class="text-success fw-bold h4 mb-1">{{ $approvedLeaves ?? 0 }}</div>
+                            <small class="text-muted">Approved Leaves</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="text-center p-3 border rounded">
+                            <div class="text-info fw-bold h4 mb-1">{{ $onLeaveToday ?? 0 }}</div>
+                            <small class="text-muted">On Leave Today</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="text-center p-3 border rounded">
+                            @php
+                                $absentToday = $totalEmployees - $todayPresent - $onLeaveToday;
+                            @endphp
+                            <div class="text-danger fw-bold h4 mb-1">{{ $absentToday ?? 0 }}</div>
+                            <small class="text-muted">Absent Today</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('leaves.index', ['status' => 'pending']) }}"
+                       class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-clock-history me-1"></i> Pending Approvals
+                    </a>
+                    <a href="{{ route('leaves.calendar') }}"
+                       class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-calendar-week me-1"></i> Calendar View
+                    </a>
+                    <a href="{{ route('admin.leave.report') }}"
+                       class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-graph-up me-1"></i> Reports
+                    </a>
+                    <a href="{{ route('leaves.create') }}"
+                       class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> New Leave Request
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ============ END LEAVE MANAGEMENT SECTION ============ -->
 
 </div>
 @endsection

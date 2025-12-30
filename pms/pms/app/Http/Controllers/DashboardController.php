@@ -27,7 +27,7 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
- 
+
  public function timersstore(Request $request)
 {
     // Check if creating a new task
@@ -66,8 +66,8 @@ class DashboardController extends Controller
     return redirect()->back()->with('success', 'Timer started successfully!');
 }
 
- 
- 
+
+
  // StickyNoteController.php
 public function notestore(Request $request)
 {
@@ -84,7 +84,7 @@ public function notestore(Request $request)
 
     return redirect()->back()->with('success', 'Note added successfully!');
 }
-   
+
     public function index()
     {
         $userId = Auth::id();
@@ -102,24 +102,24 @@ public function notestore(Request $request)
                 ->count();
 
             $absentCount = $totalEmployees - $presentCount;
-            
+
             $totalClient = \App\Models\Client::count();
             $totalProject = \App\Models\Project::count();
             $pendingTask = \App\Models\Task::where('status','!=' ,'Completed')->count();
             $unresolvedTicket = \App\Models\Ticket::where('status', '!=', 'closed')->count();
-            
-            
+
+
             // Only for Admin
            $pendingLeaves = Auth::user()->role == 'admin'
         ? Leave::with('user')->where('status', 'pending')->latest()->take(5)->get()
         : collect(); // empty if not admin
-        
+
         $openTickets = \App\Models\Ticket::where('status', 'open')
             ->with(['project', 'agent'])  // eager loading for performance
             ->latest()
             ->take(5) // Show top 5 recent
             ->get();
-            
+
             $pendingTasksTotal = \App\Models\Task::where('status', '!=', 'Completed')
             ->with('project')
             ->orderByDesc('start_date')
@@ -160,12 +160,12 @@ public function notestore(Request $request)
                 'activities',
                 'useractivities',
                 'projects', 'tasks'
-                
+
             ));
         }
-        
+
         // ✅ Client  ogic
-        
+
         if (auth()->user()->role == 'client') {
 
             return view('client-dashboard');
@@ -180,17 +180,17 @@ public function notestore(Request $request)
             $attendance = \App\Models\Attendance::where('user_id', $user->id)
                 ->where('date', $today)
                 ->first();
-       
+
 
             // Fetch week data
             $startOfWeek = Carbon::now()->startOfWeek(); // Monday
             $endOfWeek = Carbon::now()->endOfWeek();     // Sunday
-        
+
             $weeklyLogs = Attendance::where('user_id', $user->id)
                 ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
                 ->get()
                 ->keyBy('date');
-                
+
             $openTasksCount = Task::where('status', '!=', 'completed')->count();
             $projectsCount = Project::count();
            $openTicketsCount = Ticket::where('status', 'open')->count();
@@ -214,7 +214,7 @@ public function notestore(Request $request)
             ->select('projects.*')
             ->distinct()
             ->get();
-            
+
             $inProgress = \DB::table('projects')
                 ->join('project_user', 'projects.id', '=', 'project_user.project_id')
                 ->where('project_user.user_id', $userId)
@@ -225,9 +225,9 @@ public function notestore(Request $request)
                 })
                 ->select('projects.*')
                 ->get();
-                
+
                 // Overdue Projects
-                
+
                 $overdue = \DB::table('projects')
                 ->join('project_user', 'projects.id', '=', 'project_user.project_id')
                 ->where('project_user.user_id', $userId)
@@ -236,9 +236,9 @@ public function notestore(Request $request)
                 ->where('projects.deadline', '<', Carbon::today())
                 ->select('projects.*')
                 ->get();
-            
+
             // In-Progress Projects
-            
+
             // In-Progress Projects Count (assigned to user)
             $inProgressCount = DB::table('projects')
                 ->join('project_user', 'projects.id', '=', 'project_user.project_id')
@@ -249,7 +249,7 @@ public function notestore(Request $request)
                       ->orWhere('projects.deadline', '>=', Carbon::today());
                 })
                 ->count();
-            
+
             // Overdue Projects Count (assigned to user)
             $overdueCount = DB::table('projects')
                 ->join('project_user', 'projects.id', '=', 'project_user.project_id')
@@ -261,22 +261,22 @@ public function notestore(Request $request)
                 $totalProjects = $inProgress->count() + $overdue->count();
 
 
-           
+
             // Count Pending Tasks (assigned_to includes current user AND status is Incomplete or Doing)
             $pendingTasksCount = Task::whereIn('status', ['Incomplete', 'Doing'])
                 ->whereRaw("FIND_IN_SET(?, assigned_to)", [auth()->id()])
                 ->count();
-            
+
             // Count Overdue Tasks (same filter + due date is past)
             $overdueTasksCount = Task::whereIn('status', ['Incomplete', 'Doing'])
                 ->whereRaw("FIND_IN_SET(?, assigned_to)", [auth()->id()])
                 ->whereDate('due_date', '<', Carbon::today())
                 ->count();
-           
+
         //   Birthdays Today
             $birthdaysToday = EmployeeDetail::whereRaw('DATE_FORMAT(dob, "%m-%d") = ?', [date('m-d')])->get();
             //  Employee Appreciations
-            
+
             $appreciations = Award::whereDate('award_date', now())->get();
 
         // On Leave Today
@@ -285,19 +285,19 @@ public function notestore(Request $request)
         ->whereDate('end_date', '>=', now())
         ->with('user')
         ->get();
-        
+
        // Today’s Joinings & Work Anniversary
-       
+
        $todaysJoinings = EmployeeDetail::whereDate('joining_date', now())->get();
 
        $workAnniversaries = EmployeeDetail::whereRaw('DATE_FORMAT(joining_date, "%m-%d") = ?', [date('m-d')])->get();
-       
-       
+
+
        $myTasks = Task::whereRaw("FIND_IN_SET(?, assigned_to)", [$userId])
             ->orderBy('due_date', 'asc')
             ->limit(5) // show latest 5 tasks
             ->get();
-        
+
         $myTickets = Ticket::where('requester_id', $userId) // or assigned_to if you track it
             ->orderBy('created_at', 'desc')
             ->limit(5)
@@ -312,7 +312,7 @@ public function notestore(Request $request)
 
         abort(403);
     }
-    
+
     public function globalSearch(Request $request)
 {
     $type = $request->input('type');
@@ -533,11 +533,11 @@ public function project(Request $request)
 
 public function clientDashboard(Request $request)
 {
-    $startDate = $request->filled('start_date') 
+    $startDate = $request->filled('start_date')
         ? Carbon::parse($request->start_date)->startOfDay()
         : now()->startOfDay();
 
-    $endDate = $request->filled('end_date') 
+    $endDate = $request->filled('end_date')
         ? Carbon::parse($request->end_date)->endOfDay()
         : now()->endOfDay();
 
@@ -545,8 +545,8 @@ public function clientDashboard(Request $request)
     $totalClients = Client::whereBetween('created_at', [$startDate, $endDate])->count();
 
     // Example placeholders for charts
-    $timelogChartData = []; 
-    $earningsData = []; 
+    $timelogChartData = [];
+    $earningsData = [];
 
     return view('dashboard-client', compact(
         'totalClients',
@@ -569,11 +569,11 @@ public function clientDashboard(Request $request)
 
 public function ticketDashboard(Request $request)
 {
-    $startDate = $request->filled('start_date') 
+    $startDate = $request->filled('start_date')
         ? Carbon::parse($request->start_date)->startOfDay()
         : now()->startOfDay();
 
-    $endDate = $request->filled('end_date') 
+    $endDate = $request->filled('end_date')
         ? Carbon::parse($request->end_date)->endOfDay()
         : now()->endOfDay();
 
@@ -658,30 +658,30 @@ public function hrindex(Request $request)
             ->orderBy('user_id')
             ->get()
             ->groupBy('user_id');
-    
+
               $leavesTaken = Leave::with(['user.employeeDetail.designation'])
             ->where('status', 'Approved')
             ->whereBetween('start_date', [$startDate, $endDate])
             ->select('user_id', DB::raw('count(*) as total'))
             ->groupBy('user_id')
             ->get();
-            
-         
-            
+
+
+
         $departmentWise = DB::table('employee_details')
             ->leftJoin('departments', 'employee_details.department_id', '=', 'departments.id')
             ->select('departments.dpt_name as department_name', DB::raw('COUNT(*) as total'))
             ->groupBy('departments.dpt_name')
             ->get();
-            
+
             // echo'<pre>';print_r($departmentWise);die;
-        
+
         // Designation-wise employee count
         $designationWise = EmployeeDetail::with('designation')
             ->selectRaw('designation_id, COUNT(*) as total')
             ->groupBy('designation_id')
             ->get();
-            
+
         $genderCounts = EmployeeDetail::select('gender')
         ->selectRaw('COUNT(*) as total')
         ->groupBy('gender')
@@ -713,10 +713,16 @@ public function hrindex(Request $request)
             'leavesTaken',
             'departmentWise',
             'designationWise',
-            'genderCounts', 
+            'genderCounts',
             'roleCounts'
         ));
     }
+
+
+
+
+
+
 
 
 }
