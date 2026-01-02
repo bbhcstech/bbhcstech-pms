@@ -37,6 +37,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\Settings\SettingController;
+use App\Http\Controllers\Admin\Settings\CompanySettingsController;
+use App\Http\Controllers\Admin\Settings\BusinessAddressController;
 
 
 
@@ -71,16 +74,16 @@ Route::get('designations/next-code', [DesignationController::class, 'nextCode'])
 
 Route::get('/employees/next-id', [EmployeeController::class, 'nextId'])
     ->name('employees.next-id')
-    ->middleware('auth'); 
+    ->middleware('auth');
 
 Route::get('attendance/export/excel', [AttendanceExport::class, 'exportExcel'])
     ->name('attendance.export.excel');
 
 Route::get('attendance/export/pdf', [AttendanceExport::class, 'exportPdf'])
     ->name('attendance.export.pdf');
-    
-    
-    
+
+
+
 Route::get('attendance/filter', [App\Http\Controllers\AttendanceController::class, 'filter'])->name('attendance.filter');
 
 
@@ -629,6 +632,56 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 | Auth scaffolding (Breeze / Jetstream / etc)
 |--------------------------------------------------------------------------
-*/
+
+
+// setting section router
+
+
+
+// */
+
+
+
+
+
+
+
+// Show Company Settings page
+Route::get('/settings/company', [CompanySettingsController::class, 'index'])
+    ->name('settings.company');
+
+// Store / Update Company Settings
+Route::post('/settings/company', [CompanySettingsController::class, 'store'])
+    ->name('settings.company.store');
+
+// Delete Company Settings
+Route::delete('/settings/company', [CompanySettingsController::class, 'destroy'])
+    ->name('settings.company.destroy');
+
+
+
+           // Business Address Routes
+Route::get('/admin/settings/business-address', [BusinessAddressController::class, 'index'])
+    ->name('admin.settings.business-address.index');
+
+Route::get('/admin/settings/business-address/create', [BusinessAddressController::class, 'create'])
+    ->name('admin.settings.business-address.create');
+
+Route::post('/admin/settings/business-address/store', [BusinessAddressController::class, 'store'])
+    ->name('admin.settings.business-address.store');
+
+Route::get('/admin/settings/business-address/{businessAddress}/edit', [BusinessAddressController::class, 'edit'])
+    ->name('admin.settings.business-address.edit');
+
+Route::put('/admin/settings/business-address/{businessAddress}', [BusinessAddressController::class, 'update'])
+    ->name('admin.settings.business-address.update');
+
+Route::delete('/admin/settings/business-address/{businessAddress}', [BusinessAddressController::class, 'destroy'])
+    ->name('admin.settings.business-address.destroy');
+
+Route::put('/admin/settings/business-address/{businessAddress}/make-default', [BusinessAddressController::class, 'makeDefault'])
+    ->name('admin.settings.business-address.make-default');
+
+
 
 require __DIR__.'/auth.php';

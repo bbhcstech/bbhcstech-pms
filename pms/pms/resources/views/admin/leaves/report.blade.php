@@ -1,6 +1,6 @@
 @extends('admin.layout.app')
 
-@section('title', 'Create Attendance')  
+@section('title', 'Create Attendance')
 
 @section('content')
 
@@ -110,7 +110,7 @@
                         </tr>
                     @empty
                         No leave records found.
-                        
+
                     @endforelse
                 </tbody>
             </table>

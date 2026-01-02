@@ -1,3 +1,5 @@
+<!-- //layout main dashboard menu ... -->
+
 <!-- //layout/manu.blade.php -->
 
 @php $userId = Auth::id(); @endphp
@@ -41,7 +43,7 @@ body.modal-open {
   white-space: nowrap;
 }
 
-/* ul এর ভিতরে div issue neutralize (HTML change ছাড়া) */
+
 .navbar-nav > div {
   display: contents;
 }
@@ -199,11 +201,11 @@ body.modal-open {
                         </li>
 
 
-                        <li class="menu-item">
+                        <!-- <li class="menu-item">
                             <a href="{{ route('leaves.index') }}" class="menu-link">
                                 <div class="text-truncate" data-i18n="Without menu">Leaves</div>
                             </a>
-                        </li>
+                        </li> -->
 
 
                     @endif
@@ -226,38 +228,37 @@ body.modal-open {
                 </li>
                  @endif
 
-                <!--  @if(in_array(auth()->user()->role, ['admin', 'employee']))-->
-                <!--<li class="menu-item {{ request()->routeIs('leaves.index') ? 'active open' : '' }}">-->
-                <!--  <a href="{{ route('leaves.index')}}" class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Without navbar">Leaves</div>-->
-                <!--  </a>-->
-                <!--</li>-->
-                <!--@endif-->
-                <!-- @if(auth()->user()->role === 'admin')-->
-                <!--<li class="menu-item {{ request()->routeIs('admin.leave.report') ? 'active open' : '' }}">-->
-                <!--  <a href="{{ route('admin.leave.report')}}" class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Without navbar">Leaves Report</div>-->
-                <!--  </a>-->
-                <!--</li>-->
-                <!--{{-- Admin Holiday Menu --}}-->
-                <!--@endif-->
+                @if(in_array(auth()->user()->role, ['admin', 'employee']))
+                <li class="menu-item {{ request()->routeIs('leaves.index') ? 'active open' : '' }}">
+                <a href="{{ route('leaves.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Without navbar">Leaves</div>
+                </a>
+                </li>
+                @endif
 
-                <!--{{-- Employee Holiday View --}}-->
-                <!--    <li class="menu-item {{ request()->routeIs('holidays.calendar') ? 'active open' : '' }}">-->
-                <!--      <a href="{{ route('holidays.calendar') }}" class="menu-link">-->
-                <!--          <div class="text-truncate">Holiday List</div>-->
-                <!--      </a>-->
-                <!--  </li>-->
+                @if(auth()->user()->role === 'admin')
+                <li class="menu-item {{ request()->routeIs('admin.leave.report') ? 'active open' : '' }}">
+                <a href="{{ route('admin.leave.report') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Without navbar">Leaves Report</div>
+                </a>
+                </li>
+                @endif
 
-                <!--   @if(in_array(auth()->user()->role, ['admin', 'employee']))-->
+                {{-- Employee Holiday View --}}
+                <li class="menu-item {{ request()->routeIs('holidays.calendar') ? 'active open' : '' }}">
+                <a href="{{ route('holidays.calendar') }}" class="menu-link">
+                    <div class="text-truncate">Holiday List</div>
+                </a>
+                </li>
 
-                <!--<li class="menu-item {{ request()->routeIs('awards.index') ? 'active open' : '' }}">-->
-                <!--  <a href="{{ route('awards.index') }}" class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Container">Appreciation-->
-                <!--    </div>-->
-                <!--  </a>-->
-                <!--</li>-->
-                <!--@endif-->
+                @if(in_array(auth()->user()->role, ['admin', 'employee']))
+                <li class="menu-item {{ request()->routeIs('awards.index') ? 'active open' : '' }}">
+                <a href="{{ route('awards.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Container">Appreciation</div>
+                </a>
+                </li>
+                @endif
+
 
               </ul>
             </li>
@@ -266,51 +267,47 @@ body.modal-open {
              <li class="menu-item {{ request()->routeIs('clients.') || request()->routeIs('projects.') ||
              request()->routeIs('tasks.') || request()->routeIs('timelogs.') ? 'active open' : '' }}">
 
-              <!--<a href="javascript:void(0);" class="menu-link menu-toggle">-->
-              <!--  <i class="menu-icon tf-icons bx bx-store"></i>-->
-              <!--  <div class="text-truncate" data-i18n="Front Pages">Work</div>-->
-              <!--</a>-->
-              <ul class="menu-sub">
-                  @if(auth()->user()->role === 'admin')
+             <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons bx bx-store"></i>
 
-                <!--<li class="menu-item {{ request()->routeIs('clients.index') ? 'active open' : '' }}">-->
-                <!--  <a-->
-                <!--    href="{{ route('clients.index') }}"-->
-                <!--    class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Landing">Client-->
-                <!--    </div>-->
-                <!--  </a>-->
-                <!--</li>-->
+
+
+            <div class="text-truncate" data-i18n="Front Pages">Work</div>
+            </a>
+
+
+
+              <ul class="menu-sub">
+                 @if(auth()->user()->role === 'admin')
+                <li class="menu-item {{ request()->routeIs('clients.index') ? 'active open' : '' }}">
+                <a href="{{ route('clients.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Landing">Client</div>
+                </a>
+                </li>
                 @endif
 
                 @if(in_array(auth()->user()->role, ['admin', 'employee']))
-                <!--<li class="menu-item {{ request()->routeIs('projects.index') ? 'active open' : '' }}">-->
-                <!--  <a-->
-                <!--    href="{{ route('projects.index') }}"-->
-                <!--    class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Landing">Projects-->
-                <!--    </div>-->
-                <!--  </a>-->
-                <!--</li>-->
+                <li class="menu-item {{ request()->routeIs('projects.index') ? 'active open' : '' }}">
+                <a href="{{ route('projects.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Landing">Projects</div>
+                </a>
+                </li>
                 @endif
-                <!--<li class="menu-item {{ request()->routeIs('tasks.index') ? 'active open' : '' }}">-->
-                <!--  <a-->
-                <!--    href="{{ route('tasks.index') }}"-->
-                <!--    class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Pricing">Tasks-->
-                <!--   </div>-->
-                <!--  </a>-->
-                <!--</li>-->
-                 @if(in_array(auth()->user()->role, ['admin', 'employee']))
-                <!--<li class="menu-item">-->
-                <!--  <a-->
-                <!--    href="{{ route('timelogs.index') }}"-->
-                <!--    class="menu-link">-->
-                <!--    <div class="text-truncate" data-i18n="Payment">Timesheet-->
-                <!--      </div>-->
-                <!--  </a>-->
-                <!--</li>-->
+
+                <li class="menu-item {{ request()->routeIs('tasks.index') ? 'active open' : '' }}">
+                <a href="{{ route('tasks.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Pricing">Tasks</div>
+                </a>
+                </li>
+
+                @if(in_array(auth()->user()->role, ['admin', 'employee']))
+                <li class="menu-item">
+                <a href="{{ route('timelogs.index') }}" class="menu-link">
+                    <div class="text-truncate" data-i18n="Payment">Timesheet</div>
+                </a>
+                </li>
                 @endif
+
 
               </ul>
             </li>
@@ -322,7 +319,42 @@ body.modal-open {
                   </a>
               </li>
 
-          </ul>
+
+
+                   <!-- ================== SETTINGS SECTION ================== -->
+                <li class="menu-item {{ request()->routeIs('settings.*') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-cog"></i>
+                        <div class="text-truncate" data-i18n="Settings">Settings</div>
+                    </a>
+
+                    <ul class="menu-sub">
+                        @if(auth()->user()->role === 'admin')
+                            @if(Route::has('settings.company'))
+                                <li class="menu-item">
+                                    <a href="{{ route('settings.company') }}" class="menu-link">
+                                        <div>Company Settings</div>
+                                    </a>
+                                </li>
+                            @endif
+
+
+                           @if(Route::has('admin.settings.business-address.index'))
+                            <li class="menu-item">
+                                <a href="{{ route('admin.settings.business-address.index') }}" class="menu-link">
+                                    <div>Business Address</div>
+                                </a>
+                            </li>
+                        @endif
+
+
+
+
+                        @endif
+                    </ul>
+                </li>
+            </ul>
+
         </aside>
         <!-- / Menu -->
 
