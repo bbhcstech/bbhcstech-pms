@@ -312,6 +312,39 @@ body.modal-open {
               </ul>
             </li>
 
+<!-- 
+            //leads section -->
+
+                    <li class="menu-item has-sub {{ request()->routeIs('leads.*') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-target-lock"></i>
+                        <div class="text-truncate" data-i18n="Front Pages">Leads</div>
+                    </a>
+
+                    <ul class="menu-sub">
+
+                        {{-- Lead Contact --}}
+                        @if(in_array(auth()->user()->role, ['admin', 'employee']))
+                        <li class="menu-item {{ request()->routeIs('leads.contacts.*') ? 'active open' : '' }}">
+                            <a href="{{ route('leads.contacts.index') }}" class="menu-link">
+                                <div class="text-truncate" data-i18n="Landing">Lead Contact</div>
+                            </a>
+                        </li>
+                        @endif
+
+                        {{-- (future use) Deals --}}
+                        {{--
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <div class="text-truncate">Deals</div>
+                            </a>
+                        </li>
+                        --}}
+
+                    </ul>
+                </li>
+
+
             <li class="menu-item {{ request()->routeIs('tickets.index') ? 'active' : '' }}">
                   <a href="{{ route('tickets.index') }}" class="menu-link">
                        <i class="menu-icon tf-icons bx bx-receipt"></i>
@@ -348,9 +381,29 @@ body.modal-open {
                         @endif
 
 
+                   @if(Route::has('admin.settings.app'))
+                    <li class="menu-item">
+                        <a href="{{ route('admin.settings.app', ['page' => 'app']) }}" class="menu-link">
+                            <div>App Settings</div>
+                        </a>
+                    </li>
+                @endif
 
 
-                        @endif
+                        @if(Route::has('admin.settings.profile'))
+                        <li class="menu-item">
+                            <a href="{{ route('admin.settings.profile') }}" class="menu-link">
+                                <div>Profile Settings</div>
+                            </a>
+                        </li>
+                    @endif
+
+
+
+
+
+
+                    @endif
                     </ul>
                 </li>
             </ul>

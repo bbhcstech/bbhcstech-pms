@@ -40,7 +40,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Settings\SettingController;
 use App\Http\Controllers\Admin\Settings\CompanySettingsController;
 use App\Http\Controllers\Admin\Settings\BusinessAddressController;
-
+use App\Http\Controllers\Admin\Settings\AppSettingController;
+use App\Http\Controllers\Admin\Settings\ProfileSettingController;
 
 
 
@@ -628,6 +629,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/hr-dashboard', [DashboardController::class, 'hrindex'])->name('hr.dashboard');
 });
 
+
+
+
+
+// leads section
+Route::prefix('leads')->name('leads.')->group(function () {
+
+    Route::get('/contacts', [LeadContactController::class, 'index'])
+        ->name('contacts.index');
+
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | Auth scaffolding (Breeze / Jetstream / etc)
@@ -641,10 +655,7 @@ Route::middleware(['auth'])->group(function () {
 // */
 
 
-
-
-
-
+//Company settings page .
 
 // Show Company Settings page
 Route::get('/settings/company', [CompanySettingsController::class, 'index'])
@@ -660,7 +671,7 @@ Route::delete('/settings/company', [CompanySettingsController::class, 'destroy']
 
 
 
-           // Business Address Routes
+  // Business Address Routes
 Route::get('/admin/settings/business-address', [BusinessAddressController::class, 'index'])
     ->name('admin.settings.business-address.index');
 
@@ -681,6 +692,61 @@ Route::delete('/admin/settings/business-address/{businessAddress}', [BusinessAdd
 
 Route::put('/admin/settings/business-address/{businessAddress}/make-default', [BusinessAddressController::class, 'makeDefault'])
     ->name('admin.settings.business-address.make-default');
+
+/*
+|--------------------------------------------------------------------------
+| Admin App Settings Routes
+|--------------------------------------------------------------------------
+| Laravel 11 compatible
+| No middleware, no prefix
+| Admin check handled in controller constructor
+*/
+
+
+
+// App Settings Routes
+
+// Route::get('/admin/settings', [AppSettingController::class, 'index'])->name('admin.settings');
+// Route::post('/admin/settings/update', [AppSettingController::class, 'update'])->name('admin.settings.app.update');
+// Route::post('/admin/settings/app/add-field', [AppSettingController::class, 'addField'])->name('admin.settings.app.add-field');
+
+
+
+// <?php
+
+// use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\Admin\Settings\AppSettingController;
+
+// 4 Separate Pages for Settings
+
+// routes/web.php
+Route::get('/admin/settings/app', [AppSettingController::class, 'appSettings'])->name('admin.settings.app');
+
+Route::get('/admin/settings/app/client-signup', [AppSettingController::class, 'clientSignupSettings'])->name('admin.settings.app.client-signup');
+
+Route::get('/admin/settings/app/file-upload', [AppSettingController::class, 'fileUploadSettings'])->name('admin.settings.app.file-upload');
+
+Route::get('/admin/settings/app/google-map', [AppSettingController::class, 'googleMapSettings'])->name('admin.settings.app.google-map');
+
+// Common routes for all pages
+Route::post('/admin/settings/app/update', [AppSettingController::class, 'update'])->name('admin.settings.app.update');
+Route::post('/admin/settings/app/add-field', [AppSettingController::class, 'addField'])->name('admin.settings.app.add-field');
+    //profile setting
+
+/*
+|--------------------------------------------------------------------------
+| Profile Settings (Manual Routes)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/admin/settings/profile', [ProfileSettingController::class, 'index'])
+    ->name('admin.settings.profile');
+
+Route::post('/admin/settings/profile/store', [ProfileSettingController::class, 'store'])
+    ->name('admin.settings.profile.store');
+
+Route::post('/admin/settings/profile/update', [ProfileSettingController::class, 'update'])
+    ->name('admin.settings.profile.update');
 
 
 
