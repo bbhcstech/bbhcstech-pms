@@ -312,7 +312,7 @@ body.modal-open {
               </ul>
             </li>
 
-<!-- 
+<!--
             //leads section -->
 
                     <li class="menu-item has-sub {{ request()->routeIs('leads.*') ? 'active open' : '' }}">
@@ -333,14 +333,12 @@ body.modal-open {
                         @endif
 
                         {{-- (future use) Deals --}}
-                        {{--
+
                         <li class="menu-item">
-                            <a href="#" class="menu-link">
+                            <a href="{{ route('admin.deals.index') }}" class="menu-link">
                                 <div class="text-truncate">Deals</div>
                             </a>
                         </li>
-                        --}}
-
                     </ul>
                 </li>
 

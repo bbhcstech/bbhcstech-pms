@@ -42,10 +42,9 @@ use App\Http\Controllers\Admin\Settings\CompanySettingsController;
 use App\Http\Controllers\Admin\Settings\BusinessAddressController;
 use App\Http\Controllers\Admin\Settings\AppSettingController;
 use App\Http\Controllers\Admin\Settings\ProfileSettingController;
-
-
-
+use App\Http\Controllers\Admin\LeadContactController;
 use App\Exports\AttendanceExport;
+use App\Http\Controllers\DealController;
 
 
 
@@ -633,14 +632,53 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-// leads section
-Route::prefix('leads')->name('leads.')->group(function () {
+/// Lead Contacts Routes
+ Route::get('leads/contacts', [LeadContactController::class, 'index'])->name('leads.contacts.index');
+Route::get('leads/contacts/create', [LeadContactController::class, 'create'])->name('leads.contacts.create');
+Route::post('leads/contacts/store', [LeadContactController::class, 'store'])->name('leads.contacts.store');
+Route::get('leads/contacts/{id}', [LeadContactController::class, 'show'])->name('leads.contacts.show');
+Route::get('leads/contacts/{id}/edit', [LeadContactController::class, 'edit'])->name('leads.contacts.edit');
+Route::put('leads/contacts/{id}', [LeadContactController::class, 'update'])->name('leads.contacts.update');
+Route::delete('leads/contacts/{id}', [LeadContactController::class, 'destroy'])->name('leads.contacts.destroy');
 
-    Route::get('/contacts', [LeadContactController::class, 'index'])
-        ->name('contacts.index');
+// Bulk actions
+// Route::post('leads/contacts/bulk-delete', [LeadContactController::class, 'bulkDelete'])->name('leads.contacts.bulk.delete');
+// Bulk delete
+Route::post('/leads/contacts/bulk-delete', [LeadContactController::class, 'bulkDelete'])
+    ->name('leads.contacts.bulk.delete');
+Route::post('leads/contacts/convert', [LeadContactController::class, 'convertToClient'])->name('leads.contacts.convert');
 
-});
+// Import/Export
+// Route::get('leads/contacts/export', [LeadContactController::class, 'export'])->name('leads.contacts.export');
 
+Route::get('/leads/contacts/export', [LeadContactController::class, 'export'])->name('leads.contacts.export');
+Route::get('leads/contacts/template', [LeadContactController::class, 'downloadTemplate'])->name('leads.contacts.template');
+Route::post('leads/contacts/import', [LeadContactController::class, 'import'])->name('leads.contacts.import');
+
+// Convert lead to client and vice versa
+Route::post('/leads/contacts/convert', [LeadContactController::class, 'convert'])
+    ->name('leads.contacts.convert');
+
+
+
+// // Deal Routes - IMPORTANT: Exact routes FIRST
+Route::get('admin/deals/index', [DealController::class, 'index'])->name('admin.deals.index');
+Route::get('admin/deals/create', [DealController::class, 'create'])->name('admin.deals.create');
+Route::get('admin/deals/export', [DealController::class, 'export'])->name('admin.deals.export');
+
+// // POST routes (no parameters)
+Route::post('admin/deals', [DealController::class, 'store'])->name('admin.deals.store');
+Route::post('admin/deals/import', [DealController::class, 'import'])->name('admin.deals.import');
+Route::post('admin/deals/bulk-action', [DealController::class, 'bulkAction'])->name('admin.deals.bulk.action');
+
+// // Parameter routes - MUST be LAST
+Route::get('admin/deals/{deal}', [DealController::class, 'show'])->name('admin.deals.show');
+Route::get('admin/deals/{deal}/edit', [DealController::class, 'edit'])->name('admin.deals.edit');
+Route::put('admin/deals/{deal}', [DealController::class, 'update'])->name('admin.deals.update');
+Route::delete('admin/deals/{deal}', [DealController::class, 'destroy'])->name('admin.deals.destroy');
+Route::post('admin/deals/{deal}/update-stage', [DealController::class, 'updateStage'])->name('admin.deals.update.stage');
+// Inside your deals route group
+Route::post('/{deal}/add-follow-up', [DealController::class, 'addFollowUp'])->name('deals.add-follow-up');
 
 /*
 |--------------------------------------------------------------------------
