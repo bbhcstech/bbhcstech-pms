@@ -13,42 +13,42 @@ return new class extends Migration
     {
         Schema::table('lead_contacts', function (Blueprint $table) {
             // Add new columns for contact information
-            $table->string('salutation')->nullable()->after('id');
-            $table->string('mobile')->nullable()->after('email');
+            // $table->string('salutation')->nullable()->after('id');
+            // $table->string('mobile')->nullable()->after('email');
 
             // Add new columns for company information
-            $table->string('website')->nullable()->after('company_name');
-            $table->string('phone')->nullable()->after('website');
-            $table->text('address')->nullable()->after('phone');
-            $table->string('city')->nullable()->after('address');
-            $table->string('state')->nullable()->after('city');
-            $table->string('country')->nullable()->after('state');
-            $table->string('postal_code')->nullable()->after('country');
-            $table->string('industry')->nullable()->after('postal_code');
+            // $table->string('website')->nullable()->after('company_name');
+            // $table->string('phone')->nullable()->after('website');
+            // $table->text('address')->nullable()->after('phone');
+            // $table->string('city')->nullable()->after('address');
+            // $table->string('state')->nullable()->after('city');
+            // $table->string('country')->nullable()->after('state');
+            // $table->string('postal_code')->nullable()->after('country');
+            // $table->string('industry')->nullable()->after('postal_code');
 
             // Add new columns for lead source & status
-            $table->string('lead_source')->nullable()->after('industry');
-            $table->string('status')->default('new')->after('lead_source');
-            $table->integer('lead_score')->default(0)->after('status');
-            $table->text('tags')->nullable()->after('lead_score');
+            // $table->string('lead_source')->nullable()->after('industry');
+            // $table->string('status')->default('new')->after('lead_source');
+            // $table->integer('lead_score')->default(0)->after('status');
+            // $table->text('tags')->nullable()->after('lead_score');
 
             // Add new columns for deal information
-            $table->boolean('create_deal')->default(false)->after('tags');
-            $table->string('deal_name')->nullable()->after('create_deal');
-            $table->decimal('deal_value', 15, 2)->nullable()->after('deal_name');
-            $table->string('deal_currency')->default('INR')->after('deal_value');
-            $table->unsignedBigInteger('deal_agent_id')->nullable()->after('deal_currency');
-            $table->string('pipeline')->nullable()->after('deal_agent_id');
-            $table->string('deal_stage')->nullable()->after('pipeline');
-            $table->string('deal_category')->nullable()->after('deal_stage');
-            $table->date('close_date')->nullable()->after('deal_category');
-            $table->json('products')->nullable()->after('close_date');
+            // $table->boolean('create_deal')->default(false)->after('tags');
+            // $table->string('deal_name')->nullable()->after('create_deal');
+            // $table->decimal('deal_value', 15, 2)->nullable()->after('deal_name');
+            // $table->string('deal_currency')->default('INR')->after('deal_value');
+            // $table->unsignedBigInteger('deal_agent_id')->nullable()->after('deal_currency');
+            // $table->string('pipeline')->nullable()->after('deal_agent_id');
+            // $table->string('deal_stage')->nullable()->after('pipeline');
+            // $table->string('deal_category')->nullable()->after('deal_stage');
+            // $table->date('close_date')->nullable()->after('deal_category');
+            // $table->json('products')->nullable()->after('close_date');
 
-            // Add new column for description
-            $table->text('description')->nullable()->after('products');
+            // // Add new column for description
+            // $table->text('description')->nullable()->after('products');
 
-            // Add foreign key for deal_agent_id
-            $table->foreign('deal_agent_id')->references('id')->on('users')->onDelete('set null');
+            // // Add foreign key for deal_agent_id
+            // $table->foreign('deal_agent_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

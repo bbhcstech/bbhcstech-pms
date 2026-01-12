@@ -11,18 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::table('app_settings', function (Blueprint $table) {
+        Schema::table('app_settings', function (Blueprint $table) {
 
+            // Add 'page' safely
             if (!Schema::hasColumn('app_settings', 'page')) {
-                $table->string('page')->nullable()->after('section');
+                if (Schema::hasColumn('app_settings', 'section')) {
+                    $table->string('page')->nullable()->after('section');
+                } else {
+                    $table->string('page')->nullable(); // just add at the end
+                }
             }
 
+            // Add 'placeholder' safely
             if (!Schema::hasColumn('app_settings', 'placeholder')) {
-                $table->string('placeholder')->nullable()->after('unit');
+                if (Schema::hasColumn('app_settings', 'unit')) {
+                    $table->string('placeholder')->nullable()->after('unit');
+                } else {
+                    $table->string('placeholder')->nullable();
+                }
             }
 
-});
-
+        });
     }
 
     /**
@@ -31,7 +40,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('app_settings', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('app_settings', 'page')) {
+                $table->dropColumn('page');
+            }
+            if (Schema::hasColumn('app_settings', 'placeholder')) {
+                $table->dropColumn('placeholder');
+            }
         });
     }
 };
