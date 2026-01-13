@@ -7,13 +7,27 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
         <div>
-            <h1 class="h3 mb-2">Leave Management</h1>
-            <p class="text-muted mb-0">Manage employee leave requests and approvals</p>
+            <h1 class="h3 mb-2">
+                @if(auth()->user()->role === 'admin')
+                    Leave Management
+                @else
+                    My Leaves
+                @endif
+            </h1>
+            <p class="text-muted mb-0">
+                @if(auth()->user()->role === 'admin')
+                    Manage employee leave requests and approvals
+                @else
+                    View and manage your leave requests
+                @endif
+            </p>
         </div>
         <div class="mt-3 mt-md-0">
-            <a href="{{ route('leaves.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>New Leave Request
-            </a>
+            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'employee')
+                <a href="{{ route('leaves.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Ask for Leave
+                </a>
+            @endif
         </div>
     </div>
 
@@ -26,97 +40,118 @@
         </div>
     @endif
 
-    <!-- Filters Card -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-transparent py-3">
-            <h5 class="card-title mb-0"><i class="bi bi-funnel me-2"></i>Filter Leaves</h5>
-        </div>
-        <div class="card-body">
-            <form method="GET" action="{{ route('leaves.index') }}" class="row g-3">
-                <!-- Duration Filter -->
-                <div class="col-lg-3 col-md-6">
-                    <label for="duration" class="form-label">Date Range</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                        <input type="text"
-                               name="duration"
-                               id="duration"
-                               class="form-control"
-                               value="{{ request('duration') }}"
-                               placeholder="Select date range"
-                               autocomplete="off">
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="col-lg-6 col-md-12 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-filter me-2"></i>Apply Filters
-                    </button>
-                    <a href="{{ route('leaves.index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Reset
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Controls Card -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
-                <!-- Bulk Actions -->
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <div class="d-flex align-items-center">
-                        <div class="form-check me-3">
-                            <input class="form-check-input" type="checkbox" id="select-all">
-                            <label class="form-check-label small" for="select-all">Select All</label>
+    <!-- ===================== ADMIN VIEW ===================== -->
+    @if(auth()->user()->role === 'admin')
+        <!-- Filters Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-transparent py-3">
+                <h5 class="card-title mb-0"><i class="bi bi-funnel me-2"></i>Filter Leaves</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('leaves.index') }}" class="row g-3">
+                    <!-- Duration Filter -->
+                    <div class="col-lg-3 col-md-6">
+                        <label for="duration" class="form-label">Date Range</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <input type="text"
+                                   name="duration"
+                                   id="duration"
+                                   class="form-control"
+                                   value="{{ request('duration') }}"
+                                   placeholder="Select date range"
+                                   autocomplete="off">
                         </div>
-
-                        <select id="bulk-action" class="form-select form-select-sm w-auto" disabled style="display: none;">
-                            <option value="">-- Bulk Action --</option>
-                            <option value="none">No Action</option>
-                            <option value="change_status">Change Status</option>
-                            <option value="delete">Delete Selected</option>
-                        </select>
-
-                        <select id="status-dropdown" class="form-select form-select-sm w-auto ms-2" style="display: none;" disabled>
-                            <option value="">Select Status</option>
-                            <option value="approved">Approved</option>
-                            <option value="pending">Pending</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
-
-                        <button id="apply-action" class="btn btn-sm btn-primary ms-2" style="display: none;">
-                            <i class="bi bi-check-lg me-1"></i>Apply
-                        </button>
-
-                        @if(auth()->user()->role === 'admin')
-                        <button id="bulkDeleteBtn" class="btn btn-sm btn-danger ms-2" disabled>
-                            <i class="bi bi-trash me-1"></i>Delete
-                        </button>
-                        @endif
                     </div>
-                </div>
 
-                <!-- View Toggle Buttons -->
-                <div class="d-flex align-items-center gap-2">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <a href="{{ route('leaves.index') }}"
-                           class="btn btn-outline-primary {{ request()->routeIs('leaves.index') ? 'active' : '' }}"
-                           data-bs-toggle="tooltip" title="Table View">
-                            <i class="bi bi-list-ul"></i>
+                    <!-- Action Buttons -->
+                    <div class="col-lg-6 col-md-12 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-filter me-2"></i>Apply Filters
+                        </button>
+                        <a href="{{ route('leaves.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Reset
                         </a>
-                        <a href="{{ route('leaves.calendar') }}"
-                           class="btn btn-outline-primary {{ request()->routeIs('leaves.calendar') ? 'active' : '' }}"
-                           data-bs-toggle="tooltip" title="Calendar View">
-                            <i class="bi bi-calendar"></i>
-                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Controls Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+                    <!-- Bulk Actions -->
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="d-flex align-items-center">
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="checkbox" id="select-all">
+                                <label class="form-check-label small" for="select-all">Select All</label>
+                            </div>
+
+                            <select id="bulk-action" class="form-select form-select-sm w-auto" disabled style="display: none;">
+                                <option value="">-- Bulk Action --</option>
+                                <option value="none">No Action</option>
+                                <option value="change_status">Change Status</option>
+                                <option value="delete">Delete Selected</option>
+                            </select>
+
+                            <select id="status-dropdown" class="form-select form-select-sm w-auto ms-2" style="display: none;" disabled>
+                                <option value="">Select Status</option>
+                                <option value="approved">Approved</option>
+                                <option value="pending">Pending</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+
+                            <button id="apply-action" class="btn btn-sm btn-primary ms-2" style="display: none;">
+                                <i class="bi bi-check-lg me-1"></i>Apply
+                            </button>
+
+                            <button id="bulkDeleteBtn" class="btn btn-sm btn-danger ms-2" disabled>
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- View Toggle Buttons -->
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{{ route('leaves.index') }}"
+                               class="btn btn-outline-primary {{ request()->routeIs('leaves.index') ? 'active' : '' }}"
+                               data-bs-toggle="tooltip" title="Table View">
+                                <i class="bi bi-list-ul"></i>
+                            </a>
+                            <a href="{{ route('leaves.calendar') }}"
+                               class="btn btn-outline-primary {{ request()->routeIs('leaves.calendar') ? 'active' : '' }}"
+                               data-bs-toggle="tooltip" title="Calendar View">
+                                <i class="bi bi-calendar"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
+
+    <!-- ===================== EMPLOYEE SIMPLE VIEW ===================== -->
+   <!-- ===================== EMPLOYEE SIMPLE VIEW ===================== -->
+            @if(auth()->user()->role === 'employee')
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-12"> <!-- Changed from col-md-8 to col-md-12 -->
+                                <h6 class="mb-1">Leave Summary</h6>
+                                <p class="text-muted small mb-0">
+                                    You have <strong>{{ $leaves->where('status', 'pending')->count() }}</strong> pending,
+                                    <strong>{{ $leaves->where('status', 'approved')->count() }}</strong> approved,
+                                    and <strong>{{ $leaves->where('status', 'rejected')->count() }}</strong> rejected leaves.
+                                </p>
+                            </div>
+                            <!-- BUTTON COLUMN REMOVED -->
+                        </div>
+                    </div>
+                </div>
+            @endif
 
     <!-- Leaves Table -->
     <div class="card shadow-sm border-0">
@@ -125,10 +160,14 @@
                 <table id="leaveTable" class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th width="50" class="ps-3">
-                                <input type="checkbox" id="select-all-main">
-                            </th>
-                            <th>Employee</th>
+                            @if(auth()->user()->role === 'admin')
+                                <th width="50" class="ps-3">
+                                    <input type="checkbox" id="select-all-main">
+                                </th>
+                            @endif
+                            @if(auth()->user()->role === 'admin')
+                                <th>Employee</th>
+                            @endif
                             <th>Leave Date</th>
                             <th>Duration</th>
                             <th>Status</th>
@@ -140,24 +179,30 @@
                     <tbody>
                         @foreach($leaves as $leave)
                             <tr>
-                                <td class="ps-3">
-                                    <input type="checkbox" class="leave-checkbox" value="{{ $leave->id }}">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <div class="avatar-xs bg-light rounded-circle d-flex align-items-center justify-content-center">
-                                                <i class="bi bi-person text-muted"></i>
+                                @if(auth()->user()->role === 'admin')
+                                    <td class="ps-3">
+                                        <input type="checkbox" class="leave-checkbox" value="{{ $leave->id }}">
+                                    </td>
+                                @endif
+
+                                @if(auth()->user()->role === 'admin')
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar-xs bg-light rounded-circle d-flex align-items-center justify-content-center">
+                                                    <i class="bi bi-person text-muted"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-2">
+                                                {{ $leave->user?->name ?? 'N/A' }}
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            {{ $leave->user?->name ?? 'N/A' }}
-                                        </div>
-                                    </div>
-                                </td>
+                                    </td>
+                                @endif
+
                                 <td>
                                     @if($leave->start_date && $leave->end_date)
-                                        <span class="badge bg-light text-dark">{{ $leave->start_date }}</span>
+                                        <span class="badge bg-light text-dark">{{ $leave->start_date }} to {{ $leave->end_date }}</span>
                                     @else
                                         <span class="badge bg-light text-dark">{{ $leave->date }}</span>
                                     @endif
@@ -190,16 +235,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @if($leave->duration === 'multiple')
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-info"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#leaveModal{{ $leave->id }}">
-                                            <i class="bi bi-eye me-1"></i>View Details
-                                        </button>
-                                    @else
-                                        <span class="badge bg-light text-dark">{{ ucfirst($leave->type) }}</span>
-                                    @endif
+                                    <span class="badge bg-light text-dark">{{ ucfirst($leave->type) }}</span>
                                 </td>
                                 <td>
                                     @if(auth()->user()->role === 'employee')
@@ -208,9 +244,8 @@
                                         @elseif($leave->paid == 1)
                                             <span class="badge bg-success bg-opacity-10 text-success">Paid</span>
                                         @endif
-                                    @endif
-
-                                    @if(auth()->user()->role === 'admin')
+                                    @else
+                                        <!-- Admin sees dropdown -->
                                         <select class="form-select form-select-sm change-paid-status"
                                                 data-leave-id="{{ $leave->id }}"
                                                 style="width: 120px;">
@@ -234,33 +269,34 @@
                                                 </a>
                                             </li>
 
-                                            @if(auth()->user()->role == 'admin' && $leave->status !== 'approved')
-                                            <li>
-                                                <form action="{{ route('leaves.updateStatus', $leave->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <input type="hidden" name="status" value="approved">
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="bi bi-check-circle text-success me-2"></i>Approve
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            @endif
+                                            @if(auth()->user()->role == 'admin')
+                                                <!-- Admin actions -->
+                                                @if($leave->status !== 'approved')
+                                                <li>
+                                                    <form action="{{ route('leaves.updateStatus', $leave->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="approved">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-check-circle text-success me-2"></i>Approve
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                @endif
 
-                                            @if(auth()->user()->role == 'admin' && $leave->status !== 'rejected')
-                                            <li>
-                                                <form action="{{ route('leaves.updateStatus', $leave->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <input type="hidden" name="status" value="rejected">
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="bi bi-x-circle text-warning me-2"></i>Reject
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            @endif
+                                                @if($leave->status !== 'rejected')
+                                                <li>
+                                                    <form action="{{ route('leaves.updateStatus', $leave->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="rejected">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-x-circle text-warning me-2"></i>Reject
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                @endif
 
-                                            @if(auth()->user()->role === 'admin')
                                                 @if($leave->status !== 'rejected')
                                                 <li>
                                                     <a class="dropdown-item" href="{{ route('leaves.edit', $leave->id) }}">
@@ -280,6 +316,19 @@
                                                         </button>
                                                     </form>
                                                 </li>
+                                            @else
+                                                <!-- Employee actions - only view and cancel pending leaves -->
+                                                @if($leave->status === 'pending')
+                                                <li>
+                                                    <form action="{{ route('leaves.destroy', $leave->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this leave request?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-x-circle text-danger me-2"></i>Cancel Request
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                @endif
                                             @endif
                                         </ul>
                                     </div>
@@ -295,7 +344,11 @@
     <!-- Results Info -->
     <div class="d-flex justify-content-between align-items-center mt-3">
         <div class="text-muted small" id="dt-custom-info">
-            Showing {{ $leaves->count() }} records
+            @if(auth()->user()->role === 'admin')
+                Showing {{ $leaves->count() }} records
+            @else
+                You have {{ $leaves->count() }} leave request(s)
+            @endif
         </div>
     </div>
 </div>
@@ -323,7 +376,9 @@
                                 <th>Type</th>
                                 <th>Paid</th>
                                 <th>Status</th>
-                                <th class="text-end pe-3">Action</th>
+                                @if(auth()->user()->role === 'admin')
+                                    <th class="text-end pe-3">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -351,6 +406,7 @@
                                             {{ ucfirst($leave->status) }}
                                         </span>
                                     </td>
+                                    @if(auth()->user()->role === 'admin')
                                     <td class="text-end pe-3">
                                         <form action="{{ route('leaves.destroy', $leave->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this leave?');">
                                             @csrf
@@ -360,6 +416,7 @@
                                             </button>
                                         </form>
                                     </td>
+                                    @endif
                                 </tr>
                             @endfor
                         </tbody>
@@ -401,6 +458,11 @@
     .daterangepicker {
         z-index: 1055 !important;
     }
+    /* Employee view styling */
+    .employee-leave-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+    }
 </style>
 @endpush
 
@@ -408,6 +470,7 @@
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
+@if(auth()->user()->role === 'admin')
 <script>
 $(function () {
     const predefinedRanges = {
@@ -440,7 +503,9 @@ $(function () {
     });
 });
 </script>
+@endif
 
+@if(auth()->user()->role === 'admin')
 <script>
 $(document).on('change', '.change-paid-status', function () {
     let leaveId = $(this).data('leave-id');
@@ -473,7 +538,10 @@ $(document).on('change', '.change-paid-status', function () {
         }
     });
 });
+</script>
+@endif
 
+<script>
 function showAlert(message, type) {
     var alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
         <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'} me-2"></i>
@@ -490,8 +558,15 @@ function showAlert(message, type) {
 }
 </script>
 
+@if(auth()->user()->role === 'admin')
 <script>
 $(document).ready(function () {
+    // FIX: Prevent DataTables reinitialization error
+    if ($.fn.DataTable.isDataTable('#leaveTable')) {
+        $('#leaveTable').DataTable().clear().destroy();
+        $('#leaveTable').removeAttr('style');
+    }
+
     // Initialize DataTable
     var table = $('#leaveTable').DataTable({
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>tip',
@@ -509,7 +584,9 @@ $(document).ready(function () {
         columnDefs: [
             { orderable: false, targets: [0, 7] }
         ],
-        order: [[2, 'desc']]
+        order: [[2, 'desc']],
+        destroy: true,
+        retrieve: true
     });
 
     // Update custom info
@@ -671,6 +748,24 @@ $(document).ready(function () {
     // Initial toggle
     toggleBulkAction();
 });
+</script>
+@else
+<!-- Simple JavaScript for Employee View -->
+<script>
+$(document).ready(function () {
+    // Initialize simple table for employees (no DataTables)
+    $('#leaveTable').addClass('table-striped');
+
+    // Simple search functionality for employees
+    $('input[type="search"]').on('keyup', function() {
+        var value = $(this).val().toLowerCase();
+        $('#leaveTable tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+@endif
 </script>
 @endpush
 

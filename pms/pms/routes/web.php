@@ -389,14 +389,15 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/awards/bulk-action', [AwardController::class, 'bulkAction'])->name('awards.bulkAction');
     Route::post('/apreciation/bulk-action', [AwardController::class, 'apreciationbulkAction'])->name('apreciation.bulkAction');
-    Route::post('awards/bulk-delete', [AwardController::class, 'bulkDeleteAwards'])->name('awards.bulk-delete');
-
+    // Route::post('awards/bulk-delete', [AwardController::class, 'bulkDeleteAwards'])->name('awards.bulk-delete');
+    Route::post('awards/bulk-delete', [AwardController::class, 'bulkDelete'])->name('awards.bulk-delete');
     Route::post('/appreciations/{id}/status', [AwardController::class, 'updateStatus'])->name('appreciations.updateStatus');
     Route::resource('awards', AwardController::class)->except(['show']);
     Route::get('my-awards', [AwardController::class, 'myAwards'])->name('employee.awards');
 
     Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationstore'])->name('awards.appreciation-store');
-    Route::get('/awards/apreciation-index', [AwardController::class, 'appreciationindex'])->name('awards.apreciation-index');
+    // Route::get('/awards/apreciation-index', [AwardController::class, 'appreciationindex'])->name('awards.apreciation-index');
+   Route::get('awards/apreciation-index', [App\Http\Controllers\AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
     Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationedit'])->name('awards.appreciation-edit');
     Route::get('/awards/apreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.apreciation-create');
     Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationupdate'])->name('awards.appreciation-update');
@@ -679,6 +680,24 @@ Route::delete('admin/deals/{deal}', [DealController::class, 'destroy'])->name('a
 Route::post('admin/deals/{deal}/update-stage', [DealController::class, 'updateStage'])->name('admin.deals.update.stage');
 // Inside your deals route group
 Route::post('/{deal}/add-follow-up', [DealController::class, 'addFollowUp'])->name('deals.add-follow-up');
+
+
+
+
+// Admin Contracts Routes
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Contracts
+    Route::get('contracts/export', [ContractController::class, 'export'])->name('contracts.export');
+    Route::post('contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
+    Route::post('contracts/{contract}/sign', [ContractController::class, 'signContract'])->name('contracts.sign');
+    Route::get('contracts/by-client/{client}', [ContractController::class, 'getByClient'])->name('contracts.by-client');
+    Route::resource('contracts', ContractController::class);
+
+    // Contract Templates
+    Route::post('contract-templates/{contractTemplate}/toggle-status', [ContractTemplateController::class, 'toggleStatus'])->name('contract-templates.toggle-status');
+    Route::get('contract-templates/{contractTemplate}/content', [ContractTemplateController::class, 'getTemplateContent'])->name('contract-templates.content');
+    Route::resource('contract-templates', ContractTemplateController::class);
+});
 
 /*
 |--------------------------------------------------------------------------

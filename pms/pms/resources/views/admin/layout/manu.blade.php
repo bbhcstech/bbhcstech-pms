@@ -159,6 +159,8 @@ body.modal-open {
               </a>
             </li>
 
+
+
             <!-- Layouts -->
             <li class="menu-item {{ request()->routeIs('employees.*') ||
                       request()->routeIs('designations.*') ||
@@ -175,6 +177,8 @@ body.modal-open {
                 <div class="text-truncate" data-i18n="Layouts">HR</div>
               </a>
 
+
+
               <ul class="menu-sub">
                     @if(auth()->user()->role === 'admin')
                         <li class="menu-item">
@@ -182,11 +186,14 @@ body.modal-open {
                                 <div class="text-truncate" data-i18n="Without menu">Employee</div>
                             </a>
                         </li>
+
+
                         <li class="menu-item">
                             <a href="{{ route('designations.index') }}" class="menu-link">
                                 <div class="text-truncate" data-i18n="Without menu">Designation</div>
                             </a>
                         </li>
+
 
                         <!-- Added Parent/Department links under Designation -->
                         <li class="menu-item">
@@ -194,6 +201,8 @@ body.modal-open {
                                 <div class="text-truncate" data-i18n="Without menu">Parent Departments</div>
                             </a>
                         </li>
+
+
                         <li class="menu-item">
                             <a href="{{ route('departments.index') }}" class="menu-link">
                                 <div class="text-truncate" data-i18n="Without menu">Sub Departments</div>
@@ -220,6 +229,8 @@ body.modal-open {
                     </li>
                     @endif
 
+
+
                 @if(auth()->user()->role === 'admin')
                 <li class="menu-item {{ request()->routeIs('attendance.report') ? 'active open' : '' }}">
                   <a href="{{ route('attendance.report') }}" class="menu-link">
@@ -228,13 +239,16 @@ body.modal-open {
                 </li>
                  @endif
 
+
+
                 @if(in_array(auth()->user()->role, ['admin', 'employee']))
                 <li class="menu-item {{ request()->routeIs('leaves.index') ? 'active open' : '' }}">
                 <a href="{{ route('leaves.index') }}" class="menu-link">
-                    <div class="text-truncate" data-i18n="Without navbar">Leaves</div>
+                    <div class="text-truncate" data-i18n="Without navbar">My Leaves</div>
                 </a>
                 </li>
                 @endif
+
 
                 @if(auth()->user()->role === 'admin')
                 <li class="menu-item {{ request()->routeIs('admin.leave.report') ? 'active open' : '' }}">
@@ -251,14 +265,22 @@ body.modal-open {
                 </a>
                 </li>
 
-                @if(in_array(auth()->user()->role, ['admin', 'employee']))
-                <li class="menu-item {{ request()->routeIs('awards.index') ? 'active open' : '' }}">
-                <a href="{{ route('awards.index') }}" class="menu-link">
-                    <div class="text-truncate" data-i18n="Container">Appreciation</div>
-                </a>
-                </li>
-                @endif
 
+                    @if(auth()->user()->role === 'admin')
+                    <!-- Admin sees Appreciation menu -->
+                    <li class="menu-item {{ request()->routeIs('awards.*') ? 'active open' : '' }}">
+                        <a href="{{ route('awards.index') }}" class="menu-link">
+                            <div class="text-truncate" data-i18n="Container">Appreciation</div>
+                        </a>
+                    </li>
+                    @elseif(auth()->user()->role === 'employee')
+                    <!-- Employee also sees Appreciation menu but goes to filtered view -->
+                    <li class="menu-item {{ request()->routeIs('awards.index') ? 'active open' : '' }}">
+                        <a href="{{ route('awards.index') }}" class="menu-link">
+                            <div class="text-truncate" data-i18n="Container">My Awards</div>
+                        </a>
+                    </li>
+                @endif
 
               </ul>
             </li>
@@ -324,32 +346,32 @@ body.modal-open {
 <!--
             //leads section -->
 
-                    <li class="menu-item has-sub {{ request()->routeIs('leads.*') ? 'active open' : '' }}">
-                    <a href="javascript:void(0);" class="menu-link menu-toggle">
-                        <i class="menu-icon tf-icons bx bx-target-lock"></i>
-                        <div class="text-truncate" data-i18n="Front Pages">Leads</div>
-                    </a>
+                   @if(auth()->user()->role === 'admin')
+                    <li class="menu-item has-sub {{ request()->routeIs('leads.*') || request()->routeIs('admin.deals.*') ? 'active open' : '' }}">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-target-lock"></i>
+                            <div class="text-truncate" data-i18n="Front Pages">Leads</div>
+                        </a>
 
-                    <ul class="menu-sub">
+                        <ul class="menu-sub">
+                            {{-- Lead Contact --}}
+                            <li class="menu-item {{ request()->routeIs('leads.contacts.*') ? 'active open' : '' }}">
+                                <a href="{{ route('leads.contacts.index') }}" class="menu-link">
+                                    <div class="text-truncate" data-i18n="Landing">Lead Contact</div>
+                                </a>
+                            </li>
 
-                        {{-- Lead Contact --}}
-                        @if(in_array(auth()->user()->role, ['admin', 'employee']))
-                        <li class="menu-item {{ request()->routeIs('leads.contacts.*') ? 'active open' : '' }}">
-                            <a href="{{ route('leads.contacts.index') }}" class="menu-link">
-                                <div class="text-truncate" data-i18n="Landing">Lead Contact</div>
-                            </a>
-                        </li>
-                        @endif
+                            {{-- Deals --}}
+                            <li class="menu-item {{ request()->routeIs('admin.deals.*') ? 'active open' : '' }}">
+                                <a href="{{ route('admin.deals.index') }}" class="menu-link">
+                                    <div class="text-truncate">Deals</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
 
-                        {{-- (future use) Deals --}}
-
-                        <li class="menu-item">
-                            <a href="{{ route('admin.deals.index') }}" class="menu-link">
-                                <div class="text-truncate">Deals</div>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                <!-- //ticket section . -->
 
 
             <li class="menu-item {{ request()->routeIs('tickets.index') ? 'active' : '' }}">
@@ -525,18 +547,18 @@ body.modal-open {
                                 </li>
 
                            @forelse(auth()->user()->unreadNotifications as $notification)
-    @php
-        $data = $notification->data ?? [];
-        $type = class_basename($notification->type); // e.g. TaskAssignedNotification
+                            @php
+                                $data = $notification->data ?? [];
+                                $type = class_basename($notification->type); // e.g. TaskAssignedNotification
 
-        if ($taskId = data_get($data, 'task_id')) {
-            $link = route('tasks.show', $taskId);
-        } elseif ($ticketId = data_get($data, 'ticket_id')) {
-            $link = route('tickets.show', $ticketId);
-        } else {
-            $link = '#';
-        }
-    @endphp
+                                if ($taskId = data_get($data, 'task_id')) {
+                                    $link = route('tasks.show', $taskId);
+                                } elseif ($ticketId = data_get($data, 'ticket_id')) {
+                                    $link = route('tickets.show', $ticketId);
+                                } else {
+                                    $link = '#';
+                                }
+                            @endphp
 
     <li class="px-3 py-2 border-bottom">
         <a href="{{ $link }}" class="text-dark d-block">
