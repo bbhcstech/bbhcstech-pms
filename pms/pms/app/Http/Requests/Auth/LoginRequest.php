@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Models\User; // ADD THIS IMPORT
 
 class LoginRequest extends FormRequest
 {
@@ -41,11 +42,42 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // ============================================
+        // FIX: ADD USER STATUS CHECK BEFORE LOGIN ATTEMPT
+        // ============================================
+
+        // First, check if user exists
+        $user = User::where('email', $this->string('email'))->first();
+
+        // If user exists, check if they can login
+        if ($user && !$user->canLogin()) {
+            // User exists but login is not allowed
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account is not active or login is not allowed.',
+            ]);
+        }
+
+        // Now attempt authentication
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
+            ]);
+        }
+
+        // ============================================
+        // FIX: DOUBLE-CHECK AFTER SUCCESSFUL LOGIN
+        // ============================================
+        $loggedInUser = Auth::user();
+        if (!$loggedInUser->canLogin()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account is not active or login is not allowed.',
             ]);
         }
 

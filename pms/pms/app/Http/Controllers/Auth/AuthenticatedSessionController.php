@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
-    
+
 
     /**
      * Destroy an authenticated session.
@@ -41,13 +41,13 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-        Session::forget('auth_id'); 
+        Session::forget('auth_id');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/login');
     }
-    
+
 
 
 }

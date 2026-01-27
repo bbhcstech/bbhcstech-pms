@@ -35,10 +35,9 @@ class User extends Authenticatable
         'email_notify',
         'google_calendar',
         'profile_image',
-        'login_allowed',     // Add this
-        'email_notifications', // Add this
+        'login_allowed',     // Already here ✓
+        'email_notifications', // Already here ✓
     ];
-
 
     /**
      * The attributes that should be hidden for serialization.
@@ -60,6 +59,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'login_allowed' => 'boolean',     // ADD THIS LINE
+            'email_notifications' => 'boolean', // ADD THIS LINE
         ];
     }
 
@@ -68,7 +69,7 @@ class User extends Authenticatable
         return $this->hasOne(EmployeeDetail::class);
     }
 
-        public function attendances()
+    public function attendances()
     {
         return $this->hasMany(Attendance::class, 'user_id');
     }
@@ -78,14 +79,36 @@ class User extends Authenticatable
         return $this->hasMany(Leave::class, 'user_id');
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(\App\Models\Project::class, 'project_user', 'user_id', 'project_id')
+                    ->withPivot('hourly_rate', 'role')
+                    ->withTimestamps();
+    }
 
-public function projects()
-{
-    return $this->belongsToMany(\App\Models\Project::class, 'project_user', 'user_id', 'project_id')
-                ->withPivot('hourly_rate', 'role')
-                ->withTimestamps();
-}
+    /**
+     * Check if user can login based on login_allowed AND employee status
+     * This is the CRITICAL method for login control
+     */
+    public function canLogin()
+    {
+        // User can login only if BOTH conditions are true:
+        // 1. login_allowed is true (1)
+        // 2. Employee status is 'Active'
 
+        $loginAllowed = (bool) $this->login_allowed;
 
+        // Get employee detail status
+        $employeeStatus = $this->employeeDetail ? $this->employeeDetail->status : 'Active';
 
+        return $loginAllowed && ($employeeStatus === 'Active');
+    }
+
+    /**
+     * Accessor for can_login attribute (optional, for easy use in views)
+     */
+    public function getCanLoginAttribute()
+    {
+        return $this->canLogin();
+    }
 }
