@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-
-
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\EmployeeCreatedNotification;
-
 use App\Models\User;
 use App\Models\EmployeeDetail;
 use App\Models\Designation;
@@ -17,14 +14,12 @@ use App\Mail\EmployeeInvite;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Str;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
-
-
 use Carbon\Carbon;
 
 class EmployeeController extends Controller
@@ -142,6 +137,36 @@ public function create()
 }
 
 /**
+ * AJAX endpoint: check mobile number uniqueness
+ */
+public function checkMobile(Request $request)
+{
+    $this->ensureAdmin();
+
+    $request->validate([
+        'mobile' => 'required|string|regex:/^[1-9]\d{9}$/',
+        'employee_id' => 'nullable|integer|exists:users,id'
+    ]);
+
+    $mobile = $request->mobile;
+    $mobileWithCode = '+91' . $mobile;
+    $currentId = $request->employee_id;
+
+    $query = User::where('mobile', $mobileWithCode);
+
+    if ($currentId) {
+        $query->where('id', '!=', $currentId);
+    }
+
+    $exists = $query->exists();
+
+    return response()->json([
+        'exists' => $exists,
+        'mobile' => $mobile
+    ]);
+}
+
+/**
  * AJAX endpoint: return next employee id (json)
  */
 public function nextId()
@@ -157,19 +182,31 @@ public function store(Request $request)
 {
     $this->ensureAdmin();
 
-    $request->validate([
+    // Prepare validation rules
+    $validationRules = [
         'name'              => 'required|string',
         'email'             => 'required|email|unique:users,email',
+        'mobile'            => 'required|regex:/^[1-9]\d{9}$/|unique:users,mobile',
         'joining_date'      => 'required|date',
         'business_address'  => 'required|string',
         'status'            => 'required|in:Active,Inactive',
+        'login_allowed'     => 'required|in:0,1',
         'password'          => 'nullable|string|min:8',
         'profile_picture'   => 'nullable|image|max:2048',
 
         'probation_end_date' => 'nullable|date',
         'notice_start_date'  => 'nullable|date',
         'notice_end_date'    => 'nullable|date',
-    ]);
+    ];
+
+    // If editing, adjust unique rules
+    if ($request->isMethod('PUT') || $request->isMethod('PATCH')) {
+        $userId = $request->route('employee');
+        $validationRules['email'] = 'required|email|unique:users,email,' . $userId;
+        $validationRules['mobile'] = 'required|regex:/^[1-9]\d{9}$/|unique:users,mobile,' . $userId;
+    }
+
+    $request->validate($validationRules);
 
     $profileImagePath = null;
 
@@ -186,27 +223,76 @@ public function store(Request $request)
 
     DB::beginTransaction();
     try {
+        // Format mobile number with +91 prefix
+        $mobileWithCode = '+91' . $request->mobile;
+
         // Create user
         $user = User::create([
             'name'          => $request->name,
             'email'         => $request->email,
-            'mobile'        => $request->mobile,
+            'mobile'        => $mobileWithCode, // Store with +91 prefix
             'password'      => $passwordHash,
-            'role'          => 'employee',
+            'role'          => $request->user_role ?? 'employee',
             'profile_image' => $profileImagePath,
+            'login_allowed' => $request->login_allowed ?? 1,
+            'email_notifications' => $request->email_notifications ?? 1,
         ]);
 
-        // Prepare employee detail payload (only relevant fields)
+        // Prepare employee detail payload
         $employeeData = $request->only([
             'designation_id', 'parent_dpt_id', 'department_id', 'employee_id',
-            'salutation', 'country', 'mobile', 'gender', 'joining_date', 'dob', 'reporting_to',
-            'language', 'user_role', 'address', 'about', 'login_allowed',
-            'email_notifications', 'hourly_rate', 'slack_member_id', 'skills',
+            'salutation', 'country', 'gender', 'joining_date', 'dob', 'reporting_to',
+            'language', 'user_role', 'address', 'about',
+            'hourly_rate', 'slack_member_id', 'skills',
             'probation_end_date', 'notice_start_date', 'notice_end_date',
             'employment_type', 'marital_status', 'business_address', 'status', 'exit_date'
         ]);
 
+        // Add login_allowed and email_notifications to user, not employee detail
+        // They are already set on user creation above
+
+        // Add mobile without prefix for employee detail
+        $employeeData['mobile'] = $request->mobile;
         $employeeData['user_id'] = $user->id;
+
+        // ================================================
+        // FIX: Handle new designation if created
+        // ================================================
+        if ($request->designation_id === 'new_designation' && $request->filled('new_designation')) {
+            // Create new designation
+            $designation = Designation::create([
+                'name' => $request->new_designation,
+                'status' => 'Active',
+                'added_by' => auth()->id()
+            ]);
+
+            $employeeData['designation_id'] = $designation->id;
+        }
+
+        // ================================================
+        // FIX: Handle new department if created
+        // ================================================
+        if ($request->parent_dpt_id === 'new_department' && $request->filled('new_department')) {
+            // Create new department
+            $department = ParentDepartment::create([
+                'dpt_name' => $request->new_department
+            ]);
+
+            $employeeData['parent_dpt_id'] = $department->id;
+        }
+
+        // ================================================
+        // FIX: Handle new sub-department if created
+        // ================================================
+        if ($request->department_id === 'new_sub_department' && $request->filled('new_sub_department')) {
+            // Create new sub department
+            $subDepartment = Department::create([
+                'dpt_name' => $request->new_sub_department,
+                'parent_dpt_id' => $employeeData['parent_dpt_id'] // Use the department ID
+            ]);
+
+            $employeeData['department_id'] = $subDepartment->id;
+        }
 
         // Normalize: if probation_end_date provided, clear notice dates; if notice provided, clear probation
         if (!empty($employeeData['probation_end_date'])) {
@@ -263,7 +349,7 @@ public function store(Request $request)
     } catch (\Exception $e) {
         DB::rollBack();
         Log::error('Store employee error', ['error' => $e->getMessage()]);
-        return back()->withErrors(['error' => 'Error: ' . $e->getMessage()]);
+        return back()->withErrors(['error' => 'Error: ' . $e->getMessage()])->withInput();
     }
 }
 
@@ -388,6 +474,7 @@ public function getSubDepartments($parentId)
 
     // build unique rules (ignore current user/detail if present)
     $emailUniqueRule = 'required|email|unique:users,email,' . $user->id;
+    $mobileUniqueRule = 'required|regex:/^[1-9]\d{9}$/|unique:users,mobile,' . $user->id;
     $employeeIdRule = 'required|string';
     if ($detail) {
         $employeeIdRule .= '|unique:employee_details,employee_id,' . $detail->id;
@@ -399,8 +486,10 @@ public function getSubDepartments($parentId)
         'employee_id'      => $employeeIdRule,
         'name'             => 'required|string',
         'email'            => $emailUniqueRule,
+        'mobile'           => $mobileUniqueRule,
         'business_address' => 'required|string',
         'status'           => 'required|in:Active,Inactive',
+        'login_allowed'    => 'required|in:0,1',
         'department_id'    => 'nullable|exists:departments,id',
         'profile_picture'  => 'nullable|image|max:2048',
         'probation_end_date' => 'nullable|date',
@@ -441,6 +530,9 @@ public function getSubDepartments($parentId)
 
     DB::beginTransaction();
     try {
+        // Format mobile number with +91 prefix
+        $mobileWithCode = '+91' . $request->mobile;
+
         // handle profile image: delete old file if present and save new one
         if ($request->hasFile('profile_picture')) {
             $image = $request->file('profile_picture');
@@ -456,6 +548,9 @@ public function getSubDepartments($parentId)
         // update user
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->mobile = $mobileWithCode; // Store with +91 prefix
+        $user->login_allowed = $request->login_allowed ?? 1;
+        $user->email_notifications = $request->email_notifications ?? 1;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
@@ -470,12 +565,15 @@ public function getSubDepartments($parentId)
         // prepare employee detail payload
         $data = $request->only([
             'designation_id', 'parent_dpt_id', 'department_id', 'employee_id',
-            'salutation', 'country', 'mobile', 'gender', 'joining_date', 'dob', 'reporting_to',
-            'language', 'user_role', 'address', 'about', 'login_allowed',
-            'email_notifications', 'hourly_rate', 'slack_member_id', 'skills',
+            'salutation', 'country', 'gender', 'joining_date', 'dob', 'reporting_to',
+            'language', 'user_role', 'address', 'about',
+            'hourly_rate', 'slack_member_id', 'skills',
             'probation_end_date', 'notice_start_date', 'notice_end_date',
             'employment_type', 'marital_status', 'business_address', 'status', 'exit_date'
         ]);
+
+        // Add mobile without prefix for employee detail
+        $data['mobile'] = $request->mobile;
 
         // normalize: empty department -> null
         if (empty($data['department_id'])) {
@@ -657,14 +755,15 @@ public function getSubDepartments($parentId)
                 [
                     'name' => Str::before($email, '@'),
                     'password' => Hash::make(Str::random(12)),
-                    'role' => 'employee'
+                    'role' => 'employee',
+                    'login_allowed' => 1 // Default to allowed
                 ]
             );
 
             if (!$user->employeeDetail) {
                 EmployeeDetail::create([
                     'user_id' => $user->id,
-                    'status' => 'Inactive',
+                    'status' => 'Active',
                     'business_address' => '',
                     'employee_id' => $this->computeNextEmployeeIdWithLock()
                 ]);

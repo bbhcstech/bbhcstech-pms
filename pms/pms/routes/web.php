@@ -290,9 +290,21 @@ Route::resource('designations', DesignationController::class);
         ->name('employees.invite.complete');
     Route::post('employees/send-invite', [EmployeeController::class, 'sendInvite'])
         ->name('employees.sendInvite');
-// add this
-Route::post('employees/store-department', [\App\Http\Controllers\EmployeeController::class, 'storeDepartment'])
+    // add this
+    Route::post('employees/store-department', [\App\Http\Controllers\EmployeeController::class, 'storeDepartment'])
     ->name('employees.storeDepartment');
+
+    //employee email and mobile validation routes inside admin group
+
+    Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function() {
+    // ... other routes ...
+
+    // Add these validation routes
+    Route::post('/employees/check-email', [EmployeeController::class, 'checkEmail'])->name('employees.check-email');
+    Route::post('/employees/check-mobile', [EmployeeController::class, 'checkMobile'])->name('employees.check-mobile');
+
+    // ... other routes ...
+});
 
     /*
     |----------------------------------------------------------------------
@@ -300,7 +312,7 @@ Route::post('employees/store-department', [\App\Http\Controllers\EmployeeControl
     |----------------------------------------------------------------------
     */
 
-Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
 
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
@@ -397,7 +409,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationstore'])->name('awards.appreciation-store');
     // Route::get('/awards/apreciation-index', [AwardController::class, 'appreciationindex'])->name('awards.apreciation-index');
-   Route::get('awards/apreciation-index', [App\Http\Controllers\AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
+    Route::get('awards/apreciation-index', [App\Http\Controllers\AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
     Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationedit'])->name('awards.appreciation-edit');
     Route::get('/awards/apreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.apreciation-create');
     Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationupdate'])->name('awards.appreciation-update');

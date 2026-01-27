@@ -84,7 +84,7 @@ class AwardController extends Controller
     }
 
     // Appreciations List (Templates/Categories)
-    public function apreciationIndex(Request $request)
+    public function appreciationIndex(Request $request)
     {
         // Redirect employees to main awards page
         if (Auth::user()->role !== 'admin') {
@@ -99,7 +99,7 @@ class AwardController extends Controller
         }
 
         $appreciations = $appreciations->latest()->get();
-        return view('admin.awards.apreciation-index', compact('appreciations'));
+        return view('admin.awards.appreciation-index', compact('appreciations'));
     }
 
     // Employee's Personal Awards View

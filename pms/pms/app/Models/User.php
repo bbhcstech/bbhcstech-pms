@@ -35,6 +35,8 @@ class User extends Authenticatable
         'email_notify',
         'google_calendar',
         'profile_image',
+        'login_allowed',     // Add this
+        'email_notifications', // Add this
     ];
 
 
@@ -60,23 +62,23 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    
+
     public function employeeDetail()
     {
         return $this->hasOne(EmployeeDetail::class);
     }
-    
+
         public function attendances()
     {
         return $this->hasMany(Attendance::class, 'user_id');
     }
-    
+
     public function leaves()
     {
         return $this->hasMany(Leave::class, 'user_id');
     }
-    
-    
+
+
 public function projects()
 {
     return $this->belongsToMany(\App\Models\Project::class, 'project_user', 'user_id', 'project_id')

@@ -194,30 +194,26 @@ body.modal-open {
                             </a>
                         </li>
 
+ <!-- Department with Submenu -->
+                  <li class="menu-item {{ request()->routeIs('parent-departments.*') || request()->routeIs('departments.*') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                      <div class="text-truncate">Department</div>
+                    </a>
+                    <ul class="menu-sub">
+                      <li class="menu-item {{ request()->routeIs('parent-departments.*') ? 'active' : '' }}">
+                        <a href="{{ route('parent-departments.index') }}" class="menu-link">
+                          <div class="text-truncate">Main Department</div>
+                        </a>
+                      </li>
+                      <li class="menu-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
+                        <a href="{{ route('departments.index') }}" class="menu-link">
+                          <div class="text-truncate">Sub Department</div>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                @endif
 
-                        <!-- Added Parent/Department links under Designation -->
-                        <li class="menu-item">
-                            <a href="{{ route('parent-departments.index') }}" class="menu-link">
-                                <div class="text-truncate" data-i18n="Without menu">Parent Departments</div>
-                            </a>
-                        </li>
-
-
-                        <li class="menu-item">
-                            <a href="{{ route('departments.index') }}" class="menu-link">
-                                <div class="text-truncate" data-i18n="Without menu">Sub Departments</div>
-                            </a>
-                        </li>
-
-
-                        <!-- <li class="menu-item">
-                            <a href="{{ route('leaves.index') }}" class="menu-link">
-                                <div class="text-truncate" data-i18n="Without menu">Leaves</div>
-                            </a>
-                        </li> -->
-
-
-                    @endif
 
                      @if(in_array(auth()->user()->role, ['admin', 'employee']))
                     <li class="menu-item {{ request()->routeIs('attendance.index') ? 'active open' : '' }}">
@@ -230,14 +226,14 @@ body.modal-open {
                     @endif
 
 
-
+<!--
                 @if(auth()->user()->role === 'admin')
                 <li class="menu-item {{ request()->routeIs('attendance.report') ? 'active open' : '' }}">
                   <a href="{{ route('attendance.report') }}" class="menu-link">
                     <div class="text-truncate" data-i18n="Without menu">Attendance Report</div>
                   </a>
                 </li>
-                 @endif
+                 @endif -->
 
 
 
@@ -250,13 +246,13 @@ body.modal-open {
                 @endif
 
 
-                @if(auth()->user()->role === 'admin')
+                <!-- @if(auth()->user()->role === 'admin')
                 <li class="menu-item {{ request()->routeIs('admin.leave.report') ? 'active open' : '' }}">
                 <a href="{{ route('admin.leave.report') }}" class="menu-link">
                     <div class="text-truncate" data-i18n="Without navbar">Leaves Report</div>
                 </a>
                 </li>
-                @endif
+                @endif -->
 
                 {{-- Employee Holiday View --}}
                 <li class="menu-item {{ request()->routeIs('holidays.calendar') ? 'active open' : '' }}">
@@ -270,11 +266,11 @@ body.modal-open {
                     <!-- Admin sees Appreciation menu -->
                     <li class="menu-item {{ request()->routeIs('awards.*') ? 'active open' : '' }}">
                         <a href="{{ route('awards.index') }}" class="menu-link">
-                            <div class="text-truncate" data-i18n="Container">Appreciation</div>
+                            <div class="text-truncate" data-i18n="Container">Recognition</div>
                         </a>
                     </li>
                     @elseif(auth()->user()->role === 'employee')
-                    <!-- Employee also sees Appreciation menu but goes to filtered view -->
+                    <!-- Employee also sees Recognition menu but goes to filtered view -->
                     <li class="menu-item {{ request()->routeIs('awards.index') ? 'active open' : '' }}">
                         <a href="{{ route('awards.index') }}" class="menu-link">
                             <div class="text-truncate" data-i18n="Container">My Awards</div>
@@ -284,6 +280,34 @@ body.modal-open {
 
               </ul>
             </li>
+
+
+
+             <!-- Reports Section -->
+            <li class="menu-item {{ request()->routeIs('attendance.report') || request()->routeIs('admin.leave.report') ? 'active open' : '' }}">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-bar-chart-alt"></i>
+                <div class="text-truncate" data-i18n="Layouts">Reports</div>
+              </a>
+
+              <ul class="menu-sub">
+                @if(auth()->user()->role === 'admin')
+                  <li class="menu-item {{ request()->routeIs('attendance.report') ? 'active' : '' }}">
+                    <a href="{{ route('attendance.report') }}" class="menu-link">
+                      <div class="text-truncate">Attendance Report</div>
+                    </a>
+                  </li>
+
+                  <li class="menu-item {{ request()->routeIs('admin.leave.report') ? 'active' : '' }}">
+                    <a href="{{ route('admin.leave.report') }}" class="menu-link">
+                      <div class="text-truncate">Leaves Report</div>
+                    </a>
+                  </li>
+                @endif
+              </ul>
+            </li>
+
+
 
        <!-- Front Pages -->
             <li class="menu-item {{ request()->routeIs('clients.') || request()->routeIs('projects.') ||
