@@ -51,11 +51,11 @@ class LoginRequest extends FormRequest
 
         // If user exists, check if they can login
         if ($user && !$user->canLogin()) {
-            // User exists but login is not allowed
+            // User exists but login is not allowed - GET SPECIFIC MESSAGE
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'Your account is not active or login is not allowed.',
+                'email' => $user->getLoginErrorMessage(),
             ]);
         }
 
@@ -73,11 +73,12 @@ class LoginRequest extends FormRequest
         // ============================================
         $loggedInUser = Auth::user();
         if (!$loggedInUser->canLogin()) {
+            // GET SPECIFIC ERROR MESSAGE
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'Your account is not active or login is not allowed.',
+                'email' => $loggedInUser->getLoginErrorMessage(),
             ]);
         }
 

@@ -105,6 +105,29 @@ class User extends Authenticatable
     }
 
     /**
+     * Get specific error message for login restriction
+     */
+    public function getLoginErrorMessage()
+    {
+        $loginAllowed = (bool) $this->login_allowed;
+        $employeeStatus = $this->employeeDetail ? $this->employeeDetail->status : 'Active';
+
+        if (!$loginAllowed && $employeeStatus === 'Active') {
+            return 'Your account is active but login is blocked by admin. Please contact administrator.';
+        }
+
+        if ($loginAllowed && $employeeStatus === 'Inactive') {
+            return 'Your account is inactive. Please contact administrator.';
+        }
+
+        if (!$loginAllowed && $employeeStatus === 'Inactive') {
+            return 'Your account is inactive and login is blocked by admin. Please contact administrator.';
+        }
+
+        return 'Your account is not active or login is not allowed.';
+    }
+
+    /**
      * Accessor for can_login attribute (optional, for easy use in views)
      */
     public function getCanLoginAttribute()

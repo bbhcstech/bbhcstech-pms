@@ -87,6 +87,7 @@
                                value="{{ old('employee_id') ?? ($employee?->employeeDetail?->employee_id ?? ($nextEmployeeId ?? '')) }}"
                                @if($empOption === 'auto') readonly @endif>
                         <small class="text-muted">Employee ID will be auto-generated</small>
+                        <div class="invalid-feedback employee-id-error d-none">Please enter a valid employee ID</div>
                         @error('employee_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -98,6 +99,7 @@
                         <input type="text" name="name" class="form-control" required
                                value="{{ old('name') ?? $employee?->name ?? '' }}"
                                placeholder="Enter full name">
+                        <div class="invalid-feedback name-error d-none">Please enter the employee's full name</div>
                         @error('name')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -106,9 +108,10 @@
                     <!-- Email -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Email Address <span class="text-danger">*</span></label>
-                        <input type="email" name="email" class="form-control" required
+                        <input type="email" name="email" class="form-control email-input" required
                                value="{{ old('email') ?? $employee?->email ?? '' }}"
                                placeholder="employee@company.com">
+                        <div class="invalid-feedback email-error d-none">Please enter a valid email address</div>
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -118,7 +121,7 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Password</label>
                         <div class="input-group">
-                            <input type="password" name="password" id="password" class="form-control"
+                            <input type="password" name="password" id="password" class="form-control password-input"
                                    autocomplete="new-password" minlength="8"
                                    placeholder="Leave blank for auto-generate">
                             <button type="button" class="btn btn-outline-secondary toggle-password" title="Show/Hide">
@@ -129,6 +132,7 @@
                             </button>
                         </div>
                         <small class="text-muted">Minimum 8 characters. Leave empty for auto-generation.</small>
+                        <div class="invalid-feedback password-error d-none">Password must be at least 8 characters</div>
                         @error('password')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -139,7 +143,7 @@
                         <label class="form-label fw-medium">Designation <span class="text-danger">*</span></label>
                         @php $selectedDesignation = old('designation_id') ?? ($employee?->employeeDetail?->designation_id ?? null); @endphp
                         <div class="input-group">
-                            <select name="designation_id" id="designation_id" class="form-select" required>
+                            <select name="designation_id" id="designation_id" class="form-select designation-select" required>
                                 <option value="">Select Designation</option>
                                 @foreach($designations as $designation)
                                     <option value="{{ $designation->id }}" {{ $selectedDesignation == $designation->id ? 'selected' : '' }}>
@@ -151,7 +155,8 @@
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        <div class="form-text">Select existing or add new (will be saved with employee)</div>
+                        <small class="text-muted">Select existing or add new (will be saved with employee)</small>
+                        <div class="invalid-feedback designation-error d-none">Please select a designation</div>
                         @error('designation_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -162,7 +167,7 @@
                         <label class="form-label fw-medium">Department <span class="text-danger">*</span></label>
                         @php $selectedPrt = old('parent_dpt_id') ?? ($employee?->employeeDetail?->parent_dpt_id ?? ''); @endphp
                         <div class="input-group">
-                            <select name="parent_dpt_id" id="prt_department_id" class="form-select" required>
+                            <select name="parent_dpt_id" id="prt_department_id" class="form-select department-select" required>
                                 <option value="">Select Department</option>
                                 @foreach($prtdepartments as $dept)
                                     <option value="{{ $dept->id }}" {{ $selectedPrt == $dept->id ? 'selected' : '' }}>
@@ -174,7 +179,8 @@
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        <div class="form-text">Select existing or add new (will be saved with employee)</div>
+                        <small class="text-muted">Select existing or add new (will be saved with employee)</small>
+                        <div class="invalid-feedback department-error d-none">Please select a department</div>
                         @error('parent_dpt_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -185,20 +191,20 @@
                         <label class="form-label fw-medium">Sub Department</label>
                         @php $selectedDpt = old('department_id') ?? ($employee?->employeeDetail?->department_id ?? ''); @endphp
                         <div class="input-group">
-                            <select name="department_id" id="department_id" class="form-select" data-selected="{{ $selectedDpt }}">
+                            <select name="department_id" id="department_id" class="form-select subdepartment-select" data-selected="{{ $selectedDpt }}">
                                 <option value="">Select Sub Department</option>
                             </select>
                             <button type="button" class="btn btn-outline-primary" id="openDptModalBtn">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        <div class="form-text">Select existing or add new (will be saved with employee)</div>
+                        <small class="text-muted">Select existing or add new (will be saved with employee)</small>
                     </div>
 
                     <!-- Profile Picture -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Profile Picture</label>
-                        <input type="file" name="profile_picture" class="form-control" accept="image/*">
+                        <input type="file" name="profile_picture" class="form-control profile-input" accept="image/*">
                         @if(isset($employee) && $employee?->profile_image)
                             <div class="mt-2">
                                 <img src="{{ asset($employee->profile_image) }}" alt="Current Profile" class="rounded-circle" width="60" height="60">
@@ -210,7 +216,7 @@
                     <!-- Country -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Country <span class="text-danger">*</span></label>
-                        <select name="country" id="country" class="form-select select2">
+                        <select name="country" id="country" class="form-select select2 country-select">
                             <option value="">Select Country</option>
                             @php $selectedCountry = old('country') ?? ($employee?->country ?? 'India'); @endphp
                             @foreach($countries as $country)
@@ -219,12 +225,13 @@
                                 </option>
                             @endforeach
                         </select>
+                        <div class="invalid-feedback country-error d-none">Please select a country</div>
                         @error('country')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <!-- Mobile - FIXED SECTION -->
+                    <!-- Mobile - COMPLETELY FIXED SECTION -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Mobile Number <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -235,7 +242,7 @@
                                    @if(isset($employee)) data-current-id="{{ $employee->id }}" @endif>
                         </div>
                         <small class="text-muted">Enter 10-digit mobile number without 0 or +91</small>
-                        <div id="mobile-error" class="text-danger small mt-1"></div>
+                        <div id="mobile-error" class="invalid-feedback mobile-error d-none"></div>
                         <input type="hidden" name="mobile_with_code" id="mobile_with_code" value="{{ old('mobile_with_code') ?? ($employee?->mobile ?? '') }}">
                         @error('mobile')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -246,20 +253,24 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Gender</label>
                         @php $gender = old('gender') ?? ($employee?->gender ?? '') @endphp
-                        <select name="gender" class="form-select">
+                        <select name="gender" class="form-select gender-select">
                             <option value="">Select Gender</option>
                             <option value="Male" {{ $gender === 'Male' ? 'selected' : '' }}>Male</option>
                             <option value="Female" {{ $gender === 'Female' ? 'selected' : '' }}>Female</option>
                             <option value="Other" {{ $gender === 'Other' ? 'selected' : '' }}>Other</option>
                             <option value="Prefer not to say" {{ $gender === 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                         </select>
+                        @error('gender')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Joining Date -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
-                        <input type="date" required class="form-control" name="joining_date" id="joining_date"
+                        <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
                                value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}">
+                        <div class="invalid-feedback joining-date-error d-none">Please select a valid joining date</div>
                         @error('joining_date')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -268,9 +279,10 @@
                     <!-- Date of Birth -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Date of Birth <span class="text-danger">*</span></label>
-                        <input type="date" name="dob" id="dob" class="form-control" required
+                        <input type="date" name="dob" id="dob" class="form-control dob-input" required
                                value="{{ old('dob') ?? ($employee?->dob ?? '') }}">
                         <small class="text-muted">As per government ID</small>
+                        <div class="invalid-feedback dob-error d-none">Please select a valid date of birth</div>
                         @error('dob')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -280,7 +292,7 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Reporting To</label>
                         @php $selectedReporting = old('reporting_to') ?? ($employee?->employeeDetail?->reporting_to ?? ''); @endphp
-                        <select name="reporting_to" class="form-select">
+                        <select name="reporting_to" class="form-select reporting-select">
                             <option value="">Select Reporting Manager</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" {{ $selectedReporting == $user->id ? 'selected' : '' }}>
@@ -288,6 +300,9 @@
                                 </option>
                             @endforeach
                         </select>
+                        @error('reporting_to')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Language -->
@@ -304,11 +319,12 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">User Role <span class="text-danger">*</span></label>
                         @php $role = old('user_role') ?? ($employee?->role ?? '') @endphp
-                        <select name="user_role" class="form-select" required>
+                        <select name="user_role" class="form-select role-select" required>
                             <option value="">Select Role</option>
                             <option value="employee" {{ $role === 'employee' ? 'selected' : '' }}>Employee</option>
                             <option value="admin" {{ $role === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
+                        <div class="invalid-feedback role-error d-none">Please select a user role</div>
                         @error('user_role')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -326,47 +342,63 @@
                     <!-- Address -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-medium">Address</label>
-                        <textarea name="address" class="form-control" rows="3" placeholder="Enter complete address">{{ old('address') ?? ($employee?->address ?? '') }}</textarea>
+                        <textarea name="address" class="form-control address-input" rows="3" placeholder="Enter complete address">{{ old('address') ?? ($employee?->address ?? '') }}</textarea>
+                        @error('address')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- About -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-medium">About</label>
-                        <textarea name="about" class="form-control" rows="3" placeholder="About the employee">{{ old('about') ?? ($employee?->about ?? '') }}</textarea>
+                        <textarea name="about" class="form-control about-input" rows="3" placeholder="About the employee">{{ old('about') ?? ($employee?->about ?? '') }}</textarea>
+                        @error('about')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <!-- Login Allowed - IMPORTANT: Controls login access -->
+                    <!-- Login Allowed -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Allow Login? <span class="text-danger">*</span></label>
                         @php $loginAllowed = old('login_allowed') ?? ($employee?->login_allowed ?? '1'); @endphp
-                        <select name="login_allowed" class="form-select" required>
+                        <select name="login_allowed" class="form-select login-allowed-select" required>
                             <option value="1" {{ $loginAllowed == '1' ? 'selected' : '' }}>Yes - Can login to system</option>
                             <option value="0" {{ $loginAllowed == '0' ? 'selected' : '' }}>No - Cannot login</option>
                         </select>
                         <small class="text-muted">Employee can only login if this is "Yes" AND Status is "Active"</small>
+                        <div class="invalid-feedback login-allowed-error d-none">Please select login permission</div>
+                        @error('login_allowed')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Email Notifications -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Email Notifications?</label>
                         @php $emailNotif = old('email_notifications') ?? ($employee?->email_notifications ?? '1'); @endphp
-                        <select name="email_notifications" class="form-select">
+                        <select name="email_notifications" class="form-select email-notif-select">
                             <option value="1" {{ $emailNotif == '1' ? 'selected' : '' }}>Yes - Receive emails</option>
                             <option value="0" {{ $emailNotif == '0' ? 'selected' : '' }}>No - No emails</option>
                         </select>
+                        @error('email_notifications')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Skills -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Skills</label>
-                        <textarea name="skills" class="form-control" rows="3" placeholder="e.g. PHP, Laravel, JavaScript">{{ old('skills') ?? ($employee?->skills ?? '') }}</textarea>
+                        <textarea name="skills" class="form-control skills-input" rows="3" placeholder="e.g. PHP, Laravel, JavaScript">{{ old('skills') ?? ($employee?->skills ?? '') }}</textarea>
+                        @error('skills')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Employment Type -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Employment Type <span class="text-danger">*</span></label>
                         @php $employmentType = old('employment_type') ?? ($employee?->employment_type ?? '') @endphp
-                        <select name="employment_type" id="employment_type" class="form-select" required>
+                        <select name="employment_type" id="employment_type" class="form-select employment-type-select" required>
                             <option value="">Select Type</option>
                             <option value="full_time" {{ $employmentType === 'full_time' ? 'selected' : '' }}>Full Time</option>
                             <option value="part_time" {{ $employmentType === 'part_time' ? 'selected' : '' }}>Part Time</option>
@@ -374,6 +406,7 @@
                             <option value="internship" {{ $employmentType === 'internship' ? 'selected' : '' }}>Internship</option>
                             <option value="trainee" {{ $employmentType === 'trainee' ? 'selected' : '' }}>Trainee</option>
                         </select>
+                        <div class="invalid-feedback employment-type-error d-none">Please select employment type</div>
                         @error('employment_type')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -383,7 +416,7 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Marital Status</label>
                         @php $marital = old('marital_status') ?? ($employee?->marital_status ?? '') @endphp
-                        <select name="marital_status" id="marital_status" class="form-select">
+                        <select name="marital_status" id="marital_status" class="form-select marital-status-select">
                             <option value="">Select Status</option>
                             <option value="single" {{ $marital === 'single' ? 'selected' : '' }}>Single</option>
                             <option value="married" {{ $marital === 'married' ? 'selected' : '' }}>Married</option>
@@ -393,19 +426,23 @@
                             <option value="divorced" {{ $marital === 'divorced' ? 'selected' : '' }}>Divorced</option>
                             <option value="engaged" {{ $marital === 'engaged' ? 'selected' : '' }}>Engaged</option>
                         </select>
+                        @error('marital_status')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Business Address -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Business Address <span class="text-danger">*</span></label>
-                        <textarea name="business_address" class="form-control" required>{{ old('business_address') ?? ($employee?->employeeDetail?->business_address ?? 'Kolkata') }}</textarea>
+                        <textarea name="business_address" class="form-control business-address-input" required>{{ old('business_address') ?? ($employee?->employeeDetail?->business_address ?? 'Kolkata') }}</textarea>
+                        <div class="invalid-feedback business-address-error d-none">Please enter business address</div>
                         @error('business_address')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
 
-                <!-- Status Section - IMPORTANT: Controls employment status -->
+                <!-- Status Section -->
                 <div class="row">
                     <div class="col-12">
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">
@@ -417,7 +454,7 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Employment Status <span class="text-danger">*</span></label>
                         @php $status = old('status') ?? ($employee?->employeeDetail?->status ?? 'Active') @endphp
-                        <div class="d-flex gap-3">
+                        <div class="d-flex gap-3 status-radio-group">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="status" id="status-active" value="Active" {{ $status === 'Active' ? 'checked' : '' }} onchange="toggleExitDate()">
                                 <label class="form-check-label text-success fw-medium" for="status-active">
@@ -432,6 +469,7 @@
                             </div>
                         </div>
                         <small class="text-muted">Employee can only login if this is "Active" AND Login Allowed is "Yes"</small>
+                        <div class="invalid-feedback status-error d-none">Please select employment status</div>
                         @error('status')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -440,8 +478,12 @@
                     <!-- Exit Date (Conditional) -->
                     <div class="col-md-4 mb-3" id="exit-date-container" style="display: {{ $status === 'Inactive' ? 'block' : 'none' }};">
                         <label class="form-label fw-medium">Exit Date</label>
-                        <input type="date" name="exit_date" id="exit_date" class="form-control"
+                        <input type="date" name="exit_date" id="exit_date" class="form-control exit-date-input"
                                value="{{ old('exit_date') ?? ($employee?->employeeDetail?->exit_date ?? '') }}">
+                        <div class="invalid-feedback exit-date-error d-none">Please select a valid exit date</div>
+                        @error('exit_date')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -469,7 +511,7 @@
     </div>
 </div>
 
-<!-- Designation Modal -->
+<!-- Modals (same as before) -->
 <div class="modal fade" id="designationModal" tabindex="-1" aria-labelledby="designationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -501,7 +543,6 @@
     </div>
 </div>
 
-<!-- Department Modal -->
 <div class="modal fade" id="prtModal" tabindex="-1" aria-labelledby="prtModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -524,7 +565,6 @@
     </div>
 </div>
 
-<!-- Sub Department Modal -->
 <div class="modal fade" id="dptModal" tabindex="-1" aria-labelledby="dptModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -631,10 +671,18 @@
     /* Validation styling */
     .is-invalid {
         border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
     }
 
     .is-valid {
         border-color: #198754 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
     }
 
     .mobile-input.error {
@@ -677,6 +725,21 @@
         height: 48px;
     }
 
+    /* Error message styling */
+    .invalid-feedback {
+        display: none;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+
+    .invalid-feedback.d-block {
+        display: block !important;
+    }
+
+    .invalid-feedback.d-none {
+        display: none !important;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .card-body {
@@ -712,6 +775,24 @@ $(document).ready(function() {
     $('.select2').select2({
         theme: "bootstrap-5",
         width: '100%'
+    });
+
+    // Clear all error messages on input
+    $('input, select, textarea').on('input change', function() {
+        $(this).removeClass('is-invalid');
+        $(this).next('.invalid-feedback').addClass('d-none').removeClass('d-block');
+
+        // Special handling for radio buttons
+        if ($(this).is(':radio')) {
+            const name = $(this).attr('name');
+            $(`input[name="${name}"]`).removeClass('is-invalid');
+            $(`.${name}-error`).addClass('d-none').removeClass('d-block');
+        }
+
+        // For mobile input specifically
+        if ($(this).attr('id') === 'mobile_only_digits') {
+            $('#mobile-error').addClass('d-none').removeClass('d-block');
+        }
     });
 
     // Toggle exit date based on status
@@ -777,51 +858,139 @@ $(document).ready(function() {
         });
     });
 
-    // Mobile number validation and format
+    // Mobile number validation - FIXED VERSION
     $('#mobile_only_digits').on('input', function(e) {
         let value = $(this).val().replace(/\D/g, '').slice(0, 10);
         if (value.length > 0 && value[0] === '0') {
             value = value.replace(/^0+/, '');
         }
         $(this).val(value);
-        $('#mobile-error').text('').hide();
-        $(this).removeClass('error valid');
+
+        // Clear error message on input
+        $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
+        $(this).removeClass('error valid is-invalid');
     });
 
-    // Check mobile uniqueness on blur
+    // Check mobile uniqueness on blur - FIXED VERSION
+    let mobileCheckAjax = null;
     $('#mobile_only_digits').on('blur', function() {
         const value = $(this).val().trim();
         const employeeId = $(this).data('current-id') || null;
 
-        if (value.length === 10 && /^[1-9]\d{9}$/.test(value)) {
-            // Update hidden mobile field
-            $('#mobile_with_code').val('+91' + value);
+        // Clear any existing error
+        $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
+        $(this).removeClass('error valid is-invalid');
 
-            // Check uniqueness via AJAX
-            $.ajax({
-                url: '{{ route("employees.check-mobile") }}',
-                method: 'POST',
-                data: {
-                    mobile: value,
-                    employee_id: employeeId,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.exists) {
-                        $('#mobile_only_digits').addClass('error').removeClass('valid');
-                        $('#mobile-error').text('This mobile number is already registered').show();
-                    } else {
-                        $('#mobile_only_digits').removeClass('error').addClass('valid');
-                        $('#mobile-error').text('').hide();
-                    }
-                },
-                error: function() {
-                    $('#mobile-error').text('Error checking mobile number').show();
+        // Only validate if field is not empty
+        if (value.length === 0) {
+            $(this).removeClass('error valid is-invalid');
+            return;
+        }
+
+        // Format validation
+        if (!/^[1-9]\d{9}$/.test(value)) {
+            // Invalid mobile number
+            $(this).addClass('is-invalid');
+            $('#mobile-error').text('Please enter a valid 10-digit mobile number').removeClass('d-none').addClass('d-block');
+            return;
+        }
+
+        // Valid format - update hidden field
+        $('#mobile_with_code').val('+91' + value);
+        $(this).addClass('valid').removeClass('is-invalid');
+
+        // Check uniqueness via AJAX
+        if (mobileCheckAjax) {
+            mobileCheckAjax.abort();
+        }
+
+        mobileCheckAjax = $.ajax({
+            url: '{{ route("employees.check-mobile") }}',
+            method: 'POST',
+            data: {
+                mobile: value,
+                employee_id: employeeId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.exists) {
+                    $('#mobile_only_digits').addClass('is-invalid').removeClass('valid');
+                    $('#mobile-error').text('This mobile number is already registered').removeClass('d-none').addClass('d-block');
+                } else {
+                    $('#mobile_only_digits').removeClass('is-invalid').addClass('valid');
+                    $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
                 }
-            });
-        } else if (value.length > 0) {
-            $('#mobile_only_digits').addClass('error').removeClass('valid');
-            $('#mobile-error').text('Please enter a valid 10-digit mobile number').show();
+            },
+            error: function(xhr, status, error) {
+                // Only show error if it's not an abort
+                if (status !== 'abort') {
+                    console.error('Mobile check error:', error);
+                    // DON'T show error to user - just log it
+                    // The mobile number is already validated for format
+                    $('#mobile_only_digits').removeClass('is-invalid');
+                    $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
+                }
+            }
+        });
+    });
+
+    // Email validation
+    $('.email-input').on('blur', function() {
+        const email = $(this).val().trim();
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                $(this).addClass('is-invalid');
+                $(this).next('.email-error').text('Please enter a valid email address').removeClass('d-none').addClass('d-block');
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).next('.email-error').addClass('d-none').removeClass('d-block');
+            }
+        }
+    });
+
+    // Password validation
+    $('.password-input').on('blur', function() {
+        const password = $(this).val().trim();
+        if (password && password.length > 0) {
+            if (password.length < 8) {
+                $(this).addClass('is-invalid');
+                $(this).next('.password-error').removeClass('d-none').addClass('d-block');
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).next('.password-error').addClass('d-none').removeClass('d-block');
+            }
+        }
+    });
+
+    // Date validation
+    $('.dob-input').on('blur', function() {
+        const dob = $(this).val();
+        if (dob) {
+            const dobDate = new Date(dob);
+            const today = new Date();
+            if (dobDate >= today) {
+                $(this).addClass('is-invalid');
+                $(this).next('.dob-error').text('Date of birth must be in the past').removeClass('d-none').addClass('d-block');
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).next('.dob-error').addClass('d-none').removeClass('d-block');
+            }
+        }
+    });
+
+    $('.joining-date-input').on('blur', function() {
+        const joiningDate = $(this).val();
+        if (joiningDate) {
+            const joinDate = new Date(joiningDate);
+            const today = new Date();
+            if (joinDate > today) {
+                $(this).addClass('is-invalid');
+                $(this).next('.joining-date-error').text('Joining date cannot be in the future').removeClass('d-none').addClass('d-block');
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).next('.joining-date-error').addClass('d-none').removeClass('d-block');
+            }
         }
     });
 
@@ -876,7 +1045,7 @@ $(document).ready(function() {
         $('#dptModal').modal('show');
     });
 
-    // Save new designation to hidden field (not to database yet)
+    // Save new designation to hidden field
     $('#saveDesignationBtn').click(function() {
         const designationName = $('#designationName').val().trim();
 
@@ -919,7 +1088,7 @@ $(document).ready(function() {
         });
     });
 
-    // Save new department to hidden field (not to database yet)
+    // Save new department to hidden field
     $('#savePrtDepartmentBtn').click(function() {
         const deptName = $('#prt_dpt_name').val().trim();
 
@@ -962,7 +1131,7 @@ $(document).ready(function() {
         });
     });
 
-    // Save new sub department to hidden field (not to database yet)
+    // Save new sub department to hidden field
     $('#saveSubDepartmentBtn').click(function() {
         const subDeptName = $('#dpt_name').val().trim();
         const parentId = $('#dpt_parent_select').val();
@@ -1011,54 +1180,115 @@ $(document).ready(function() {
         let isValid = true;
         let firstError = null;
 
-        // Clear previous validation
+        // Clear all previous validation
         $(this).find('.is-invalid').removeClass('is-invalid');
-        $(this).find('.invalid-feedback').remove();
+        $(this).find('.invalid-feedback').addClass('d-none').removeClass('d-block');
 
         // Validate required fields
         $(this).find('[required]').each(function() {
-            if (!$(this).val().trim()) {
-                $(this).addClass('is-invalid');
-                if (!$(this).next('.invalid-feedback').length) {
-                    $(this).after('<div class="invalid-feedback">This field is required</div>');
+            // Skip hidden fields
+            if ($(this).is(':hidden')) return;
+
+            let value = $(this).val();
+            let isRadio = $(this).is(':radio');
+            let isCheckbox = $(this).is(':checkbox');
+
+            if (isRadio || isCheckbox) {
+                // For radio/checkbox, check if any in group is checked
+                const name = $(this).attr('name');
+                const isChecked = $(`input[name="${name}"]:checked`).length > 0;
+                if (!isChecked) {
+                    $(`input[name="${name}"]`).first().addClass('is-invalid');
+                    $(`.${name}-error`).removeClass('d-none').addClass('d-block');
+                    isValid = false;
+                    if (!firstError) firstError = $(`input[name="${name}"]`).first();
                 }
-                isValid = false;
-                if (!firstError) firstError = $(this);
+            } else if ($(this).is('select')) {
+                if (!value || value === '') {
+                    $(this).addClass('is-invalid');
+                    $(this).next(`.${$(this).attr('class').split(' ').find(c => c.includes('-select'))}-error`).removeClass('d-none').addClass('d-block');
+                    isValid = false;
+                    if (!firstError) firstError = $(this);
+                }
+            } else {
+                // Handle input fields
+                if (!value || value.toString().trim() === '') {
+                    $(this).addClass('is-invalid');
+                    $(this).next(`.${$(this).attr('class').split(' ').find(c => c.includes('-input'))}-error`).removeClass('d-none').addClass('d-block');
+                    isValid = false;
+                    if (!firstError) firstError = $(this);
+                }
             }
         });
 
-        // Validate email format
+        // Validate email format if provided
         const email = $('input[name="email"]').val().trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (email && !emailRegex.test(email)) {
-            $('input[name="email"]').addClass('is-invalid');
-            if (!$('input[name="email"]').next('.invalid-feedback').length) {
-                $('input[name="email"]').after('<div class="invalid-feedback">Please enter a valid email address</div>');
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                $('input[name="email"]').addClass('is-invalid');
+                $('.email-error').text('Please enter a valid email address').removeClass('d-none').addClass('d-block');
+                isValid = false;
+                if (!firstError) firstError = $('input[name="email"]');
             }
-            isValid = false;
-            if (!firstError) firstError = $('input[name="email"]');
         }
 
-        // Validate mobile format
+        // Validate mobile format if provided
         const mobile = $('#mobile_only_digits').val().trim();
-        if (mobile && !/^[1-9]\d{9}$/.test(mobile)) {
-            $('#mobile_only_digits').addClass('is-invalid');
-            if (!$('#mobile_only_digits').next('.invalid-feedback').length) {
-                $('#mobile_only_digits').after('<div class="invalid-feedback">Please enter a valid 10-digit mobile number</div>');
+        if (mobile) {
+            if (!/^[1-9]\d{9}$/.test(mobile)) {
+                $('#mobile_only_digits').addClass('is-invalid');
+                $('#mobile-error').text('Please enter a valid 10-digit mobile number').removeClass('d-none').addClass('d-block');
+                isValid = false;
+                if (!firstError) firstError = $('#mobile_only_digits');
             }
-            isValid = false;
-            if (!firstError) firstError = $('#mobile_only_digits');
         }
 
         // Validate password if provided
         const password = $('#password').val();
-        if (password && password.length < 8) {
-            $('#password').addClass('is-invalid');
-            if (!$('#password').next('.invalid-feedback').length) {
-                $('#password').after('<div class="invalid-feedback">Password must be at least 8 characters</div>');
+        if (password && password.length > 0) {
+            if (password.length < 8) {
+                $('#password').addClass('is-invalid');
+                $('.password-error').removeClass('d-none').addClass('d-block');
+                isValid = false;
+                if (!firstError) firstError = $('#password');
             }
-            isValid = false;
-            if (!firstError) firstError = $('#password');
+        }
+
+        // Validate date fields
+        const dob = $('#dob').val();
+        if (dob) {
+            const dobDate = new Date(dob);
+            const today = new Date();
+            if (dobDate >= today) {
+                $('#dob').addClass('is-invalid');
+                $('.dob-error').text('Date of birth must be in the past').removeClass('d-none').addClass('d-block');
+                isValid = false;
+                if (!firstError) firstError = $('#dob');
+            }
+        }
+
+        const joiningDate = $('#joining_date').val();
+        if (joiningDate) {
+            const joinDate = new Date(joiningDate);
+            const today = new Date();
+            if (joinDate > today) {
+                $('#joining_date').addClass('is-invalid');
+                $('.joining-date-error').text('Joining date cannot be in the future').removeClass('d-none').addClass('d-block');
+                isValid = false;
+                if (!firstError) firstError = $('#joining_date');
+            }
+        }
+
+        // Validate exit date if status is inactive
+        if ($('#status-inactive').is(':checked')) {
+            const exitDate = $('#exit_date').val();
+            if (!exitDate) {
+                $('#exit_date').addClass('is-invalid');
+                $('.exit-date-error').text('Exit date is required for inactive status').removeClass('d-none').addClass('d-block');
+                isValid = false;
+                if (!firstError) firstError = $('#exit_date');
+            }
         }
 
         if (!isValid) {
@@ -1077,7 +1307,7 @@ $(document).ready(function() {
             return false;
         }
 
-        // Update mobile with code
+        // Update mobile with code if valid
         if (mobile && /^[1-9]\d{9}$/.test(mobile)) {
             $('#mobile_with_code').val('+91' + mobile);
         }

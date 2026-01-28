@@ -11,7 +11,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Demo: Login Basic - Pages | Sneat - Bootstrap Dashboard FREE</title>
+    <title>Login - PMS | Project Management System</title>
 
     <meta name="description" content="" />
 
@@ -27,28 +27,23 @@
 
     <link rel="stylesheet" href="admin/assets/vendor/fonts/iconify-icons.css" />
 
-    <!-- Core CSS -->
-    <!-- build:css assets/vendor/css/theme.css  -->
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
+    <!-- Core CSS -->
     <link rel="stylesheet" href="admin/assets/vendor/css/core.css" />
     <link rel="stylesheet" href="admin/assets/css/demo.css" />
 
     <!-- Vendors CSS -->
-
     <link rel="stylesheet" href="admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
-    <!-- endbuild -->
-
     <!-- Page CSS -->
-    <!-- Page -->
     <link rel="stylesheet" href="admin/assets/vendor/css/pages/page-auth.css" />
 
     <!-- Helpers -->
     <script src="admin/assets/vendor/js/helpers.js"></script>
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
 
-    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-
+    <!-- Config -->
     <script src="admin/assets/js/config.js"></script>
   </head>
 
@@ -119,13 +114,93 @@
                 </a>
               </div>
               <!-- /Logo -->
-              <h4 class="mb-1">Welcome to pms! 👋</h4>
+              <h4 class="mb-1">Welcome to PMS! 👋</h4>
               <p class="mb-6">Please sign-in to your account and start the adventure</p>
 
-               <!-- Display success message if available -->
+              <!-- Display success message if available -->
               @if(session('success'))
-                  <div class="alert alert-success">
+                  <div class="alert alert-success alert-dismissible fade show">
+                      <i class="fas fa-check-circle me-2"></i>
                       {{ session('success') }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+              @endif
+
+              <!-- Display custom error messages -->
+              @if ($errors->any())
+                  <div class="alert alert-danger alert-dismissible fade show mb-4">
+                      <div class="d-flex align-items-center">
+                          <i class="fas fa-exclamation-triangle me-2"></i>
+                          <strong>Login Failed</strong>
+                      </div>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+                      <div class="mt-2">
+                          @foreach ($errors->all() as $error)
+                              @if (str_contains($error, 'active but login is blocked'))
+                                  <div class="alert alert-warning border-0 p-3 mb-2">
+                                      <div class="d-flex align-items-center">
+                                          <i class="fas fa-user-lock text-warning me-2"></i>
+                                          <div>
+                                              <strong class="d-block">{{ $error }}</strong>
+                                              <small class="text-muted mt-1 d-block">
+                                                  <i class="fas fa-info-circle me-1"></i>
+                                                  Your account exists but admin has disabled login access.
+                                              </small>
+                                          </div>
+                                      </div>
+                                  </div>
+                              @elseif (str_contains($error, 'account is inactive') && !str_contains($error, 'and login is blocked'))
+                                  <div class="alert alert-info border-0 p-3 mb-2">
+                                      <div class="d-flex align-items-center">
+                                          <i class="fas fa-user-slash text-info me-2"></i>
+                                          <div>
+                                              <strong class="d-block">{{ $error }}</strong>
+                                              <small class="text-muted mt-1 d-block">
+                                                  <i class="fas fa-info-circle me-1"></i>
+                                                  Your employment status is marked as inactive.
+                                              </small>
+                                          </div>
+                                      </div>
+                                  </div>
+                              @elseif (str_contains($error, 'inactive and login is blocked'))
+                                  <div class="alert alert-secondary border-0 p-3 mb-2">
+                                      <div class="d-flex align-items-center">
+                                          <i class="fas fa-ban text-secondary me-2"></i>
+                                          <div>
+                                              <strong class="d-block">{{ $error }}</strong>
+                                              <small class="text-muted mt-1 d-block">
+                                                  <i class="fas fa-info-circle me-1"></i>
+                                                  Your account is inactive and login access is blocked.
+                                              </small>
+                                          </div>
+                                      </div>
+                                  </div>
+                              @elseif (str_contains($error, 'credentials do not match') || str_contains($error, 'auth.failed'))
+                                  <div class="alert alert-danger border-0 p-3 mb-2">
+                                      <div class="d-flex align-items-center">
+                                          <i class="fas fa-key text-danger me-2"></i>
+                                          <div>
+                                              <strong class="d-block">Invalid email or password</strong>
+                                              <small class="text-muted mt-1 d-block">
+                                                  <i class="fas fa-info-circle me-1"></i>
+                                                  Please check your credentials and try again.
+                                              </small>
+                                          </div>
+                                      </div>
+                                  </div>
+                              @else
+                                  <div class="alert alert-danger border-0 p-3 mb-2">
+                                      <div class="d-flex align-items-center">
+                                          <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                          <div>
+                                              <strong class="d-block">{{ $error }}</strong>
+                                          </div>
+                                      </div>
+                                  </div>
+                              @endif
+                          @endforeach
+                      </div>
                   </div>
               @endif
 
@@ -133,24 +208,10 @@
                   @csrf
                 <div class="mb-6">
                   <label for="email" class="form-label">Email or Username</label>
-                  
-                     <input type="text" type="email" name="email" :value="old('email')" required autofocus autocomplete="email" class="form-control" id="email" required>
-
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-
-                 
+                  <input type="text" type="email" name="email" :value="old('email')" required autofocus autocomplete="email" class="form-control" id="email" required>
+                  <x-input-error :messages="$errors->get('email')" class="mt-2" />
                 </div>
-                
-                <!--<div class="mb-6 form-password-toggle">-->
-                <!--  <label class="form-label" for="password">Password</label>-->
-                <!--  <div class="input-group input-group-merge">-->
-                <!--    <input type="password" id="password" type="password"-->
-                <!--      name="password"  class="form-control"  required autocomplete="new-password" >-->
-                <!--      <x-input-error :messages="$errors->get('password')" class="mt-2" />-->
-                <!--    <span class="input-group-text cursor-pointer"><i class="icon-base bx bx-hide"></i></span>-->
-                <!--  </div>-->
-                <!--</div>-->
-                
+
                 <div class="mb-6 form-password-toggle">
                   <label class="form-label" for="password">Password</label>
                   <div class="input-group input-group-merge">
@@ -161,7 +222,6 @@
                     </span>
                   </div>
                 </div>
-
 
                 <div class="mb-8">
                   <div class="d-flex justify-content-between">
@@ -177,13 +237,15 @@
                 <div class="mb-6">
                   <button class="btn btn-primary d-grid w-100" type="submit">Login</button>
                 </div>
-              </form> 
+              </form>
 
-               @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-                @endif
+              @if (Route::has('password.request'))
+                <p class="text-center mb-3">
+                  <a class="text-decoration-none" href="{{ route('password.request') }}">
+                      {{ __('Forgot your password?') }}
+                  </a>
+                </p>
+              @endif
 
               <p class="text-center">
                 <span>New on our platform?</span>
@@ -191,6 +253,20 @@
                   <span>Create an account</span>
                 </a>
               </p>
+
+              <!-- Login Status Info -->
+              <div class="alert alert-light border mt-4">
+                  <small class="text-muted">
+                      <i class="fas fa-info-circle me-1"></i>
+                      <strong>Note:</strong> If you cannot login, it could be because:
+                      <ul class="mb-0 mt-2 ps-3">
+                          <li>Your account is inactive</li>
+                          <li>Admin has blocked login access</li>
+                          <li>Wrong email or password</li>
+                      </ul>
+                      Please contact administrator if you need assistance.
+                  </small>
+              </div>
             </div>
           </div>
           <!-- /Register -->
@@ -200,45 +276,80 @@
 
     <!-- / Content -->
 
-
     <!-- Core JS -->
-
     <script src="../assets/vendor/libs/jquery/jquery.js"></script>
-
     <script src="../assets/vendor/libs/popper/popper.js"></script>
     <script src="../assets/vendor/js/bootstrap.js"></script>
-
     <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-
     <script src="../assets/vendor/js/menu.js"></script>
 
-    <!-- endbuild -->
-
-    <!-- Vendors JS -->
-
     <!-- Main JS -->
-
     <script src="../assets/js/main.js"></script>
 
     <!-- Page JS -->
-
-    <!-- Place this tag before closing body tag for github widget button. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    
+
     <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordField = document.getElementById('password');
-    const toggleIcon = document.getElementById('toggle-icon');
+      document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggle-icon');
 
-    togglePassword.addEventListener('click', function () {
-      const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordField.setAttribute('type', type);
+        togglePassword.addEventListener('click', function () {
+          const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordField.setAttribute('type', type);
 
-      toggleIcon.classList.toggle('bx-show');
-      toggleIcon.classList.toggle('bx-hide');
-    });
-  });
-</script>
+          toggleIcon.classList.toggle('bx-show');
+          toggleIcon.classList.toggle('bx-hide');
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+          const alerts = document.querySelectorAll('.alert');
+          alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          });
+        }, 5000);
+      });
+    </script>
+
+    <style>
+        .alert {
+            border-radius: 8px;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffecb5;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .alert-secondary {
+            background-color: #e2e3e5;
+            border-color: #d6d8db;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-light {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+        }
+        .form-control:focus {
+            border-color: #7367f0;
+            box-shadow: 0 0 0 0.2rem rgba(115, 103, 240, 0.25);
+        }
+        .btn-primary {
+            background-color: #7367f0;
+            border-color: #7367f0;
+        }
+        .btn-primary:hover {
+            background-color: #5e50ee;
+            border-color: #5e50ee;
+        }
+    </style>
   </body>
 </html>
