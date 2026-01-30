@@ -21,4 +21,10 @@ class ParentDepartment extends Model
     {
         return $this->hasMany(Department::class, 'parent_dpt_id');
     }
+
+    // All employees assigned to this parent department
+    public function employees()
+    {
+        return $this->hasMany(EmployeeDetail::class, 'parent_dpt_id');
+    }
 }

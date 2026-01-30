@@ -3,24 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Award;
-use App\Models\Appreciations; // This is plural
+use App\Models\Appreciations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AwardController extends Controller
 {
-    // Awards List (with filtering)
     public function index(Request $request)
     {
-        $awards = Award::with(['user', 'appreciation']); // Changed to plural
+        $awards = Award::with(['user', 'appreciation']);
 
-        // Employees see only THEIR awards
         if (Auth::user()->role !== 'admin') {
             $awards->where('user_id', Auth::id());
         }
 
-        // Keep all your existing filter logic exactly as is
         if ($request->filled('duration')) {
             $duration = $request->duration;
 
@@ -83,16 +80,9 @@ class AwardController extends Controller
         return view('admin.awards.index', compact('awards'));
     }
 
-    // Appreciations List (Templates/Categories)
     public function appreciationIndex(Request $request)
     {
-        // Redirect employees to main awards page
-        if (Auth::user()->role !== 'admin') {
-            return redirect()->route('awards.index')
-                ->with('info', 'Appreciation templates are managed by administrators.');
-        }
-
-        $appreciations = Appreciations::query(); // Changed to plural
+        $appreciations = Appreciations::query();
 
         if ($request->has('status') && $request->status != '') {
             $appreciations->where('status', $request->status);
@@ -102,10 +92,9 @@ class AwardController extends Controller
         return view('admin.awards.appreciation-index', compact('appreciations'));
     }
 
-    // Employee's Personal Awards View
     public function myAwards()
     {
-        $awards = Award::with('appreciation') // Changed to plural
+        $awards = Award::with('appreciation')
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
@@ -113,31 +102,23 @@ class AwardController extends Controller
         return redirect()->route('awards.index');
     }
 
-    // public function create()
-    // {
-    //     $users = \App\Models\User::where('role', 'employee')->get();
-    //     $appreciations = Appreciations::where('status', 'active')->get(); // Changed to plural
-    //     return view('admin.awards.create', compact('users', 'appreciations'));
-    // }
-
-
     public function create()
-{
-    $employees = \App\Models\User::where('role', 'employee')->get(); // Changed variable name
-    $appreciations = Appreciations::where('status', 'active')->get();
-    return view('admin.awards.create', compact('employees', 'appreciations')); // Changed to 'employees'
-}
-
-    public function apreciationCreate()
     {
-        return view('admin.awards.apreciation-create');
+        $employees = \App\Models\User::where('role', 'employee')->get();
+        $appreciations = Appreciations::where('status', 'active')->get();
+        return view('admin.awards.create', compact('employees', 'appreciations'));
+    }
+
+    public function appreciationCreate()
+    {
+        return view('admin.awards.appreciation-create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'appreciation_id' => 'required|exists:appreciations,id', // Table name stays singular
+            'appreciation_id' => 'required|exists:appreciations,id',
             'award_date' => 'required|date',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
@@ -160,37 +141,35 @@ class AwardController extends Controller
         return redirect()->route('awards.index')->with('success', 'Award assigned successfully.');
     }
 
-    public function apreciationStore(Request $request)
+    public function appreciationStore(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'given_to' => 'nullable|string|max:255',
-            'given_on' => 'nullable|date',
+            'color_code' => 'required|string|max:7',
             'status' => 'required|in:active,inactive',
         ]);
 
-        Appreciations::create([ // Changed to plural
+        Appreciations::create([
             'title' => $request->title,
-            'given_to' => $request->given_to,
-            'given_on' => $request->given_on,
+            'color_code' => $request->color_code,
             'status' => $request->status,
         ]);
 
-        return redirect()->route('awards.apreciation-index')->with('success', 'Appreciation created successfully.');
+        return redirect()->route('awards.appreciation-index')->with('success', 'Appreciation created successfully.');
     }
 
     public function edit($id)
     {
         $award = Award::findOrFail($id);
         $users = \App\Models\User::where('role', 'employee')->get();
-        $appreciations = Appreciations::where('status', 'active')->get(); // Changed to plural
+        $appreciations = Appreciations::where('status', 'active')->get();
         return view('admin.awards.edit', compact('award', 'users', 'appreciations'));
     }
 
     public function appreciationEdit($id)
     {
-        $appreciation = Appreciations::findOrFail($id); // Changed to plural
-        return view('admin.awards.apreciation-edit', compact('appreciation'));
+        $appreciation = Appreciations::findOrFail($id);
+        return view('admin.awards.appreciation-edit', compact('appreciation'));
     }
 
     public function update(Request $request, $id)
@@ -206,7 +185,6 @@ class AwardController extends Controller
 
         $photoPath = $award->photo;
         if ($request->hasFile('photo')) {
-            // Delete old photo if exists
             if ($award->photo && file_exists(public_path($award->photo))) {
                 unlink(public_path($award->photo));
             }
@@ -236,17 +214,16 @@ class AwardController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        $appreciation = Appreciations::findOrFail($id); // Changed to plural
+        $appreciation = Appreciations::findOrFail($id);
         $appreciation->update($request->all());
 
-        return redirect()->route('awards.apreciation-index')->with('success', 'Appreciation updated successfully.');
+        return redirect()->route('awards.appreciation-index')->with('success', 'Appreciation updated successfully.');
     }
 
     public function destroy($id)
     {
         $award = Award::findOrFail($id);
 
-        // Delete photo if exists
         if ($award->photo && file_exists(public_path($award->photo))) {
             unlink(public_path($award->photo));
         }
@@ -258,13 +235,13 @@ class AwardController extends Controller
 
     public function appreciationDestroy($id)
     {
-        $appreciation = Appreciations::findOrFail($id); // Changed to plural
+        $appreciation = Appreciations::findOrFail($id);
         $appreciation->delete();
 
         return redirect()->back()->with('success', 'Appreciation deleted successfully.');
     }
 
-    // Bulk Actions
+    // Bulk Actions for Awards
     public function bulkAction(Request $request)
     {
         $ids = $request->ids;
@@ -291,7 +268,8 @@ class AwardController extends Controller
         return response()->json(['message' => 'No action performed']);
     }
 
-    public function apreciationBulkAction(Request $request)
+    // NEW METHOD: Bulk Actions for Appreciations
+    public function appreciationBulkAction(Request $request)
     {
         $ids = $request->ids;
         $action = $request->action;
@@ -301,20 +279,30 @@ class AwardController extends Controller
         }
 
         if ($action === 'delete') {
-            Appreciations::whereIn('id', $ids)->delete(); // Changed to plural
-            return response()->json(['message' => 'Selected items deleted successfully!']);
+            Appreciations::whereIn('id', $ids)->delete();
+            return response()->json(['message' => 'Selected appreciation templates deleted successfully!']);
         }
 
-        if ($action === 'change_status') {
+        if ($action === 'status') {
             $status = $request->status;
             if (!$status) {
                 return response()->json(['message' => 'Please select a status'], 400);
             }
-            Appreciations::whereIn('id', $ids)->update(['status' => $status]); // Changed to plural
+            Appreciations::whereIn('id', $ids)->update(['status' => $status]);
             return response()->json(['message' => "Selected items updated to {$status}"]);
         }
 
         return response()->json(['message' => 'No action performed']);
+    }
+
+    // NEW METHOD: Update individual appreciation status
+    public function updateStatus(Request $request, $id)
+    {
+        $appreciation = Appreciations::findOrFail($id);
+        $appreciation->status = $request->status;
+        $appreciation->save();
+
+        return response()->json(['success' => true]);
     }
 
     public function bulkDelete(Request $request)

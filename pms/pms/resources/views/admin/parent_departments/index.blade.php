@@ -19,8 +19,8 @@
             </div>
         </div>
 
-        <!-- Flash Messages -->
-        @if($errors->any() || session('error') || session('success'))
+        <!-- Flash Messages - KEEP THIS FOR PAGE RELOAD MESSAGES -->
+        @if($errors->any() || session('error') || session('success') || session('warning'))
         <div class="row mb-4">
             <div class="col-12">
                 @if($errors->any())
@@ -41,10 +41,46 @@
                 @endif
 
                 @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    @php
+                        $isEmployeeError = str_contains(session('error'), 'tagged with employees');
+                        $isSubDeptError = str_contains(session('error'), 'sub-departments');
+                        $alertClass = $isEmployeeError ? 'alert-warning' : ($isSubDeptError ? 'alert-info' : 'alert-danger');
+                        $alertIcon = $isEmployeeError ? 'bi-person-badge-fill' : ($isSubDeptError ? 'bi-diagram-2-fill' : 'bi-x-circle-fill');
+                    @endphp
+
+                    <div class="alert {{ $alertClass }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                        <div class="d-flex align-items-start">
+                            <i class="bi {{ $alertIcon }} me-2 fs-5 mt-1"></i>
+                            <div>
+                                @if($isEmployeeError)
+                                    <strong class="d-block mb-1"><i class="bi bi-shield-exclamation me-1"></i> Cannot Delete Department</strong>
+                                    <div class="mb-2">{{ session('error') }}</div>
+                                    <div class="small bg-warning bg-opacity-10 p-2 rounded border border-warning border-opacity-25">
+                                        <i class="bi bi-lightbulb text-warning me-1"></i>
+                                        <span class="text-muted">Please reassign all employees from this department to another department before deleting.</span>
+                                    </div>
+                                @elseif($isSubDeptError)
+                                    <strong class="d-block mb-1"><i class="bi bi-diagram-2 me-1"></i> Department Contains Sub-Departments</strong>
+                                    <div class="mb-2">{{ session('error') }}</div>
+                                    <div class="small bg-info bg-opacity-10 p-2 rounded border border-info border-opacity-25">
+                                        <i class="bi bi-lightbulb text-info me-1"></i>
+                                        <span class="text-muted">Delete or move all sub-departments to another parent department first.</span>
+                                    </div>
+                                @else
+                                    <strong class="d-block mb-1"><i class="bi bi-exclamation-triangle me-1"></i> Error</strong>
+                                    <div>{{ session('error') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('warning'))
+                <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert">
                     <div class="d-flex align-items-center">
-                        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
-                        <div>{{ session('error') }}</div>
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <div>{{ session('warning') }}</div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -100,7 +136,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($departments as $index => $dpt)
+                            @foreach($departments as $index => $dpt)
                             <tr>
                                 <td class="text-center">
                                     <input type="checkbox" name="bulk_ids[]" class="row-checkbox form-check-input" value="{{ $dpt->id }}">
@@ -121,16 +157,19 @@
                                             <i class="bi bi-pencil-square me-1"></i>
                                             Edit
                                         </a>
+
                                         <form action="{{ route('parent-departments.destroy', $dpt) }}"
                                               method="POST"
-                                              class="d-inline"
-                                              onsubmit="return confirmDelete(this);">
+                                              class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
-                                                    class="btn btn-outline-danger d-flex align-items-center"
+                                            <button type="button"
+                                                    class="btn btn-outline-danger d-flex align-items-center delete-btn"
                                                     data-bs-toggle="tooltip"
-                                                    title="Delete Department">
+                                                    title="Delete Department"
+                                                    data-id="{{ $dpt->id }}"
+                                                    data-name="{{ $dpt->dpt_name }}"
+                                                    data-code="{{ $dpt->dpt_code }}">
                                                 <i class="bi bi-trash me-1"></i>
                                                 Delete
                                             </button>
@@ -138,23 +177,22 @@
                                     </div>
                                 </td>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="text-center py-5">
-                                    <div class="empty-state">
-                                        <i class="bi bi-building text-muted display-6 mb-3"></i>
-                                        <h5 class="text-muted">No Departments Found</h5>
-                                        <p class="text-muted small mb-4">Get started by creating your first department</p>
-                                        <a href="{{ route('parent-departments.create') }}" class="btn btn-primary">
-                                            <i class="bi bi-plus-circle me-1"></i>
-                                            Add Department
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
+                    @if($departments->isEmpty())
+                    <div class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="bi bi-building text-muted display-6 mb-3"></i>
+                            <h5 class="text-muted">No Departments Found</h5>
+                            <p class="text-muted small mb-4">Get started by creating your first department</p>
+                            <a href="{{ route('parent-departments.create') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Add Department
+                            </a>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             @if($departments->count())
@@ -282,6 +320,51 @@
         border-color: #0d6efd;
     }
 
+    /* Alert Custom Styling */
+    .alert-info {
+        background-color: #e7f1ff;
+        border-color: #b3d4ff;
+        color: #084298;
+    }
+
+    .alert-info .bi {
+        color: #084298;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #664d03;
+    }
+
+    .alert-warning .bi {
+        color: #664d03;
+    }
+
+    /* Delete Button Loading State */
+    .delete-btn.loading {
+        position: relative;
+        color: transparent !important;
+    }
+
+    .delete-btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin: -8px 0 0 -8px;
+        border: 2px solid #dc3545;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
     /* Responsive Adjustments */
     @media (max-width: 768px) {
         .header-actions {
@@ -339,9 +422,8 @@ $(document).ready(function () {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    // Initialize DataTable
+    // SIMPLE DataTable Initialization - FIXED VERSION
     const table = $('#parentTable').DataTable({
-        dom: '<"row mb-3"<"col-md-6"B><"col-md-6"f>>rt<"row mt-3"<"col-md-6"i><"col-md-6"p>>',
         paging: true,
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
@@ -351,41 +433,52 @@ $(document).ready(function () {
         autoWidth: false,
         buttons: [
             {
-                extend: 'copyHtml5',
+                extend: 'copy',
                 text: '<i class="bi bi-files"></i> Copy',
                 className: 'btn btn-sm btn-outline-secondary',
-                exportOptions: { columns: [1,2,3] }
+                exportOptions: {
+                    columns: [1, 2, 3] // Export only column 1 (#), 2 (Code), 3 (Department Name)
+                }
             },
             {
-                extend: 'csvHtml5',
+                extend: 'csv',
                 text: '<i class="bi bi-file-earmark-spreadsheet"></i> CSV',
                 className: 'btn btn-sm btn-outline-secondary',
-                exportOptions: { columns: [1,2,3] }
+                exportOptions: {
+                    columns: [1, 2, 3]
+                }
             },
             {
-                extend: 'excelHtml5',
+                extend: 'excel',
                 text: '<i class="bi bi-file-excel"></i> Excel',
                 className: 'btn btn-sm btn-outline-secondary',
-                exportOptions: { columns: [1,2,3] }
+                exportOptions: {
+                    columns: [1, 2, 3]
+                }
             },
             {
-                extend: 'pdfHtml5',
+                extend: 'pdf',
                 text: '<i class="bi bi-file-pdf"></i> PDF',
                 className: 'btn btn-sm btn-outline-secondary',
-                exportOptions: { columns: [1,2,3] }
+                exportOptions: {
+                    columns: [1, 2, 3]
+                }
             },
             {
                 extend: 'print',
                 text: '<i class="bi bi-printer"></i> Print',
                 className: 'btn btn-sm btn-outline-secondary',
-                exportOptions: { columns: [1,2,3] }
+                exportOptions: {
+                    columns: [1, 2, 3]
+                }
             }
         ],
         columnDefs: [
-            { orderable: false, targets: 0 },
-            { orderable: false, targets: 4 },
-            { searchable: false, targets: 0 },
-            { searchable: false, targets: 4 }
+            {
+                orderable: false,
+                searchable: false,
+                targets: [0, 4] // Column 0 (checkbox) and column 4 (actions) are not sortable/searchable
+            }
         ],
         language: {
             search: "Search departments:",
@@ -399,13 +492,6 @@ $(document).ready(function () {
                 next: "Next",
                 previous: "Previous"
             }
-        },
-        drawCallback: function(settings) {
-            // Reinitialize tooltips after table redraw
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
         }
     });
 
@@ -438,12 +524,115 @@ $(document).ready(function () {
         }
     });
 
-    // Delete confirmation function
-    window.confirmDelete = function(form) {
-        return confirm('Are you sure you want to delete this department? This action cannot be undone.');
-    };
+    // ====================== INDIVIDUAL DELETE ======================
+    $(document).on('click', '.delete-btn', function() {
+        const deleteBtn = $(this);
+        const form = deleteBtn.closest('form');
+        const departmentId = deleteBtn.data('id');
+        const departmentName = deleteBtn.data('name');
+        const departmentCode = deleteBtn.data('code');
 
-    // Bulk delete functionality
+        // Show confirmation dialog
+        if (!confirm(`Are you sure you want to delete department "${departmentName}" (${departmentCode})?\n\nThis action cannot be undone.`)) {
+            return;
+        }
+
+        // Show loading state
+        const originalHtml = deleteBtn.html();
+        deleteBtn.html('<i class="bi bi-hourglass-split me-1"></i> Deleting...');
+        deleteBtn.prop('disabled', true);
+        deleteBtn.addClass('loading');
+
+        // Submit via AJAX
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Remove the row from DataTable
+                    const row = form.closest('tr');
+                    table.row(row).remove().draw();
+
+                    // Show success message
+                    showAlert('success', response.message || 'Department deleted successfully.');
+
+                    // If table is empty, show empty state
+                    if (table.rows().count() === 0) {
+                        table.draw();
+                    }
+                } else if (response.status === 'error') {
+                    // Show error message with proper formatting
+                    let errorMsg = response.message;
+                    let alertType = 'danger';
+
+                    if (errorMsg.includes('tagged with employees')) {
+                        errorMsg = `<div>
+                            <strong><i class="bi bi-shield-exclamation me-1"></i> Cannot Delete Department</strong><br>
+                            <strong>"${departmentName}"</strong> ${errorMsg}
+                            <div class="small bg-warning bg-opacity-10 p-2 rounded border border-warning border-opacity-25 mt-2">
+                                <i class="bi bi-lightbulb text-warning me-1"></i>
+                                Please reassign all employees from this department to another department before deleting.
+                            </div>
+                        </div>`;
+                        alertType = 'warning';
+                    } else if (errorMsg.includes('sub-departments')) {
+                        errorMsg = `<div>
+                            <strong><i class="bi bi-diagram-2 me-1"></i> Department Contains Sub-Departments</strong><br>
+                            <strong>"${departmentName}"</strong> ${errorMsg}
+                            <div class="small bg-info bg-opacity-10 p-2 rounded border border-info border-opacity-25 mt-2">
+                                <i class="bi bi-lightbulb text-info me-1"></i>
+                                Delete or move all sub-departments to another parent department first.
+                            </div>
+                        </div>`;
+                        alertType = 'info';
+                    }
+
+                    showAlert(alertType, errorMsg);
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Something went wrong. Please try again.';
+                let alertType = 'danger';
+
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+
+                    if (msg.includes('tagged with employees')) {
+                        msg = `<div>
+                            <strong><i class="bi bi-shield-exclamation me-1"></i> Cannot Delete Department</strong><br>
+                            <strong>"${departmentName}"</strong> cannot be deleted because it is tagged with employees.
+                            <div class="small bg-warning bg-opacity-10 p-2 rounded border border-warning border-opacity-25 mt-2">
+                                <i class="bi bi-lightbulb text-warning me-1"></i>
+                                Please reassign all employees from this department to another department before deleting.
+                            </div>
+                        </div>`;
+                        alertType = 'warning';
+                    } else if (msg.includes('sub-departments')) {
+                        msg = `<div>
+                            <strong><i class="bi bi-diagram-2 me-1"></i> Department Contains Sub-Departments</strong><br>
+                            <strong>"${departmentName}"</strong> cannot be deleted because it has sub-departments.
+                            <div class="small bg-info bg-opacity-10 p-2 rounded border border-info border-opacity-25 mt-2">
+                                <i class="bi bi-lightbulb text-info me-1"></i>
+                                Delete or move all sub-departments to another parent department first.
+                            </div>
+                        </div>`;
+                        alertType = 'info';
+                    }
+                }
+
+                showAlert(alertType, msg);
+            },
+            complete: function() {
+                // Reset button state
+                deleteBtn.html(originalHtml);
+                deleteBtn.prop('disabled', false);
+                deleteBtn.removeClass('loading');
+            }
+        });
+    });
+
+    // ====================== BULK DELETE ======================
     $('#bulk-delete-btn').on('click', function() {
         const ids = $('.row-checkbox:checked').map(function() {
             return $(this).val();
@@ -454,7 +643,12 @@ $(document).ready(function () {
             return;
         }
 
-        if (!confirm('Are you sure you want to delete the selected department(s)? This action cannot be undone.')) {
+        // Get selected department names
+        const selectedNames = $('.row-checkbox:checked').map(function() {
+            return $(this).closest('tr').find('td:eq(3)').text().trim();
+        }).get().join(', ');
+
+        if (!confirm(`Are you sure you want to delete the following ${ids.length} department(s)?\n\n${selectedNames}\n\nThis action cannot be undone.`)) {
             return;
         }
 
@@ -473,19 +667,49 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function(res) {
-                if (res.status === 'success') {
-                    // Remove deleted rows
+                if (res.status === 'success' || res.status === 'warning') {
+                    // Remove deleted rows from DataTable
                     if (res.deleted_ids && res.deleted_ids.length) {
                         res.deleted_ids.forEach(function(id) {
+                            // Find and remove the row from DataTable
                             table.row($('.row-checkbox[value="' + id + '"]').closest('tr')).remove().draw();
                         });
                     }
 
                     // Reset checkboxes
                     $('#select-all, #select-all-header').prop('checked', false);
+                    $('.row-checkbox').closest('tr').removeClass('table-primary');
 
-                    // Show success message
-                    showAlert('success', res.message);
+                    // Show appropriate message
+                    const alertType = res.status === 'warning' ? 'warning' : 'success';
+
+                    // Format the message with HTML for better display
+                    let formattedMessage = res.message;
+                    if (res.blocked_employees > 0 || res.blocked_sub_departments > 0) {
+                        formattedMessage = '';
+
+                        if (res.deleted > 0) {
+                            formattedMessage += `<strong><i class="bi bi-check-circle-fill text-success me-1"></i>${res.deleted} department(s) deleted successfully.</strong><br><br>`;
+                        }
+
+                        if (res.blocked_sub_departments > 0) {
+                            formattedMessage += `<div class="mb-2">
+                                <strong><i class="bi bi-diagram-2 text-info me-1"></i>${res.blocked_sub_departments} department(s) contain sub-departments:</strong><br>
+                                <small class="text-muted">${res.blocked_sub_names.join(', ')}</small><br>
+                                <small class="text-info"><i class="bi bi-info-circle me-1"></i>Delete or move sub-departments first.</small>
+                            </div>`;
+                        }
+
+                        if (res.blocked_employees > 0) {
+                            formattedMessage += `<div>
+                                <strong><i class="bi bi-person-badge-fill text-warning me-1"></i>${res.blocked_employees} department(s) are tagged with employees:</strong><br>
+                                <small class="text-muted">${res.blocked_emp_names.join(', ')}</small><br>
+                                <small class="text-warning"><i class="bi bi-info-circle me-1"></i>Reassign employees to another department first.</small>
+                            </div>`;
+                        }
+                    }
+
+                    showAlert(alertType, formattedMessage);
 
                     // If all rows were deleted, show empty state
                     if (table.rows().count() === 0) {
@@ -499,6 +723,29 @@ $(document).ready(function () {
                 let msg = 'Something went wrong. Please try again.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
+
+                    // Check if it's an employee error
+                    if (msg.includes('tagged with employees')) {
+                        msg = `<div>
+                            <strong><i class="bi bi-shield-exclamation me-1"></i> Cannot Delete Department</strong><br>
+                            ${msg}
+                            <div class="small bg-warning bg-opacity-10 p-2 rounded border border-warning border-opacity-25 mt-2">
+                                <i class="bi bi-lightbulb text-warning me-1"></i>
+                                Please reassign all employees from this department to another department before deleting.
+                            </div>
+                        </div>`;
+                    }
+                    // Check if it's a sub-department error
+                    else if (msg.includes('sub-departments')) {
+                        msg = `<div>
+                            <strong><i class="bi bi-diagram-2 me-1"></i> Department Contains Sub-Departments</strong><br>
+                            ${msg}
+                            <div class="small bg-info bg-opacity-10 p-2 rounded border border-info border-opacity-25 mt-2">
+                                <i class="bi bi-lightbulb text-info me-1"></i>
+                                Delete or move all sub-departments to another parent department first.
+                            </div>
+                        </div>`;
+                    }
                 }
                 showAlert('danger', msg);
             },
@@ -515,12 +762,18 @@ $(document).ready(function () {
         // Remove any existing alerts
         $('.alert-dismissible.position-fixed').remove();
 
+        // Get appropriate icon
+        let icon = 'bi-x-circle-fill';
+        if (type === 'success') icon = 'bi-check-circle-fill';
+        if (type === 'warning') icon = 'bi-exclamation-triangle-fill';
+        if (type === 'info') icon = 'bi-info-circle-fill';
+
         // Create new alert
         const alert = $(`
-            <div class="alert alert-${type} alert-dismissible position-fixed top-3 end-3 shadow-lg fade show" role="alert" style="z-index: 1060; max-width: 400px;">
-                <div class="d-flex align-items-center">
-                    <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : type === 'warning' ? 'bi-exclamation-triangle-fill' : 'bi-x-circle-fill'} me-2 fs-5"></i>
-                    <div>${message}</div>
+            <div class="alert alert-${type} alert-dismissible position-fixed top-3 end-3 shadow-lg fade show" role="alert" style="z-index: 1060; max-width: 500px;">
+                <div class="d-flex align-items-start">
+                    <i class="bi ${icon} me-2 fs-5 mt-1"></i>
+                    <div style="flex: 1;">${message}</div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -528,10 +781,10 @@ $(document).ready(function () {
 
         $('body').append(alert);
 
-        // Auto remove after 5 seconds
+        // Auto remove after 7 seconds for complex messages
         setTimeout(() => {
             alert.alert('close');
-        }, 5000);
+        }, 7000);
     }
 
     // Add some visual feedback for table interactions

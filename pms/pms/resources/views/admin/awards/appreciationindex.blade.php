@@ -5,7 +5,7 @@
 <div class="container py-4">
 
     @if(auth()->user()->role === 'admin')
-    <form method="GET" action="{{ route('awards.apreciation-index') }}" class="mb-3 d-flex gap-2">
+    <form method="GET" action="{{ route('awards.appreciation-index') }}" class="mb-3 d-flex gap-2">
             <select name="status" class="form-select w-auto">
                 <option value="">-- All Status --</option>
                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
@@ -22,7 +22,7 @@
     <!-- Left side: Add Award button (only for admin) -->
     @if(auth()->user()->role === 'admin')
         <div>
-            <a href="{{ route('awards.apreciation-create') }}" class="btn btn-primary">
+            <a href="{{ route('awards.appreciation-create') }}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> &nbsp; Add Appreciation Template
             </a>
         </div>
@@ -183,39 +183,11 @@
 </div>
 @endif
 
-
-
 </div>
 
 @if(auth()->user()->role === 'admin')
 @push('js')
 <script>
-
-$(document).on('change', '.change-appreciation-status', function () {
-    let appreciationId = $(this).data('appreciation-id');
-    let newStatus = $(this).val();
-
-    $.ajax({
-        url: "{{ route('appreciations.updateStatus', ':id') }}".replace(':id', appreciationId),
-        type: "POST",
-        data: {
-            _token: "{{ csrf_token() }}",
-            status: newStatus
-        },
-        success: function (response) {
-            if (response.success) {
-                alert("Status updated successfully!");
-            } else {
-                alert("Something went wrong");
-            }
-        },
-        error: function () {
-            alert("Failed to update status");
-        }
-    });
-});
-
-
 $(document).ready(function () {
     // Initialize DataTable for admin
     var table = $('#appreciationTable').DataTable({
@@ -268,7 +240,7 @@ $(document).ready(function () {
         }
     });
 
-    // Apply action
+    // Apply action - FIXED URL
     $('#applyAction').on('click', function () {
         var action = $('#bulkAction').val();
         var status = $('#statusSelect').val();
@@ -289,7 +261,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: "{{ route('apreciation.bulkAction') }}",
+            url: "{{ route('awards.appreciation-bulk-action') }}",
             method: "POST",
             data: {
                 _token: "{{ csrf_token() }}",
@@ -297,21 +269,20 @@ $(document).ready(function () {
                 status: status,
                 ids: ids
             },
-            success: function () {
+            success: function (response) {
+                alert(response.message);
                 $('#bulkAction').val('');
                 $('#statusSelect').hide().val('');
                 $('#applyAction').prop('disabled', true);
                 $('.row-checkbox, #selectAll').prop('checked', false);
                 location.reload();
             },
-            error: function () {
-                alert("Something went wrong!");
+            error: function (xhr) {
+                alert(xhr.responseJSON?.message || "Something went wrong!");
             }
         });
     });
 });
-
-
 </script>
 @endpush
 @else

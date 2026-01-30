@@ -135,28 +135,40 @@ class ParentDepartmentController extends Controller
 
     /**
      * Remove the specified parent department.
-     * Prevent deletion if sub-departments exist.
+     * Prevent deletion if sub-departments OR employees exist.
      */
     public function destroy(Request $request, ParentDepartment $parentDepartment)
     {
         try {
+            // Check if department has sub-departments
             if ($parentDepartment->departments()->exists()) {
-                $message = 'Parent Department cannot be deleted because it has Sub Departments linked to it.';
+                $message = 'This department cannot be deleted because it has sub-departments linked to it.';
 
                 if ($request->wantsJson() || $request->ajax()) {
                     return response()->json(['status' => 'error', 'message' => $message], 422);
                 }
 
-                return back()->withErrors($message);
+                return back()->with('error', $message);
+            }
+
+            // Check if department has employees
+            if ($parentDepartment->employees()->exists()) {
+                $message = 'This department cannot be deleted because it is tagged with employees.';
+
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['status' => 'error', 'message' => $message], 422);
+                }
+
+                return back()->with('error', $message);
             }
 
             $parentDepartment->delete();
 
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['status' => 'success', 'message' => 'Deleted successfully.']);
+                return response()->json(['status' => 'success', 'message' => 'Department deleted successfully.']);
             }
 
-            return redirect()->route('parent-departments.index')->with('success', 'Deleted successfully.');
+            return redirect()->route('parent-departments.index')->with('success', 'Department deleted successfully.');
         } catch (\Throwable $e) {
             logger()->error('ParentDepartment delete error: ' . $e->getMessage(), ['exception' => $e]);
 
@@ -164,7 +176,7 @@ class ParentDepartmentController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Delete failed.', 'error' => $e->getMessage()], 500);
             }
 
-            return back()->withErrors('Delete failed: ' . $e->getMessage());
+            return back()->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 
@@ -192,12 +204,12 @@ class ParentDepartmentController extends Controller
             $msg = 'No departments selected for deletion.';
             return $request->wantsJson() || $request->ajax()
                 ? response()->json(['status' => 'error', 'message' => $msg], 422)
-                : back()->withErrors($msg);
+                : back()->with('error', $msg);
         }
 
         DB::beginTransaction();
         try {
-            $parents = ParentDepartment::withCount('departments')
+            $parents = ParentDepartment::withCount(['departments', 'employees'])
                 ->whereIn('id', $ids)
                 ->get();
 
@@ -209,11 +221,13 @@ class ParentDepartmentController extends Controller
                 DB::rollBack();
                 return $request->wantsJson() || $request->ajax()
                     ? response()->json(['status' => 'error', 'message' => $msg], 422)
-                    : back()->withErrors($msg);
+                    : back()->with('error', $msg);
             }
 
-            $blocked = $parents->where('departments_count', '>', 0);
-            $deletable = $parents->where('departments_count', 0);
+            $blockedBySubDepartments = $parents->where('departments_count', '>', 0);
+            $blockedByEmployees = $parents->where('employees_count', '>', 0);
+            $deletable = $parents->where('departments_count', 0)->where('employees_count', 0);
+
             $deletableIds = $deletable->pluck('id')->all();
 
             $deletedCount = 0;
@@ -223,32 +237,54 @@ class ParentDepartmentController extends Controller
 
             DB::commit();
 
-            $blockedCount = $blocked->count();
+            $blockedSubCount = $blockedBySubDepartments->count();
+            $blockedEmpCount = $blockedByEmployees->count();
+            $totalBlocked = $blockedSubCount + $blockedEmpCount;
+
             $messageParts = [];
-            $messageParts[] = "{$deletedCount} item(s) deleted.";
-            if ($blockedCount > 0) {
-                $blockedList = $blocked->pluck('dpt_name')->implode(', ');
-                $messageParts[] = "{$blockedCount} item(s) were not deleted because they have Sub Departments: {$blockedList}";
+
+            if ($deletedCount > 0) {
+                $messageParts[] = "{$deletedCount} department(s) deleted successfully.";
             }
+
+            if ($blockedSubCount > 0) {
+                $blockedSubList = $blockedBySubDepartments->pluck('dpt_name')->implode(', ');
+                $messageParts[] = "{$blockedSubCount} department(s) cannot be deleted because they have sub-departments: {$blockedSubList}";
+            }
+
+            if ($blockedEmpCount > 0) {
+                $blockedEmpList = $blockedByEmployees->pluck('dpt_name')->implode(', ');
+                $messageParts[] = "{$blockedEmpCount} department(s) cannot be deleted because they are tagged with employees: {$blockedEmpList}";
+            }
+
             $finalMessage = implode(' ', $messageParts);
+
+            // If nothing was deleted but items were blocked
+            if ($deletedCount === 0 && $totalBlocked > 0) {
+                $status = 'warning';
+            } else {
+                $status = 'success';
+            }
 
             return $request->wantsJson() || $request->ajax()
                 ? response()->json([
-                    'status' => 'success',
+                    'status' => $status,
                     'deleted' => $deletedCount,
-                    'blocked' => $blockedCount,
-                    'blocked_names' => $blocked->pluck('dpt_name')->values(),
+                    'blocked_sub_departments' => $blockedSubCount,
+                    'blocked_employees' => $blockedEmpCount,
+                    'blocked_sub_names' => $blockedBySubDepartments->pluck('dpt_name')->values(),
+                    'blocked_emp_names' => $blockedByEmployees->pluck('dpt_name')->values(),
                     'deleted_ids' => $deletableIds,
                     'message' => $finalMessage,
                 ])
-                : redirect()->route('parent-departments.index')->with('success', $finalMessage);
+                : redirect()->route('parent-departments.index')->with($status, $finalMessage);
         } catch (\Throwable $e) {
             DB::rollBack();
             logger()->error('ParentDepartment bulk destroy error: ' . $e->getMessage(), ['exception' => $e]);
 
             return $request->wantsJson() || $request->ajax()
                 ? response()->json(['status' => 'error', 'message' => 'Bulk delete failed.', 'error' => $e->getMessage()], 500)
-                : back()->withErrors('Bulk delete failed: ' . $e->getMessage());
+                : back()->with('error', 'Bulk delete failed: ' . $e->getMessage());
         }
     }
 

@@ -6,16 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Appreciations extends Model
 {
-     protected $fillable = ['title', 'summary', 'status','icon','color_code'];
-
-
-    // public function awards()
-    // {
-    //     return $this->hasMany(Award::class, 'award_id');
-    // }
+    protected $fillable = ['title', 'summary', 'status', 'icon', 'color_code', 'given_to', 'given_on'];
 
     public function awards()
-{
-    return $this->hasMany(Award::class, 'appreciation_id'); // Correct foreign key
-}
+    {
+        return $this->hasMany(Award::class, 'appreciation_id');
+    }
 }

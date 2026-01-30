@@ -53,7 +53,7 @@
             <tr>
                 <th><input type="checkbox" id="select-all" /></th>
                 <th>#</th>
-                <th>SubDepartment Code</th>
+                <th>Sub Department Code</th>
                 <th>Sub Department</th>
                 <th>Parent Department</th>
                 <th>Actions</th>

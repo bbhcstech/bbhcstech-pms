@@ -408,10 +408,13 @@ Route::resource('designations', DesignationController::class);
     Route::get('my-awards', [AwardController::class, 'myAwards'])->name('employee.awards');
 
     Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationstore'])->name('awards.appreciation-store');
-    // Route::get('/awards/apreciation-index', [AwardController::class, 'appreciationindex'])->name('awards.apreciation-index');
-    Route::get('awards/apreciation-index', [App\Http\Controllers\AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
+
+    // Add this TEMPORARY route at the TOP of your routes file
+        Route::get('/awards/appreciation-index', [AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
+
+
     Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationedit'])->name('awards.appreciation-edit');
-    Route::get('/awards/apreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.apreciation-create');
+    Route::get('/awards/appreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.appreciation-create');
     Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationupdate'])->name('awards.appreciation-update');
     Route::delete('/awards/appreciation/{id}', [AwardController::class, 'appreciationdestroy'])->name('awards.appreciation-destroy');
 
