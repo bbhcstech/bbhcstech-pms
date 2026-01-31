@@ -380,18 +380,24 @@ Route::resource('designations', DesignationController::class);
     Route::patch('/leaves/{leave}/status', [LeaveController::class, 'updateStatus'])->name('leaves.updateStatus');
     Route::get('/admin/leaves/report', [LeaveController::class, 'leaveReport'])->name('admin.leave.report');
 
-    /*
-    |----------------------------------------------------------------------
-    | Holidays
-    |----------------------------------------------------------------------
-    */
+   /*
+|----------------------------------------------------------------------
+| Holidays
+|----------------------------------------------------------------------
+*/
 
-    Route::post('/holidays/bulk-action', [HolidayController::class, 'bulkAction'])->name('holiday.bulkAction');
-    Route::resource('holidays', HolidayController::class)->except(['show']);
+Route::post('/holidays/bulk-action', [HolidayController::class, 'bulkAction'])->name('holiday.bulkAction');
+Route::resource('holidays', HolidayController::class)->except(['show']);
 
-    Route::get('employee-holidays', [HolidayController::class, 'employeeView'])->name('employee.holidays');
-    Route::get('calendar-holidays', [HolidayController::class, 'calendarView'])->name('holidays.calendar');
-    Route::post('/holidays/mark', [HolidayController::class, 'markHoliday'])->name('holidays.mark');
+Route::get('employee-holidays', [HolidayController::class, 'employeeView'])->name('employee.holidays');
+
+// ✅ FIXED: Change 'calendarView' to 'calendar'
+Route::get('calendar-holidays', [HolidayController::class, 'calendar'])->name('holidays.calendar');
+
+Route::post('/holidays/mark', [HolidayController::class, 'markHoliday'])->name('holidays.mark');
+
+// ✅ Optional: Add Employee Calendar route
+Route::get('employee/calendar-holidays', [HolidayController::class, 'calendar'])->name('employee.holidays.calendar');
 
     /*
     |----------------------------------------------------------------------

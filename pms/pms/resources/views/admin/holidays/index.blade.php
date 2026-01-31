@@ -17,7 +17,7 @@
                     @endforeach
                 </select>
             </div>
-        
+
             <!-- Year Filter -->
             <div class="col-md-3">
                 <select name="year" class="form-select">
@@ -29,7 +29,7 @@
                     @endforeach
                 </select>
             </div>
-        
+
             <!-- Buttons -->
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Filter</button>
@@ -37,10 +37,10 @@
             </div>
         </form>
         &nbsp;
-     
+
      <div class="d-flex justify-content-between align-items-center mb-3">
-         
-        
+
+
 
 
     <!-- Left: Action Buttons -->
@@ -55,28 +55,28 @@
 
     <!-- Right: Switcher -->
             <div class="btn-group" role="group" aria-label="Holiday View Switcher">
-                
-                
+
+
                 <select class="form-select" id="quick-action-type" style="min-width: 180px;">
                 <option value="">No Action</option>
                 <option value="delete">Delete</option>
             </select>
             <button class="btn btn-primary" id="quick-action-apply" disabled>Apply</button>
 
-        
+
         &nbsp;
-                <a href="{{ route('holidays.calendar') }}" 
-                   class="btn btn-sm btn-outline-primary {{ request()->routeIs('holidays.calendar') ? 'active' : '' }}" 
+                <a href="{{ route('holidays.calendar') }}"
+                   class="btn btn-sm btn-outline-primary {{ request()->routeIs('holidays.calendar') ? 'active' : '' }}"
                    data-toggle="tooltip" title="Calendar">
                     <i class="bi bi-calendar"></i>
                 </a>
-                <a href="{{ route('holidays.index') }}" 
-                   class="btn btn-sm btn-outline-primary {{ request()->routeIs('holidays.index') ? 'active' : '' }}" 
+                <a href="{{ route('holidays.index') }}"
+                   class="btn btn-sm btn-outline-primary {{ request()->routeIs('holidays.index') ? 'active' : '' }}"
                    data-toggle="tooltip" title="Table View">
                     <i class="bi bi-list-ul"></i>
                 </a>
             </div>
-        
+
         </div>
 
 
@@ -84,9 +84,9 @@
         <div class="alert alert-success" style="background-color: #28a745; color: white; border-color: #28a745;">
             {{ session('success') }}
         </div>
-    @endif  
+    @endif
     &nbsp;
-     
+
          <table id="holidayTable" class="table table-bordered table-hover table-striped align-middle">
             <thead>
                 <tr>
@@ -110,13 +110,13 @@
                             <!--        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete️</button>-->
                             <!--    </form>-->
                             <!--</td>-->
-                            
+
                             <td>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light" type="button" id="dropdownMenuButton{{ $holiday->id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
-                        
+
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $holiday->id }}">
                                     <!-- Edit -->
                                     <li>
@@ -124,7 +124,7 @@
                                             <i class="bi bi-pencil-square me-2"></i> Edit
                                         </a>
                                     </li>
-                        
+
                                     <!-- Delete -->
                                     <li>
                                         <form action="{{ route('holidays.destroy', $holiday->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this holiday?');">
@@ -146,8 +146,8 @@
             </tbody>
         </table>
     </div>
-    
-    
+
+
    <!-- Unified Modal -->
 <div class="modal fade" id="holidayModal" tabindex="-1" aria-labelledby="holidayModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -253,7 +253,7 @@ $(document).ready(function() {
 });
 
 $(document).ready(function () {
- 
+
     // Select all checkbox
     $('#selectAll').on('change', function() {
         $('.holiday-checkbox').prop('checked', this.checked);
