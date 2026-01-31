@@ -2,21 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -35,32 +30,22 @@ class User extends Authenticatable
         'email_notify',
         'google_calendar',
         'profile_image',
-        'login_allowed',     // Already here ✓
-        'email_notifications', // Already here ✓
+        'login_allowed',
+        'email_notifications',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'login_allowed' => 'boolean',     // ADD THIS LINE
-            'email_notifications' => 'boolean', // ADD THIS LINE
+            'login_allowed' => 'boolean',
+            'email_notifications' => 'boolean',
         ];
     }
 
@@ -87,21 +72,33 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user can login based on login_allowed AND employee status
-     * This is the CRITICAL method for login control
+     * CRITICAL FIX: Employee can login BASED ON EXIT DATE
+     * - Inactive status but exit date in FUTURE = CAN LOGIN
+     * - Active/Inactive with exit date passed = CANNOT LOGIN
      */
     public function canLogin()
     {
-        // User can login only if BOTH conditions are true:
-        // 1. login_allowed is true (1)
-        // 2. Employee status is 'Active'
+        // First check login_allowed
+        if (!$this->login_allowed) {
+            return false;
+        }
 
-        $loginAllowed = (bool) $this->login_allowed;
-
-        // Get employee detail status
         $employeeStatus = $this->employeeDetail ? $this->employeeDetail->status : 'Active';
 
-        return $loginAllowed && ($employeeStatus === 'Active');
+        // Check if employee has exit date
+        if ($this->employeeDetail && $this->employeeDetail->exit_date) {
+            $today = Carbon::today();
+            $exitDate = Carbon::parse($this->employeeDetail->exit_date);
+
+            // LOGIC: Can login ONLY if today < exit_date
+            // (BEFORE exit date, NOT ON or AFTER)
+            return $today->lt($exitDate); // $today < $exit_date
+        }
+
+        // If no exit date:
+        // - Active status = CAN login
+        // - Inactive status = CANNOT login
+        return $employeeStatus === 'Active';
     }
 
     /**
@@ -112,26 +109,48 @@ class User extends Authenticatable
         $loginAllowed = (bool) $this->login_allowed;
         $employeeStatus = $this->employeeDetail ? $this->employeeDetail->status : 'Active';
 
-        if (!$loginAllowed && $employeeStatus === 'Active') {
+        // Check login_allowed first
+        if (!$loginAllowed) {
             return 'Your account is active but login is blocked by admin. Please contact administrator.';
         }
 
-        if ($loginAllowed && $employeeStatus === 'Inactive') {
-            return 'Your account is inactive. Please contact administrator.';
+        // Check exit date logic
+        if ($this->employeeDetail && $this->employeeDetail->exit_date) {
+            $today = Carbon::today();
+            $exitDate = Carbon::parse($this->employeeDetail->exit_date);
+
+            if ($today->gte($exitDate)) { // $today >= $exitDate
+                return 'Your account access has ended as per your exit date (' . $exitDate->format('d/m/Y') . '). Please contact HR.';
+            }
+
+            // If today < exit_date but still can't login
+            if ($employeeStatus === 'Inactive') {
+                return 'Your account is marked as Inactive but you can still login until your exit date (' . $exitDate->format('d/m/Y') . ').';
+            }
         }
 
-        if (!$loginAllowed && $employeeStatus === 'Inactive') {
-            return 'Your account is inactive and login is blocked by admin. Please contact administrator.';
+        // Status based messages
+        if ($employeeStatus === 'Inactive') {
+            return 'Your account is inactive. Please contact administrator.';
         }
 
         return 'Your account is not active or login is not allowed.';
     }
 
-    /**
-     * Accessor for can_login attribute (optional, for easy use in views)
-     */
     public function getCanLoginAttribute()
     {
         return $this->canLogin();
+    }
+
+    public function hasExitDatePassed()
+    {
+        if (!$this->employeeDetail || !$this->employeeDetail->exit_date) {
+            return false;
+        }
+
+        $today = Carbon::today();
+        $exitDate = Carbon::parse($this->employeeDetail->exit_date);
+
+        return $today->gte($exitDate); // $today >= $exitDate
     }
 }

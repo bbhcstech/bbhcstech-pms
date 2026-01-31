@@ -129,7 +129,7 @@ class EmployeeController extends Controller
                                     ->get(),
             'countries'       => Country::orderBy('name')->get(),
             'employee'        => null,
-            'nextEmployeeId'  => $nextEmployeeId,   // <-- make sure this is present
+            'nextEmployeeId'  => $nextEmployeeId,
         ]);
     }
 
@@ -178,6 +178,33 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $this->ensureAdmin();
+
+        // ==============================================
+        // CRITICAL FIX: EXIT DATE VALIDATION LOGIC
+        // ==============================================
+        if ($request->status === 'Inactive' && empty($request->exit_date)) {
+            return back()->withErrors(['exit_date' => 'Exit date is required when status is Inactive.'])->withInput();
+        }
+
+        if ($request->exit_date) {
+            $exitDate = Carbon::parse($request->exit_date);
+            $joiningDate = Carbon::parse($request->joining_date);
+
+            // Exit date must be after joining date
+            if ($exitDate->lte($joiningDate)) {
+                return back()->withErrors(['exit_date' => 'Exit date must be after joining date.'])->withInput();
+            }
+
+            // Auto-set login_allowed based on exit date
+            $today = Carbon::today();
+            if ($today->gte($exitDate)) {
+                // Exit date passed - block login
+                $request->merge(['login_allowed' => 0]);
+            } else {
+                // Exit date future - allow login
+                $request->merge(['login_allowed' => 1]);
+            }
+        }
 
         // Prepare validation rules
         $validationRules = [
@@ -244,9 +271,6 @@ class EmployeeController extends Controller
                 'probation_end_date', 'notice_start_date', 'notice_end_date',
                 'employment_type', 'marital_status', 'business_address', 'status', 'exit_date'
             ]);
-
-            // Add login_allowed and email_notifications to user, not employee detail
-            // They are already set on user creation above
 
             // Add mobile without prefix for employee detail
             $employeeData['mobile'] = $request->mobile;
@@ -471,6 +495,33 @@ class EmployeeController extends Controller
     {
         $this->ensureAdmin();
 
+        // ==============================================
+        // CRITICAL FIX: EXIT DATE VALIDATION LOGIC
+        // ==============================================
+        if ($request->status === 'Inactive' && empty($request->exit_date)) {
+            return back()->withErrors(['exit_date' => 'Exit date is required when status is Inactive.'])->withInput();
+        }
+
+        if ($request->exit_date) {
+            $exitDate = Carbon::parse($request->exit_date);
+            $joiningDate = Carbon::parse($request->joining_date);
+
+            // Exit date must be after joining date
+            if ($exitDate->lte($joiningDate)) {
+                return back()->withErrors(['exit_date' => 'Exit date must be after joining date.'])->withInput();
+            }
+
+            // Auto-set login_allowed based on exit date
+            $today = Carbon::today();
+            if ($today->gte($exitDate)) {
+                // Exit date passed - block login
+                $request->merge(['login_allowed' => 0]);
+            } else {
+                // Exit date future - allow login
+                $request->merge(['login_allowed' => 1]);
+            }
+        }
+
         // load user & detail first so we can build validation rules that ignore current records
         $user = User::findOrFail($id);
         $detail = $user->employeeDetail;
@@ -663,6 +714,20 @@ class EmployeeController extends Controller
             'employee_ids' => 'required|array',
             'status' => 'required|in:Active,Inactive',
         ]);
+
+        // If setting to Inactive, check for exit dates
+        if ($request->status === 'Inactive') {
+            $employeesWithoutExitDate = EmployeeDetail::whereIn('user_id', $request->employee_ids)
+                ->whereNull('exit_date')
+                ->get();
+
+            if ($employeesWithoutExitDate->count() > 0) {
+                return response()->json([
+                    'message' => 'Some employees do not have an exit date. Exit date is required for Inactive status.',
+                    'employees' => $employeesWithoutExitDate->pluck('employee_id')
+                ], 422);
+            }
+        }
 
         EmployeeDetail::whereIn('user_id', $request->employee_ids)
             ->update(['status' => $request->status]);
@@ -896,9 +961,6 @@ class EmployeeController extends Controller
 
     /**
      * Compute next employee ID.
-     *
-     * This runs the lookup inside a DB transaction so lockForUpdate() works reliably
-     * whether called from other transactions or single actions.
      */
     private function computeNextEmployeeIdWithLock(): string
     {
@@ -962,7 +1024,6 @@ class EmployeeController extends Controller
 
     /**
      * Generate next sequential sub-department code (SUB-01, SUB-02, etc.)
-     * This matches the logic in DepartmentController
      */
     private function generateNextSubDepartmentCode()
     {
@@ -995,5 +1056,34 @@ class EmployeeController extends Controller
 
             return $generatedCode;
         }, 5); // retry up to 5 times on deadlock
+    }
+
+    /**
+     * NEW METHOD: Auto-inactivate employees when exit date passes
+     */
+    public function checkExitDates()
+    {
+        $today = Carbon::today();
+
+        $employeesToInactivate = EmployeeDetail::where('status', 'Active')
+            ->whereNotNull('exit_date')
+            ->whereDate('exit_date', '<=', $today)
+            ->get();
+
+        $count = 0;
+
+        foreach ($employeesToInactivate as $employee) {
+            $employee->status = 'Inactive';
+            $employee->save();
+            $count++;
+
+            Log::info('Auto-inactivated employee based on exit date', [
+                'employee_id' => $employee->employee_id,
+                'user_id' => $employee->user_id,
+                'exit_date' => $employee->exit_date
+            ]);
+        }
+
+        return $count;
     }
 }

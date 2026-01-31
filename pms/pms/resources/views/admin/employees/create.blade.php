@@ -201,14 +201,30 @@
                         <small class="text-muted">Select existing or add new (will be saved with employee)</small>
                     </div>
 
-                    <!-- Profile Picture -->
+                    <!-- Profile Picture - FIXED WITH MESSAGE -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Profile Picture</label>
                         <input type="file" name="profile_picture" class="form-control profile-input" accept="image/*">
+
+                        <!-- ADDED: Message about allowed image extensions -->
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle me-1 text-info"></i>
+                            Allowed formats: JPG, JPEG, PNG, GIF, WEBP, SVG
+                        </small>
+                        <small class="text-muted d-block mb-2">
+                            <i class="fas fa-file-archive me-1 text-info"></i>
+                            Maximum file size: 2MB
+                        </small>
+
                         @if(isset($employee) && $employee?->profile_image)
-                            <div class="mt-2">
-                                <img src="{{ asset($employee->profile_image) }}" alt="Current Profile" class="rounded-circle" width="60" height="60">
-                                <small class="d-block text-muted mt-1">Current profile picture</small>
+                            <div class="mt-2 border rounded p-2 bg-light">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ asset($employee->profile_image) }}" alt="Current Profile" class="rounded-circle me-3" width="60" height="60">
+                                    <div>
+                                        <small class="d-block text-muted fw-medium">Current profile picture</small>
+                                        <small class="d-block text-muted">Will be replaced if you upload a new one</small>
+                                    </div>
+                                </div>
                             </div>
                         @endif
                     </div>
@@ -265,11 +281,12 @@
                         @enderror
                     </div>
 
-                    <!-- Joining Date -->
+                    <!-- Joining Date - FIXED -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
                         <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
                                value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}">
+                        <small class="text-muted d-block mt-1">Date cannot be in the past</small>
                         <div class="invalid-feedback joining-date-error d-none">Please select a valid joining date</div>
                         @error('joining_date')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -480,6 +497,11 @@
                         <label class="form-label fw-medium">Exit Date</label>
                         <input type="date" name="exit_date" id="exit_date" class="form-control exit-date-input"
                                value="{{ old('exit_date') ?? ($employee?->employeeDetail?->exit_date ?? '') }}">
+                        <!-- ADDED: Message about exit date login logic -->
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-clock me-1 text-warning"></i>
+                            Employee can login UP TO this date. Login will be blocked AFTER this date.
+                        </small>
                         <div class="invalid-feedback exit-date-error d-none">Please select a valid exit date</div>
                         @error('exit_date')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -969,6 +991,9 @@ $(document).ready(function() {
         if (dob) {
             const dobDate = new Date(dob);
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Date of birth must be in the past
             if (dobDate >= today) {
                 $(this).addClass('is-invalid');
                 $(this).next('.dob-error').text('Date of birth must be in the past').removeClass('d-none').addClass('d-block');
@@ -979,17 +1004,44 @@ $(document).ready(function() {
         }
     });
 
+    // Joining Date validation - Allow today and future, not past
     $('.joining-date-input').on('blur', function() {
         const joiningDate = $(this).val();
         if (joiningDate) {
             const joinDate = new Date(joiningDate);
             const today = new Date();
-            if (joinDate > today) {
+            today.setHours(0, 0, 0, 0); // Set to start of day
+
+            // Joining date CANNOT be before today
+            if (joinDate < today) {
                 $(this).addClass('is-invalid');
-                $(this).next('.joining-date-error').text('Joining date cannot be in the future').removeClass('d-none').addClass('d-block');
+                $(this).next('.joining-date-error').text('Joining date cannot be in the past').removeClass('d-none').addClass('d-block');
             } else {
                 $(this).removeClass('is-invalid');
                 $(this).next('.joining-date-error').addClass('d-none').removeClass('d-block');
+            }
+        }
+    });
+
+    // Exit date validation - Employee can login UP TO exit date
+    $('.exit-date-input').on('blur', function() {
+        const exitDate = $(this).val();
+        if (exitDate) {
+            const exit = new Date(exitDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Exit date can be any date (past, present, or future)
+            // Logic is handled in controller
+            if (exit < today) {
+                // If exit date is in the past, show warning
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Exit Date in Past',
+                    text: 'Employee will not be able to login as exit date has already passed.',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
             }
         }
     });
@@ -1260,6 +1312,9 @@ $(document).ready(function() {
         if (dob) {
             const dobDate = new Date(dob);
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Date of birth must be in the past
             if (dobDate >= today) {
                 $('#dob').addClass('is-invalid');
                 $('.dob-error').text('Date of birth must be in the past').removeClass('d-none').addClass('d-block');
@@ -1272,9 +1327,12 @@ $(document).ready(function() {
         if (joiningDate) {
             const joinDate = new Date(joiningDate);
             const today = new Date();
-            if (joinDate > today) {
+            today.setHours(0, 0, 0, 0);
+
+            // Joining date cannot be in the past
+            if (joinDate < today) {
                 $('#joining_date').addClass('is-invalid');
-                $('.joining-date-error').text('Joining date cannot be in the future').removeClass('d-none').addClass('d-block');
+                $('.joining-date-error').text('Joining date cannot be in the past').removeClass('d-none').addClass('d-block');
                 isValid = false;
                 if (!firstError) firstError = $('#joining_date');
             }

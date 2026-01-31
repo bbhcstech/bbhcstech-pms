@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use App\Models\User; // ADD THIS IMPORT
+use App\Models\User;
+use Carbon\Carbon;
 
 class LoginRequest extends FormRequest
 {
@@ -43,15 +44,15 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         // ============================================
-        // FIX: ADD USER STATUS CHECK BEFORE LOGIN ATTEMPT
+        // FIX: ADD EXIT DATE LOGIC CHECK BEFORE LOGIN
         // ============================================
 
         // First, check if user exists
         $user = User::where('email', $this->string('email'))->first();
 
-        // If user exists, check if they can login
+        // If user exists, check if they can login based on exit date logic
         if ($user && !$user->canLogin()) {
-            // User exists but login is not allowed - GET SPECIFIC MESSAGE
+            // User exists but cannot login - get specific error message
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -70,10 +71,11 @@ class LoginRequest extends FormRequest
 
         // ============================================
         // FIX: DOUBLE-CHECK AFTER SUCCESSFUL LOGIN
+        // (Prevents race condition where status changes during login)
         // ============================================
         $loggedInUser = Auth::user();
         if (!$loggedInUser->canLogin()) {
-            // GET SPECIFIC ERROR MESSAGE
+            // Get specific error message based on exit date or status
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
 
