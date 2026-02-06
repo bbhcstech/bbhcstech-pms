@@ -1,6 +1,7 @@
 @extends('admin.layout.app')
 
 @section('content')
+
 <div class="container-fluid mt-4 px-3 px-md-4">
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -52,6 +53,7 @@
 
             <!-- Hidden fields for new designation/department -->
             <input type="hidden" name="new_designation" id="new_designation" value="">
+            <input type="hidden" name="new_designation_level" id="new_designation_level" value=""> <!-- ADDED: Level field -->
             <input type="hidden" name="new_department" id="new_department" value="">
             <input type="hidden" name="new_sub_department" id="new_sub_department" value="">
 
@@ -201,12 +203,10 @@
                         <small class="text-muted">Select existing or add new (will be saved with employee)</small>
                     </div>
 
-                    <!-- Profile Picture - FIXED WITH MESSAGE -->
+                    <!-- Profile Picture -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Profile Picture</label>
                         <input type="file" name="profile_picture" class="form-control profile-input" accept="image/*">
-
-                        <!-- ADDED: Message about allowed image extensions -->
                         <small class="text-muted d-block mt-2">
                             <i class="fas fa-info-circle me-1 text-info"></i>
                             Allowed formats: JPG, JPEG, PNG, GIF, WEBP, SVG
@@ -247,7 +247,7 @@
                         @enderror
                     </div>
 
-                    <!-- Mobile - COMPLETELY FIXED SECTION -->
+                    <!-- Mobile -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Mobile Number <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -281,13 +281,13 @@
                         @enderror
                     </div>
 
-                    <!-- Joining Date - FIXED -->
+                    <!-- Joining Date - FIXED: Allow past, present, and future dates -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
                         <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
                                value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}">
-                        <small class="text-muted d-block mt-1">Date cannot be in the past</small>
-                        <div class="invalid-feedback joining-date-error d-none">Please select a valid joining date</div>
+                        <small class="text-muted d-block mt-1">Joining date can be any date (past, present, or future)</small>
+                        <div class="invalid-feedback joining-date-error d-none">Please select a joining date</div>
                         @error('joining_date')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -497,7 +497,6 @@
                         <label class="form-label fw-medium">Exit Date</label>
                         <input type="date" name="exit_date" id="exit_date" class="form-control exit-date-input"
                                value="{{ old('exit_date') ?? ($employee?->employeeDetail?->exit_date ?? '') }}">
-                        <!-- ADDED: Message about exit date login logic -->
                         <small class="text-muted d-block mt-2">
                             <i class="fas fa-clock me-1 text-warning"></i>
                             Employee can login UP TO this date. Login will be blocked AFTER this date.
@@ -533,7 +532,7 @@
     </div>
 </div>
 
-<!-- Modals (same as before) -->
+<!-- Modals -->
 <div class="modal fade" id="designationModal" tabindex="-1" aria-labelledby="designationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -545,17 +544,14 @@
                 <div class="mb-3">
                     <label class="form-label">Designation Name <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="designationName" placeholder="Enter designation name" required>
-                    <div class="invalid-feedback" id="designation-error"></div>
                 </div>
+                <!-- FIXED: Added Level field -->
                 <div class="mb-3">
-                    <label class="form-label">Parent Designation (Optional)</label>
-                    <select id="designation_parent" class="form-select">
-                        <option value="">None</option>
-                        @foreach($designations as $des)
-                            <option value="{{ $des->id }}">{{ $des->name }}</option>
-                        @endforeach
-                    </select>
+                    <label class="form-label">Designation Level <span class="text-danger">*</span></label>
+                    <input type="number" min="0" max="6" class="form-control" id="designationLevel" placeholder="Enter level (0-6)" required>
+                    <small class="text-muted">Level range: 0-6 (e.g., 0=Intern, 1=Associate, 2=Sr. Associate, etc.)</small>
                 </div>
+                <div class="invalid-feedback" id="designation-error"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -626,7 +622,6 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <style>
-    /* Enhanced UI Styling */
     .card {
         border-radius: 12px;
         border: 1px solid #e0e0e0;
@@ -684,13 +679,11 @@
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
     }
 
-    /* Radio button styling */
     .form-check-input:checked {
         background-color: #0d6efd;
         border-color: #0d6efd;
     }
 
-    /* Validation styling */
     .is-invalid {
         border-color: #dc3545 !important;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
@@ -699,23 +692,6 @@
         background-size: calc(.75em + .375rem) calc(.75em + .375rem);
     }
 
-    .is-valid {
-        border-color: #198754 !important;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(.375em + .1875rem) center;
-        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
-    }
-
-    .mobile-input.error {
-        border-color: #dc3545 !important;
-    }
-
-    .mobile-input.valid {
-        border-color: #198754 !important;
-    }
-
-    /* Section headers */
     h6.fw-bold.text-primary {
         position: relative;
         padding-left: 1.5rem;
@@ -733,47 +709,6 @@
         border-radius: 4px;
     }
 
-    /* Select2 customization */
-    .select2-container .select2-selection--single {
-        height: 48px;
-        border-radius: 8px;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 48px;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 48px;
-    }
-
-    /* Error message styling */
-    .invalid-feedback {
-        display: none;
-        font-size: 0.875em;
-        margin-top: 0.25rem;
-    }
-
-    .invalid-feedback.d-block {
-        display: block !important;
-    }
-
-    .invalid-feedback.d-none {
-        display: none !important;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .card-body {
-            padding: 1.25rem;
-        }
-
-        .form-control, .form-select {
-            font-size: 16px;
-        }
-    }
-
-    /* Animation for success messages */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
@@ -804,14 +739,12 @@ $(document).ready(function() {
         $(this).removeClass('is-invalid');
         $(this).next('.invalid-feedback').addClass('d-none').removeClass('d-block');
 
-        // Special handling for radio buttons
         if ($(this).is(':radio')) {
             const name = $(this).attr('name');
             $(`input[name="${name}"]`).removeClass('is-invalid');
             $(`.${name}-error`).addClass('d-none').removeClass('d-block');
         }
 
-        // For mobile input specifically
         if ($(this).attr('id') === 'mobile_only_digits') {
             $('#mobile-error').addClass('d-none').removeClass('d-block');
         }
@@ -828,7 +761,6 @@ $(document).ready(function() {
         }
     }
 
-    // Initialize exit date visibility
     toggleExitDate();
     $('input[name="status"]').change(toggleExitDate);
 
@@ -880,48 +812,40 @@ $(document).ready(function() {
         });
     });
 
-    // Mobile number validation - FIXED VERSION
+    // Mobile number validation
     $('#mobile_only_digits').on('input', function(e) {
         let value = $(this).val().replace(/\D/g, '').slice(0, 10);
         if (value.length > 0 && value[0] === '0') {
             value = value.replace(/^0+/, '');
         }
         $(this).val(value);
-
-        // Clear error message on input
         $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
         $(this).removeClass('error valid is-invalid');
     });
 
-    // Check mobile uniqueness on blur - FIXED VERSION
+    // Check mobile uniqueness on blur
     let mobileCheckAjax = null;
     $('#mobile_only_digits').on('blur', function() {
         const value = $(this).val().trim();
         const employeeId = $(this).data('current-id') || null;
 
-        // Clear any existing error
         $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
         $(this).removeClass('error valid is-invalid');
 
-        // Only validate if field is not empty
         if (value.length === 0) {
             $(this).removeClass('error valid is-invalid');
             return;
         }
 
-        // Format validation
         if (!/^[1-9]\d{9}$/.test(value)) {
-            // Invalid mobile number
             $(this).addClass('is-invalid');
             $('#mobile-error').text('Please enter a valid 10-digit mobile number').removeClass('d-none').addClass('d-block');
             return;
         }
 
-        // Valid format - update hidden field
         $('#mobile_with_code').val('+91' + value);
         $(this).addClass('valid').removeClass('is-invalid');
 
-        // Check uniqueness via AJAX
         if (mobileCheckAjax) {
             mobileCheckAjax.abort();
         }
@@ -944,11 +868,8 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                // Only show error if it's not an abort
                 if (status !== 'abort') {
                     console.error('Mobile check error:', error);
-                    // DON'T show error to user - just log it
-                    // The mobile number is already validated for format
                     $('#mobile_only_digits').removeClass('is-invalid');
                     $('#mobile-error').addClass('d-none').removeClass('d-block').text('');
                 }
@@ -985,7 +906,7 @@ $(document).ready(function() {
         }
     });
 
-    // Date validation
+    // Date of Birth validation (must be past)
     $('.dob-input').on('blur', function() {
         const dob = $(this).val();
         if (dob) {
@@ -993,7 +914,6 @@ $(document).ready(function() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Date of birth must be in the past
             if (dobDate >= today) {
                 $(this).addClass('is-invalid');
                 $(this).next('.dob-error').text('Date of birth must be in the past').removeClass('d-none').addClass('d-block');
@@ -1004,26 +924,17 @@ $(document).ready(function() {
         }
     });
 
-    // Joining Date validation - Allow today and future, not past
+    // FIXED: Joining Date validation - Allow past, present, and future dates
     $('.joining-date-input').on('blur', function() {
         const joiningDate = $(this).val();
         if (joiningDate) {
-            const joinDate = new Date(joiningDate);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to start of day
-
-            // Joining date CANNOT be before today
-            if (joinDate < today) {
-                $(this).addClass('is-invalid');
-                $(this).next('.joining-date-error').text('Joining date cannot be in the past').removeClass('d-none').addClass('d-block');
-            } else {
-                $(this).removeClass('is-invalid');
-                $(this).next('.joining-date-error').addClass('d-none').removeClass('d-block');
-            }
+            // Remove any previous validation - joining date can be any date
+            $(this).removeClass('is-invalid');
+            $(this).next('.joining-date-error').addClass('d-none').removeClass('d-block');
         }
     });
 
-    // Exit date validation - Employee can login UP TO exit date
+    // Exit date validation
     $('.exit-date-input').on('blur', function() {
         const exitDate = $(this).val();
         if (exitDate) {
@@ -1031,10 +942,7 @@ $(document).ready(function() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Exit date can be any date (past, present, or future)
-            // Logic is handled in controller
             if (exit < today) {
-                // If exit date is in the past, show warning
                 Swal.fire({
                     icon: 'warning',
                     title: 'Exit Date in Past',
@@ -1074,7 +982,6 @@ $(document).ready(function() {
         });
     });
 
-    // Initialize sub-departments if parent is selected
     if ($('#prt_department_id').val()) {
         $('#prt_department_id').trigger('change');
     }
@@ -1082,7 +989,7 @@ $(document).ready(function() {
     // Modal open handlers
     $('#openDesignationModalBtn').click(function() {
         $('#designationName').val('');
-        $('#designation_parent').val('');
+        $('#designationLevel').val('');
         $('#designationModal').modal('show');
     });
 
@@ -1097,134 +1004,73 @@ $(document).ready(function() {
         $('#dptModal').modal('show');
     });
 
-    // Save new designation to hidden field
+    // FIXED: Save new designation with level
     $('#saveDesignationBtn').click(function() {
-        const designationName = $('#designationName').val().trim();
+        let name = $('#designationName').val().trim();
+        let level = $('#designationLevel').val().trim();
 
-        if (!designationName) {
+        if (!name) {
             $('#designationName').addClass('is-invalid');
+            $('#designation-error').text('Designation name is required').show();
             return;
         }
 
-        // Check if designation already exists in dropdown
-        let exists = false;
-        $('#designation_id option').each(function() {
-            if ($(this).text().toLowerCase().includes(designationName.toLowerCase())) {
-                exists = true;
-                return false;
-            }
-        });
-
-        if (exists) {
-            $('#designationName').addClass('is-invalid');
-            $('#designation-error').text('This designation already exists').show();
+        if (!level || level < 0 || level > 6) {
+            $('#designationLevel').addClass('is-invalid');
+            $('#designation-error').text('Please enter a valid level between 0-6').show();
             return;
         }
 
-        // Store in hidden field
-        $('#new_designation').val(designationName);
+        // Save both name and level to hidden fields
+        $('#new_designation').val(name);
+        $('#new_designation_level').val(level);
 
-        // Create temporary option in select
-        const tempOption = `<option value="new_designation" selected>${designationName} (New)</option>`;
-        $('#designation_id').append(tempOption);
+        // Add to dropdown with level info
+        $('#designation_id').append(
+            `<option value="new" selected>${name} (Level ${level}) (New)</option>`
+        );
 
-        // Close modal
         $('#designationModal').modal('hide');
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Designation Added',
-            text: 'Designation will be saved with employee',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        $('#designationName').val('');
+        $('#designationLevel').val('');
     });
 
-    // Save new department to hidden field
+    // Save new department
     $('#savePrtDepartmentBtn').click(function() {
         const deptName = $('#prt_dpt_name').val().trim();
 
         if (!deptName) {
             $('#prt_dpt_name').addClass('is-invalid');
+            $('#prt-group-error').text('Department name is required').show();
             return;
         }
 
-        // Check if department already exists in dropdown
-        let exists = false;
-        $('#prt_department_id option').each(function() {
-            if ($(this).text().toLowerCase().includes(deptName.toLowerCase())) {
-                exists = true;
-                return false;
-            }
-        });
-
-        if (exists) {
-            $('#prt_dpt_name').addClass('is-invalid');
-            $('#prt-group-error').text('This department already exists').show();
-            return;
-        }
-
-        // Store in hidden field
         $('#new_department').val(deptName);
+        $('#prt_department_id').append(
+            `<option value="new" selected>${deptName} (New)</option>`
+        );
 
-        // Create temporary option in select
-        const tempOption = `<option value="new_department" selected>${deptName} (New)</option>`;
-        $('#prt_department_id').append(tempOption);
-
-        // Close modal
         $('#prtModal').modal('hide');
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Department Added',
-            text: 'Department will be saved with employee',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        $('#prt_dpt_name').val('');
     });
 
-    // Save new sub department to hidden field
+    // Save new sub department
     $('#saveSubDepartmentBtn').click(function() {
         const subDeptName = $('#dpt_name').val().trim();
-        const parentId = $('#dpt_parent_select').val();
 
         if (!subDeptName) {
             $('#dpt_name').addClass('is-invalid');
+            $('#dpt-group-error').text('Sub department name is required').show();
             return;
         }
 
-        // Check if sub department already exists in dropdown
-        let exists = false;
-        $('#department_id option').each(function() {
-            if ($(this).text().toLowerCase().includes(subDeptName.toLowerCase())) {
-                exists = true;
-                return false;
-            }
-        });
-
-        if (exists) {
-            $('#dpt_name').addClass('is-invalid');
-            $('#dpt-group-error').text('This sub department already exists').show();
-            return;
-        }
-
-        // Store in hidden field
         $('#new_sub_department').val(subDeptName);
+        $('#department_id').append(
+            `<option value="new" selected>${subDeptName} (New)</option>`
+        );
 
-        // Create temporary option in select
-        const tempOption = `<option value="new_sub_department" selected>${subDeptName} (New)</option>`;
-        $('#department_id').append(tempOption);
-
-        // Close modal
         $('#dptModal').modal('hide');
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Sub Department Added',
-            text: 'Sub department will be saved with employee',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        $('#dpt_name').val('');
     });
 
     // Form validation before submission
@@ -1232,13 +1078,10 @@ $(document).ready(function() {
         let isValid = true;
         let firstError = null;
 
-        // Clear all previous validation
         $(this).find('.is-invalid').removeClass('is-invalid');
         $(this).find('.invalid-feedback').addClass('d-none').removeClass('d-block');
 
-        // Validate required fields
         $(this).find('[required]').each(function() {
-            // Skip hidden fields
             if ($(this).is(':hidden')) return;
 
             let value = $(this).val();
@@ -1246,7 +1089,6 @@ $(document).ready(function() {
             let isCheckbox = $(this).is(':checkbox');
 
             if (isRadio || isCheckbox) {
-                // For radio/checkbox, check if any in group is checked
                 const name = $(this).attr('name');
                 const isChecked = $(`input[name="${name}"]:checked`).length > 0;
                 if (!isChecked) {
@@ -1263,7 +1105,6 @@ $(document).ready(function() {
                     if (!firstError) firstError = $(this);
                 }
             } else {
-                // Handle input fields
                 if (!value || value.toString().trim() === '') {
                     $(this).addClass('is-invalid');
                     $(this).next(`.${$(this).attr('class').split(' ').find(c => c.includes('-input'))}-error`).removeClass('d-none').addClass('d-block');
@@ -1307,14 +1148,13 @@ $(document).ready(function() {
             }
         }
 
-        // Validate date fields
+        // Validate date of birth
         const dob = $('#dob').val();
         if (dob) {
             const dobDate = new Date(dob);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Date of birth must be in the past
             if (dobDate >= today) {
                 $('#dob').addClass('is-invalid');
                 $('.dob-error').text('Date of birth must be in the past').removeClass('d-none').addClass('d-block');
@@ -1323,19 +1163,14 @@ $(document).ready(function() {
             }
         }
 
+        // FIXED: Joining date - REMOVED future date validation
+        // Joining date can be any date (past, present, or future)
         const joiningDate = $('#joining_date').val();
-        if (joiningDate) {
-            const joinDate = new Date(joiningDate);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            // Joining date cannot be in the past
-            if (joinDate < today) {
-                $('#joining_date').addClass('is-invalid');
-                $('.joining-date-error').text('Joining date cannot be in the past').removeClass('d-none').addClass('d-block');
-                isValid = false;
-                if (!firstError) firstError = $('#joining_date');
-            }
+        if (!joiningDate) {
+            $('#joining_date').addClass('is-invalid');
+            $('.joining-date-error').text('Joining date is required').removeClass('d-none').addClass('d-block');
+            isValid = false;
+            if (!firstError) firstError = $('#joining_date');
         }
 
         // Validate exit date if status is inactive
@@ -1365,12 +1200,10 @@ $(document).ready(function() {
             return false;
         }
 
-        // Update mobile with code if valid
         if (mobile && /^[1-9]\d{9}$/.test(mobile)) {
             $('#mobile_with_code').val('+91' + mobile);
         }
 
-        // Show loading state
         $(this).find('button[type="submit"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
 
         return true;

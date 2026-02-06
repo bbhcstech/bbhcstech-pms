@@ -309,7 +309,7 @@ body.modal-open {
 
 
 
-       <!-- Front Pages -->
+            <!-- Work Section -->
             <li class="menu-item {{ request()->routeIs('clients.') || request()->routeIs('projects.') ||
                 request()->routeIs('tasks.') || request()->routeIs('timelogs.') ||
                 request()->routeIs('admin.contracts.') || request()->routeIs('admin.contract-templates.') ? 'active open' : '' }}">
@@ -351,8 +351,9 @@ body.modal-open {
                     @endif
 
                     <!-- Contracts Section - Admin Only -->
+                     
                     @if(auth()->user()->role === 'admin')
-                        <li class="menu-item {{ request()->routeIs('admin.contracts.*') ? 'active open' : '' }}">
+                         <li class="menu-item {{ request()->routeIs('admin.contracts.*') ? 'active open' : '' }}">
                             <a href="{{ route('admin.contracts.index') }}" class="menu-link">
                                 <div class="text-truncate" data-i18n="Contracts">Contracts</div>
                             </a>
@@ -367,8 +368,7 @@ body.modal-open {
                 </ul>
             </li>
 
-<!--
-            //leads section -->
+<!--    //leads section -->
 
                    @if(auth()->user()->role === 'admin')
                     <li class="menu-item has-sub {{ request()->routeIs('leads.*') || request()->routeIs('admin.deals.*') ? 'active open' : '' }}">
@@ -407,7 +407,7 @@ body.modal-open {
 
 
 
-                   <!-- ================== SETTINGS SECTION ================== -->
+                   <!-- ================== SETTINGS SECTION ==================
                 <li class="menu-item {{ request()->routeIs('settings.*') ? 'active open' : '' }}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-cog"></i>
@@ -459,7 +459,7 @@ body.modal-open {
                     @endif
                     </ul>
                 </li>
-            </ul>
+            </ul> -->
 
         </aside>
         <!-- / Menu -->

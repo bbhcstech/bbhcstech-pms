@@ -16,7 +16,8 @@ class Designation extends Model
         'unique_code',
         'added_by',
         'last_updated_by',
-        'status'
+        'status',
+        'level'              // Added this line
     ];
 
     protected static function boot()

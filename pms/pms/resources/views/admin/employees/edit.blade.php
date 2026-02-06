@@ -44,11 +44,11 @@
                 @php
                     $empOption = old('employee_id_option') ?? (($ed && $ed->employee_id) ? 'custom' : 'auto');
                 @endphp
-
+<!-- 
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="employee_id_option" id="emp_auto" value="auto" {{ $empOption === 'auto' ? 'checked' : '' }}>
                     <label class="form-check-label" for="emp_auto">Auto-generate</label>
-                </div>
+                </div> -->
 
                 <div class="form-check form-check-inline d-none">
                     <input class="form-check-input" type="radio" name="employee_id_option" id="emp_custom" value="custom" {{ $empOption === 'custom' ? 'checked' : '' }}>
@@ -183,10 +183,17 @@
                 </select>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <label>Joining Date <sup class="text-danger">*</sup></label>
-                <input type="date" required class="form-control" name="joining_date" id="joining_date" autocomplete="off" value="{{ old('joining_date') ?? fmtDate($ed->joining_date ?? $employee->joining_date ?? '') }}">
-            </div>
+            <!-- Joining Date - FIXED -->
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
+                        <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
+                               value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}">
+                        <small class="text-muted d-block mt-1">Put your joining date </small>
+                        <div class="invalid-feedback joining-date-error d-none">Please select a valid joining date</div>
+                        @error('joining_date')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
            <div class="col-md-4 mb-3">
     <label>

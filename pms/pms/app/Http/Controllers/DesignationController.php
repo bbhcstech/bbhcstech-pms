@@ -10,11 +10,67 @@ use Illuminate\Database\QueryException;
 
 class DesignationController extends Controller
 {
-    public function index()
-    {
-        $designations = Designation::get();
-        return view('admin.designations.index', compact('designations'));
-    }
+    // public function index()
+    // {
+
+    //     // Use 'updatedBy' instead of 'lastUpdatedBy' to match your model method
+    //     $designations = Designation::with(['addedBy', 'updatedBy'])->get();
+
+    //     return view('admin.designations.index', compact('designations'));
+    // }
+
+
+    public function index(Request $request)
+        {
+            // Use 'updatedBy' instead of 'lastUpdatedBy' to match your model method
+            $perPage = $request->get('per_page', 10);
+
+            $designations = Designation::with(['addedBy', 'updatedBy'])
+                ->paginate($perPage);
+
+            // Get unique levels count
+            $levelsCount = Designation::distinct('level')->count('level');
+
+            return view('admin.designations.index', compact('designations', 'levelsCount'));
+        }
+
+
+    // Add this method after the 'index' method or before the 'create' method
+            public function show(Designation $designation)
+            {
+                // Load relationships if needed
+                $designation->load(['addedBy', 'updatedBy', 'parent', 'employeeDetails']);
+
+                // If you want to show hierarchy information
+                $hierarchy = $this->getHierarchyTree($designation);
+
+                return view('admin.designations.show', compact('designation', 'hierarchy'));
+            }
+
+            // Optional: Helper method to get hierarchy tree
+            private function getHierarchyTree(Designation $designation)
+            {
+                // Get all ancestors (parents, grandparents, etc.)
+                $ancestors = collect();
+                $current = $designation;
+
+                while ($current->parent) {
+                    $ancestors->prepend($current->parent);
+                    $current = $current->parent;
+                }
+
+                // Get immediate children
+                $children = $designation->children;
+
+                // Get all descendants (for tree view)
+                $descendants = $designation->descendants;
+
+                return [
+                    'ancestors' => $ancestors,
+                    'children' => $children,
+                    'descendants' => $descendants,
+                ];
+            }
 
     public function create()
     {
@@ -26,13 +82,15 @@ class DesignationController extends Controller
     {
         $request->validate([
             'name'      => ['required','string','max:255', Rule::unique('designations','name')],
-            'parent_id' => ['nullable','exists:designations,id']
+            'parent_id' => ['nullable','exists:designations,id'],
+            'level'     => ['required','integer','min:0','max:6'] // Added level validation
         ]);
 
         try {
             $designation = Designation::create([
                 'name'            => $request->name,
                 'parent_id'       => $request->parent_id ?: null,
+                'level'           => $request->level, // Added level
                 'added_by'        => Auth::id(),
                 'last_updated_by' => Auth::id(),
             ]);
@@ -63,13 +121,15 @@ class DesignationController extends Controller
                 'required','string','max:255',
                 Rule::unique('designations', 'name')->ignore($designation->id)
             ],
-            'parent_id' => ['nullable','exists:designations,id']
+            'parent_id' => ['nullable','exists:designations,id'],
+            'level'     => ['required','integer','min:1','max:10'] // Added level validation
         ]);
 
         try {
             $designation->update([
                 'name'            => $request->name,
                 'parent_id'       => $request->parent_id ?: null,
+                'level'           => $request->level, // Added level
                 'last_updated_by' => Auth::id(),
             ]);
 

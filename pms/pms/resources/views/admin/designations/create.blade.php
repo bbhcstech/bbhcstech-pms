@@ -66,7 +66,27 @@
                 @enderror
             </div>
 
-            {{-- Parent designation field removed --}}
+            <!-- New Level Field -->
+            <div class="mb-3">
+                <label for="level">Designation Level <span class="text-danger">*</span></label>
+                <select
+                    id="level"
+                    name="level"
+                    class="form-control @error('level') is-invalid @enderror"
+                    required
+                >
+                    <option value="">Select Level</option>
+                    @for($i = 0; $i <= 6; $i++)
+                        <option value="{{ $i }}"
+                            {{ old('level', $designation->level ?? '') == $i ? 'selected' : '' }}>
+                            LL {{ $i }}
+                        </option>
+                    @endfor
+                </select>
+                @error('level')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
 
             <div class="mt-3">
                 <button class="btn btn-primary">

@@ -638,7 +638,8 @@
         {{-- Pagination and Show Entries --}}
         <div class="card-footer bg-light border-0 py-3">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-                {{-- Show Entries --}}
+
+            {{-- Show Entries --}}
                 <div class="mb-3 mb-md-0">
                     <div class="d-flex align-items-center">
                         <span class="text-muted me-2">Show:</span>

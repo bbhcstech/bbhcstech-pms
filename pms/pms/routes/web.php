@@ -304,6 +304,14 @@ Route::resource('designations', DesignationController::class);
     Route::post('/employees/check-mobile', [EmployeeController::class, 'checkMobile'])->name('employees.check-mobile');
 
     // ... other routes ...
+
+
+        Route::post('/designations/store-ajax', [EmployeeController::class, 'storeDesignation'])->name('designations.store.ajax');
+        Route::post('/parent-departments/quick-create', [EmployeeController::class, 'storeParentDepartment'])->name('parent-departments.quick-create');
+        Route::post('/departments/store-ajax', [EmployeeController::class, 'storeSubDepartment'])->name('departments.store.ajax');
+        Route::post('/countries/quick-create', [EmployeeController::class, 'storeCountry'])->name('countries.quick-create');
+
+
 });
 
     /*

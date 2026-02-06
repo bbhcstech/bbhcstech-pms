@@ -38,6 +38,7 @@ class EmployeeController extends Controller
     // ===========================================================
     // ===== REPORTING-TO INTEGRITY : subordinate check helper ===
     // ===========================================================
+
     private function hasSubordinates(int $userId): bool
     {
         return EmployeeDetail::where('reporting_to', $userId)->exists();
@@ -45,6 +46,7 @@ class EmployeeController extends Controller
 
     /**
      * List employees with optional filters.
+     *
      */
     public function index(Request $request)
     {
@@ -277,50 +279,72 @@ class EmployeeController extends Controller
             $employeeData['user_id'] = $user->id;
 
             // ================================================
-            // FIX: Handle new designation if created
+            // FIXED: Handle new designation with firstOrCreate - WITH LEVEL
             // ================================================
-            if ($request->designation_id === 'new_designation' && $request->filled('new_designation')) {
-                // Create new designation
-                $designation = Designation::create([
-                    'name' => $request->new_designation,
-                    'status' => 'Active',
-                    'added_by' => auth()->id()
-                ]);
-
+            if ($request->designation_id === 'new' && $request->filled('new_designation')) {
+                $designation = Designation::firstOrCreate(
+                    ['name' => trim($request->new_designation)],
+                    [
+                        'level' => $request->new_designation_level ?? 0, // ADDED LEVEL FIELD
+                        'status' => 'Active',
+                        'added_by' => auth()->id(),
+                        'last_updated_by' => auth()->id(),
+                    ]
+                );
                 $employeeData['designation_id'] = $designation->id;
+            } else {
+                $employeeData['designation_id'] = $request->designation_id;
             }
 
             // ================================================
-            // FIX: Handle new department if created (Parent Department)
+            // FIXED: Handle new department with firstOrCreate
             // ================================================
-            if ($request->parent_dpt_id === 'new_department' && $request->filled('new_department')) {
-                // Generate next sequential department code for ParentDepartment
-                $departmentCode = $this->generateNextParentDepartmentCode();
-
-                // Create new department with sequential code
-                $department = ParentDepartment::create([
-                    'dpt_name' => $request->new_department,
-                    'dpt_code' => $departmentCode
-                ]);
-
+            if ($request->parent_dpt_id === 'new' && $request->filled('new_department')) {
+                $department = ParentDepartment::firstOrCreate(
+                    ['dpt_name' => trim($request->new_department)],
+                    [
+                        'dpt_code' => $this->generateNextParentDepartmentCode(),
+                        'status' => 'Active'
+                    ]
+                );
                 $employeeData['parent_dpt_id'] = $department->id;
+            } else {
+                $employeeData['parent_dpt_id'] = $request->parent_dpt_id;
             }
 
             // ================================================
-            // FIX: Handle new sub-department if created (Department)
+            // FIXED: Handle new sub-department with firstOrCreate
             // ================================================
-            if ($request->department_id === 'new_sub_department' && $request->filled('new_sub_department')) {
-                // Generate next sequential sub-department code
-                $subDepartmentCode = $this->generateNextSubDepartmentCode();
-
-                // Create new sub department with sequential code
-                $subDepartment = Department::create([
-                    'dpt_name' => $request->new_sub_department,
-                    'parent_dpt_id' => $employeeData['parent_dpt_id'], // Use the department ID
-                    'dpt_code' => $subDepartmentCode
-                ]);
-
+            if ($request->department_id === 'new' && $request->filled('new_sub_department')) {
+                $subDepartment = Department::firstOrCreate(
+                    [
+                        'dpt_name' => trim($request->new_sub_department),
+                        'parent_dpt_id' => $employeeData['parent_dpt_id']
+                    ],
+                    [
+                        'dpt_code' => $this->generateNextSubDepartmentCode(),
+                        'status' => 'Active'
+                    ]
+                );
                 $employeeData['department_id'] = $subDepartment->id;
+            } else {
+                $employeeData['department_id'] = $request->department_id;
+            }
+
+            // ================================================
+            // FIXED: Handle new country with firstOrCreate
+            // ================================================
+            if ($request->country === 'new' && $request->filled('new_country')) {
+                $country = Country::firstOrCreate(
+                    ['name' => trim($request->new_country)],
+                    [
+                        'status' => 'Active',
+                        'added_by' => auth()->id()
+                    ]
+                );
+                $employeeData['country'] = $country->name;
+            } else {
+                $employeeData['country'] = $request->country;
             }
 
             // Normalize: if probation_end_date provided, clear notice dates; if notice provided, clear probation
@@ -443,6 +467,7 @@ class EmployeeController extends Controller
                 'dpt_code' => $departmentCode,
                 'added_by' => auth()->id() ?? null,
                 'last_updated_by' => auth()->id() ?? null,
+                'status' => 'Active' // Added status field
             ]);
 
             DB::commit();
@@ -463,7 +488,6 @@ class EmployeeController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('storeDepartment error', ['error' => $e->getMessage(), 'payload' => $request->all()]);
-            // return actual error message in dev so frontend can display it. hide details in production if needed.
             return response()->json([
                 'status' => 'error',
                 'message' => 'Server error while creating department: ' . $e->getMessage()
@@ -632,6 +656,59 @@ class EmployeeController extends Controller
             // normalize: empty department -> null
             if (empty($data['department_id'])) {
                 $data['department_id'] = null;
+            }
+
+            // FIXED: Handle new designation with level
+            if ($request->designation_id === 'new' && $request->filled('new_designation')) {
+                $designation = Designation::firstOrCreate(
+                    ['name' => trim($request->new_designation)],
+                    [
+                        'level' => $request->new_designation_level ?? 0, // ADDED LEVEL FIELD
+                        'status' => 'Active',
+                        'added_by' => auth()->id(),
+                        'last_updated_by' => auth()->id(),
+                    ]
+                );
+                $data['designation_id'] = $designation->id;
+            }
+
+            // FIXED: Handle new department with firstOrCreate
+            if ($request->parent_dpt_id === 'new' && $request->filled('new_department')) {
+                $department = ParentDepartment::firstOrCreate(
+                    ['dpt_name' => trim($request->new_department)],
+                    [
+                        'dpt_code' => $this->generateNextParentDepartmentCode(),
+                        'status' => 'Active'
+                    ]
+                );
+                $data['parent_dpt_id'] = $department->id;
+            }
+
+            // FIXED: Handle new sub-department with firstOrCreate
+            if ($request->department_id === 'new' && $request->filled('new_sub_department')) {
+                $subDepartment = Department::firstOrCreate(
+                    [
+                        'dpt_name' => trim($request->new_sub_department),
+                        'parent_dpt_id' => $data['parent_dpt_id']
+                    ],
+                    [
+                        'dpt_code' => $this->generateNextSubDepartmentCode(),
+                        'status' => 'Active'
+                    ]
+                );
+                $data['department_id'] = $subDepartment->id;
+            }
+
+            // FIXED: Handle new country with firstOrCreate
+            if ($request->country === 'new' && $request->filled('new_country')) {
+                $country = Country::firstOrCreate(
+                    ['name' => trim($request->new_country)],
+                    [
+                        'status' => 'Active',
+                        'added_by' => auth()->id()
+                    ]
+                );
+                $data['country'] = $country->name;
             }
 
             // Normalize dates: if probation_end_date provided, clear notice dates; if notice provided, clear probation
@@ -918,12 +995,12 @@ class EmployeeController extends Controller
      */
     public function storeDesignation(Request $request)
     {
-        $this->ensureAdmin(); // keep same admin guard as other methods
+        $this->ensureAdmin();
 
         $data = $request->only(['name', 'parent_id', 'status']);
 
         $validator = \Validator::make($data, [
-            'name'      => 'required|string|max:191',
+            'name'      => 'required|string|max:191|unique:designations,name',
             'parent_id' => 'nullable|exists:designations,id',
             'status'    => 'nullable|in:Active,Inactive'
         ]);
@@ -936,25 +1013,171 @@ class EmployeeController extends Controller
         }
 
         try {
-            $designation = new \App\Models\Designation();
-            $designation->name = $data['name'];
-            $designation->parent_id = $data['parent_id'] ?? null;
-            $designation->status = $data['status'] ?? 'Active';
-            $designation->added_by = auth()->id() ?? null;
-            $designation->save();
 
-            // model boot will generate unique_code; reload to ensure it's present
+            $designation = \App\Models\Designation::create([
+                'name' => $data['name'],
+                'parent_id' => $data['parent_id'] ?? null,
+                'status' => $data['status'] ?? 'Active',
+                'added_by' => auth()->id()
+            ]);
+
             $designation->refresh();
 
             return response()->json([
                 'status' => 'success',
                 'designation' => $designation
             ], 201);
+
         } catch (\Exception $e) {
-            \Log::error('Failed to store designation via AJAX', ['error' => $e->getMessage()]);
+
+            \Log::error('Designation AJAX failed', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Could not create designation'
+            ], 500);
+        }
+    }
+
+
+    /**
+     * AJAX: create a country (used by the employee create page "Add" button).
+     * Returns JSON { country: { id, name, ... } } on success.
+     */
+    public function storeCountry(Request $request)
+    {
+        $this->ensureAdmin();
+
+        $data = $request->only(['name', 'status']);
+
+        $validator = \Validator::make($data, [
+            'name'   => 'required|string|max:191|unique:countries,name',
+            'status' => 'nullable|in:Active,Inactive'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $country = Country::create([
+                'name' => $data['name'],
+                'status' => $data['status'] ?? 'Active',
+                'added_by' => auth()->id() ?? null
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'country' => $country
+            ], 201);
+        } catch (\Exception $e) {
+            \Log::error('Failed to store country via AJAX', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Could not create country'
+            ], 500);
+        }
+    }
+
+    /**
+     * AJAX: create a parent department (used by the employee create page "Add" button).
+     * Returns JSON { department: { id, dpt_name, dpt_code, ... } } on success.
+     */
+    public function storeParentDepartment(Request $request)
+    {
+        $this->ensureAdmin();
+
+        $data = $request->only(['dpt_name', 'status']);
+
+        $validator = \Validator::make($data, [
+            'dpt_name' => 'required|string|max:191|unique:parent_departments,dpt_name',
+            'status'   => 'nullable|in:Active,Inactive'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $departmentCode = $this->generateNextParentDepartmentCode();
+
+            $department = ParentDepartment::create([
+                'dpt_name' => $data['dpt_name'],
+                'dpt_code' => $departmentCode,
+                'status' => $data['status'] ?? 'Active',
+                'added_by' => auth()->id() ?? null
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'department' => $department
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to store parent department via AJAX', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Could not create department'
+            ], 500);
+        }
+    }
+
+    /**
+     * AJAX: create a sub-department (used by the employee create page "Add" button).
+     * Returns JSON { department: { id, dpt_name, dpt_code, parent_dpt_id, ... } } on success.
+     */
+    public function storeSubDepartment(Request $request)
+    {
+        $this->ensureAdmin();
+
+        $data = $request->only(['dpt_name', 'parent_dpt_id', 'status']);
+
+        $validator = \Validator::make($data, [
+            'dpt_name'      => 'required|string|max:191',
+            'parent_dpt_id' => 'required|exists:parent_departments,id',
+            'status'        => 'nullable|in:Active,Inactive'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $departmentCode = $this->generateNextSubDepartmentCode();
+
+            $department = Department::create([
+                'dpt_name' => $data['dpt_name'],
+                'parent_dpt_id' => $data['parent_dpt_id'],
+                'dpt_code' => $departmentCode,
+                'status' => $data['status'] ?? 'Active',
+                'added_by' => auth()->id() ?? null
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'department' => $department
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to store sub-department via AJAX', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Could not create sub-department'
             ], 500);
         }
     }
