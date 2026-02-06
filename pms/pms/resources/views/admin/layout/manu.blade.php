@@ -202,7 +202,7 @@ body.modal-open {
                     <ul class="menu-sub">
                       <li class="menu-item {{ request()->routeIs('parent-departments.*') ? 'active' : '' }}">
                         <a href="{{ route('parent-departments.index') }}" class="menu-link">
-                          <div class="text-truncate">Main Department</div>
+                          <div class="text-truncate"> Department</div>
                         </a>
                       </li>
                       <li class="menu-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
@@ -351,7 +351,7 @@ body.modal-open {
                     @endif
 
                     <!-- Contracts Section - Admin Only -->
-                     
+
                     @if(auth()->user()->role === 'admin')
                          <li class="menu-item {{ request()->routeIs('admin.contracts.*') ? 'active open' : '' }}">
                             <a href="{{ route('admin.contracts.index') }}" class="menu-link">

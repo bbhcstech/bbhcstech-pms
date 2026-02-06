@@ -440,8 +440,8 @@
                                 </div>
                             </th>
                             <th class="fw-semibold">Emp ID</th>
-                            <th class="fw-semibold">Employee Details</th>
-                            <th class="fw-semibold">Contact</th>
+                            <th class="fw-semibold">Employee Name</th>
+                            <th class="fw-semibold">EMAIL</th>
                             <th class="fw-semibold">Role & Reporting</th>
                             <th class="fw-semibold text-center">Status</th>
                             <th class="fw-semibold text-center">Actions</th>

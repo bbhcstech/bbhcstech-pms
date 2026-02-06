@@ -248,7 +248,7 @@
                             </th>
                             <th class="ps-3">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span>Code</span>
+                                    <span>Designation Code</span>
                                     <i class="bi bi-arrow-down-up text-muted opacity-50"></i>
                                 </div>
                             </th>

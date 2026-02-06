@@ -87,6 +87,27 @@ Route::get('attendance/export/pdf', [AttendanceExport::class, 'exportPdf'])
 Route::get('attendance/filter', [App\Http\Controllers\AttendanceController::class, 'filter'])->name('attendance.filter');
 
 
+// Route::post('/attendance/get-employee-timeline', [AttendanceController::class, 'getEmployeeTimeline'])
+//     ->name('attendance.getEmployeeTimeline');
+
+// Route::post('/attendance/employee-locations', 'AttendanceController@getEmployeeLocations')
+//     ->name('attendance.getEmployeeLocations');
+
+// Route::get('/attendance/export-employee-locations', 'AttendanceController@exportEmployeeLocations')
+//     ->name('attendance.exportEmployeeLocations');
+// Employee Location Tracking Routes
+
+
+Route::post('/attendance/employee-locations', [AttendanceController::class, 'getEmployeeLocations'])
+    ->name('attendance.getEmployeeLocations');
+
+// Add these routes
+Route::post('/attendance/employee-locations', [AttendanceController::class, 'getEmployeeLocations'])->name('attendance.getEmployeeLocations');
+Route::post('/attendance/get-employee-timeline', [AttendanceController::class, 'getEmployeeTimeline'])->name('attendance.getEmployeeTimeline');
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Utility / Debug routes (mostly dev helpers)
