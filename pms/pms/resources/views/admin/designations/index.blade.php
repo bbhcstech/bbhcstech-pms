@@ -287,19 +287,20 @@
                                 @endif
                             </td>
                             <td>
-                                @if($designation->level)
-                                <span class="badge rounded-pill px-3 py-2 fw-medium
-                                    @if($designation->level == 1) bg-primary
-                                    @elseif($designation->level <= 3) bg-success
-                                    @elseif($designation->level <= 6) bg-info
-                                    @else bg-secondary @endif">
-                                    <i class="bi bi-chevron-double-up me-1"></i>L{{ $designation->level }}
-                                </span>
-                                @else
-                                <span class="badge bg-light text-muted border">Not Set</span>
-                                @endif
-                            </td>
-                            <td>
+                                    @if($designation->level !== null)  <!-- CHANGE THIS LINE - check for NOT NULL -->
+                                    <span class="badge rounded-pill px-3 py-2 fw-medium
+                                        @if($designation->level == 0) bg-dark text-white
+                                        @elseif($designation->level == 1) bg-primary
+                                        @elseif($designation->level <= 3) bg-success
+                                        @elseif($designation->level <= 6) bg-info
+                                        @else bg-secondary @endif">
+                                        <i class="bi bi-chevron-double-up me-1"></i>L{{ $designation->level }}
+                                    </span>
+                                    @else
+                                    <span class="badge bg-light text-muted border">Not Set</span>
+                                    @endif
+                                </td>
+                                                            <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="symbol symbol-35px bg-light rounded-circle d-flex align-items-center justify-content-center">
                                         <span class="text-gray-600 fw-medium">

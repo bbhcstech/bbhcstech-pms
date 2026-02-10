@@ -10,67 +10,48 @@ use Illuminate\Database\QueryException;
 
 class DesignationController extends Controller
 {
-    // public function index()
-    // {
-
-    //     // Use 'updatedBy' instead of 'lastUpdatedBy' to match your model method
-    //     $designations = Designation::with(['addedBy', 'updatedBy'])->get();
-
-    //     return view('admin.designations.index', compact('designations'));
-    // }
-
-
     public function index(Request $request)
-        {
-            // Use 'updatedBy' instead of 'lastUpdatedBy' to match your model method
-            $perPage = $request->get('per_page', 10);
+    {
+        $perPage = $request->get('per_page', 10);
 
-            $designations = Designation::with(['addedBy', 'updatedBy'])
-                ->paginate($perPage);
+        // FIX 1: Order by level to ensure proper display
+        $designations = Designation::with(['addedBy', 'updatedBy'])
+            ->orderBy('level', 'asc')  // ADD THIS LINE
+            ->orderBy('name', 'asc')   // ADD THIS LINE
+            ->paginate($perPage);
 
-            // Get unique levels count
-            $levelsCount = Designation::distinct('level')->count('level');
+        // Get unique levels count
+        $levelsCount = Designation::distinct('level')->count('level');
 
-            return view('admin.designations.index', compact('designations', 'levelsCount'));
+        return view('admin.designations.index', compact('designations', 'levelsCount'));
+    }
+
+    public function show(Designation $designation)
+    {
+        $designation->load(['addedBy', 'updatedBy', 'parent', 'employeeDetails']);
+        $hierarchy = $this->getHierarchyTree($designation);
+        return view('admin.designations.show', compact('designation', 'hierarchy'));
+    }
+
+    private function getHierarchyTree(Designation $designation)
+    {
+        $ancestors = collect();
+        $current = $designation;
+
+        while ($current->parent) {
+            $ancestors->prepend($current->parent);
+            $current = $current->parent;
         }
 
+        $children = $designation->children;
+        $descendants = $designation->descendants;
 
-    // Add this method after the 'index' method or before the 'create' method
-            public function show(Designation $designation)
-            {
-                // Load relationships if needed
-                $designation->load(['addedBy', 'updatedBy', 'parent', 'employeeDetails']);
-
-                // If you want to show hierarchy information
-                $hierarchy = $this->getHierarchyTree($designation);
-
-                return view('admin.designations.show', compact('designation', 'hierarchy'));
-            }
-
-            // Optional: Helper method to get hierarchy tree
-            private function getHierarchyTree(Designation $designation)
-            {
-                // Get all ancestors (parents, grandparents, etc.)
-                $ancestors = collect();
-                $current = $designation;
-
-                while ($current->parent) {
-                    $ancestors->prepend($current->parent);
-                    $current = $current->parent;
-                }
-
-                // Get immediate children
-                $children = $designation->children;
-
-                // Get all descendants (for tree view)
-                $descendants = $designation->descendants;
-
-                return [
-                    'ancestors' => $ancestors,
-                    'children' => $children,
-                    'descendants' => $descendants,
-                ];
-            }
+        return [
+            'ancestors' => $ancestors,
+            'children' => $children,
+            'descendants' => $descendants,
+        ];
+    }
 
     public function create()
     {
@@ -83,29 +64,49 @@ class DesignationController extends Controller
         $request->validate([
             'name'      => ['required','string','max:255', Rule::unique('designations','name')],
             'parent_id' => ['nullable','exists:designations,id'],
-            'level'     => ['required','integer','min:0','max:6'] // Added level validation
+            'level'     => ['required','integer','min:0','max:6']
         ]);
 
         try {
             $designation = Designation::create([
-                'name'            => $request->name,
-                'parent_id'       => $request->parent_id ?: null,
-                'level'           => $request->level, // Added level
-                'added_by'        => Auth::id(),
-                'last_updated_by' => Auth::id(),
+                'name'        => $request->name,
+                'parent_id'   => $request->parent_id ?: null,
+                'level'       => $request->level,
+                'added_by'    => Auth::id(),
+                'updated_by'  => Auth::id(),  // FIX 2: Changed from 'last_updated_by' to 'updated_by'
             ]);
 
             $designation->unique_code = 'DGN-' . str_pad($designation->id, 4, '0', STR_PAD_LEFT);
             $designation->saveQuietly();
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'designation' => [
+                        'id'          => $designation->id,
+                        'name'        => $designation->name,
+                        'level'       => $designation->level,
+                        'unique_code' => $designation->unique_code
+                    ]
+                ]);
+            }
+
         } catch (QueryException $e) {
             if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'This designation name already exists.'
+                    ], 422);
+                }
                 return back()->withErrors(['name' => 'This designation name already exists.'])->withInput();
             }
             throw $e;
         }
 
-        return redirect()->route('designations.index')->with('success', 'Designation added successfully.');
+        // FIX 3: Add timestamp to prevent caching
+        return redirect()->route('designations.index', ['t' => time()])
+            ->with('success', 'Designation added successfully.');
     }
 
     public function edit(Designation $designation)
@@ -122,41 +123,103 @@ class DesignationController extends Controller
                 Rule::unique('designations', 'name')->ignore($designation->id)
             ],
             'parent_id' => ['nullable','exists:designations,id'],
-            'level'     => ['required','integer','min:1','max:10'] // Added level validation
+            'level'     => ['required','integer','min:0','max:6']
         ]);
 
         try {
             $designation->update([
-                'name'            => $request->name,
-                'parent_id'       => $request->parent_id ?: null,
-                'level'           => $request->level, // Added level
-                'last_updated_by' => Auth::id(),
+                'name'        => $request->name,
+                'parent_id'   => $request->parent_id ?: null,
+                'level'       => $request->level,
+                'updated_by'  => Auth::id(),  // FIX 4: Changed from 'last_updated_by' to 'updated_by'
             ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'designation' => [
+                        'id'          => $designation->id,
+                        'name'        => $designation->name,
+                        'level'       => $designation->level,
+                        'unique_code' => $designation->unique_code
+                    ]
+                ]);
+            }
 
         } catch (QueryException $e) {
             if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'This designation name already exists.'
+                    ], 422);
+                }
                 return back()->withErrors(['name' => 'This designation name already exists.'])
                     ->withInput();
             }
             throw $e;
         }
 
-        return redirect()->route('designations.index')->with('success', 'Designation updated successfully.');
+        // FIX 5: Add timestamp and updated_id to prevent caching
+        return redirect()->route('designations.index', ['t' => time()])
+            ->with('success', 'Designation updated successfully.')
+            ->with('updated_id', $designation->id);  // Send back ID for potential JS update
+    }
+
+    public function ajaxStore(Request $request)
+    {
+        $request->validate([
+            'name'  => ['required','string','max:255', Rule::unique('designations','name')],
+            'level' => ['required','integer','min:0','max:6']
+        ]);
+
+        try {
+            $designation = Designation::create([
+                'name'       => $request->name,
+                'level'      => $request->level,
+                'added_by'   => Auth::id(),
+                'updated_by' => Auth::id(),  // FIX 6: Consistency
+            ]);
+
+            $designation->unique_code = 'DGN-' . str_pad($designation->id, 4, '0', STR_PAD_LEFT);
+            $designation->saveQuietly();
+
+            return response()->json([
+                'status' => 'success',
+                'designation' => [
+                    'id'          => $designation->id,
+                    'name'        => $designation->name,
+                    'level'       => $designation->level,
+                    'unique_code' => $designation->unique_code
+                ]
+            ]);
+
+        } catch (QueryException $e) {
+            if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This designation name already exists.'
+                ], 422);
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while saving the designation.'
+            ], 500);
+        }
     }
 
     public function destroy(Designation $designation)
     {
-        // CHECK: Employees linked or not
         if ($designation->employeeDetails()->count() > 0) {
             return back()->with('error', 'Designation cannot be deleted because Employees are tagged under it.');
         }
 
         $designation->delete();
 
-        return redirect()->route('designations.index')->with('success', 'Designation deleted successfully.');
+        return redirect()->route('designations.index')
+            ->with('success', 'Designation deleted successfully.');
     }
 
-    // ------------- BULK DELETE ----------------
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('ids', []);
@@ -188,15 +251,12 @@ class DesignationController extends Controller
             : back()->with('success', $message);
     }
 
-    // ---------------- HIERARCHY VIEW ----------------
     public function hierarchy()
     {
         $designations = Designation::orderBy('order', 'asc')->get();
-
         return view('admin.designations.hierarchy', compact('designations'));
     }
 
-    // ---------------- HIERARCHY UPDATE (RECURSIVE SAVE) ----------------
     public function saveHierarchy(Request $request)
     {
         if (!is_array($request->hierarchy)) {
@@ -211,12 +271,11 @@ class DesignationController extends Controller
     private function updateHierarchy(array $items, $parentId = null)
     {
         foreach ($items as $index => $item) {
-
             Designation::where('id', $item['id'])
                 ->update([
-                    'parent_id'       => $parentId,
-                    'sort_order'      => $index,
-                    'last_updated_by' => Auth::id(),
+                    'parent_id'  => $parentId,
+                    'sort_order' => $index,
+                    'updated_by' => Auth::id(),  // FIX 7: Consistency
                 ]);
 
             if (!empty($item['children'])) {

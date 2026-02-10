@@ -348,6 +348,16 @@ Route::resource('designations', DesignationController::class);
     Route::resource('employees', EmployeeController::class);
     Route::get('employees/{id}', [EmployeeController::class, 'show'])->name('employees.show');
 
+
+    // Add this route in your routes/web.php file
+        Route::post('designations/check-exists', [DesignationController::class, 'checkExists'])->name('designations.check-exists');
+
+        // For AJAX updates (used in edit.blade.php)
+        Route::post('/designations/{designation}/ajax-update', [DesignationController::class, 'update'])->name('designations.ajax.update');
+
+
+
+
     // Employee invites
     Route::get('employees/invite/accept', [EmployeeController::class, 'acceptInvite'])
         ->name('employees.invite.accept')

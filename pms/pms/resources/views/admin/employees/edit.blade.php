@@ -35,6 +35,12 @@
         @csrf
         @method('PUT')
 
+        <!-- Hidden fields for new designation/department -->
+        <input type="hidden" name="new_designation" id="new_designation" value="">
+        <input type="hidden" name="new_designation_level" id="new_designation_level" value="">
+        <input type="hidden" name="new_department" id="new_department" value="">
+        <input type="hidden" name="new_sub_department" id="new_sub_department" value="">
+
         <h5 class="mb-3">Account Details</h5>
 
         <div class="row">
@@ -44,11 +50,6 @@
                 @php
                     $empOption = old('employee_id_option') ?? (($ed && $ed->employee_id) ? 'custom' : 'auto');
                 @endphp
-<!-- 
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="employee_id_option" id="emp_auto" value="auto" {{ $empOption === 'auto' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="emp_auto">Auto-generate</label>
-                </div> -->
 
                 <div class="form-check form-check-inline d-none">
                     <input class="form-check-input" type="radio" name="employee_id_option" id="emp_custom" value="custom" {{ $empOption === 'custom' ? 'checked' : '' }}>
@@ -97,18 +98,24 @@
                 @php $selectedDesignation = old('designation_id') ?? ($ed->designation_id ?? null); @endphp
                 <div class="input-group">
                     <select name="designation_id" id="designation_id" class="form-control" required>
-                        <option value="">Select</option>
+                        <option value="">Select Designation</option>
                         @foreach($designations as $designation)
                             <option value="{{ $designation->id }}" {{ $selectedDesignation == $designation->id ? 'selected' : '' }}>
-                                {{ $designation->name }} @if(!empty($designation->unique_code)) ({{ $designation->unique_code }}) @endif
+                                {{ $designation->name }}
+                                @if(!empty($designation->unique_code))
+                                    ({{ $designation->unique_code }})
+                                @endif
+                                @if(!empty($designation->level))
+                                    - Level {{ $designation->level }}
+                                @endif
                             </option>
                         @endforeach
                     </select>
-                    <button type="button" class="btn btn-outline-secondary" id="openDesignationModalBtn" title="Add designation">Add</button>
+                    <button type="button" class="btn btn-outline-secondary" id="openDesignationModalBtn" title="Add/Edit Designation">Manage</button>
                 </div>
                 @if($designations->isEmpty())
                     <div class="mt-2 p-2" style="background:#fff3cd; border:1px solid #ffeeba; border-radius:4px; color:#856404;">
-                        No designations found. Click Add to create the first designation.
+                        No designations found. Click Manage to create the first designation.
                     </div>
                 @endif
             </div>
@@ -183,30 +190,28 @@
                 </select>
             </div>
 
-            <!-- Joining Date - FIXED -->
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
-                        <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
-                               value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}">
-                        <small class="text-muted d-block mt-1">Put your joining date </small>
-                        <div class="invalid-feedback joining-date-error d-none">Please select a valid joining date</div>
-                        @error('joining_date')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
+                <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
+                       value="{{ old('joining_date') ?? (isset($ed->joining_date) ? fmtDate($ed->joining_date) : date('Y-m-d')) }}">
+                <small class="text-muted d-block mt-1">Put your joining date</small>
+                <div class="invalid-feedback joining-date-error d-none">Please select a valid joining date</div>
+                @error('joining_date')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
-           <div class="col-md-4 mb-3">
-    <label>
-        Date of Birth <sup class="text-danger">*</sup>
-        <span class="text-muted">(As per government ID)</span>
-    </label>
-    <input type="date" name="dob" id="dob" class="form-control" required
-           value="{{ old('dob') ?? fmtDate($ed->dob ?? $employee->dob ?? '') }}">
-    @error('dob')
-        <div class="text-danger small">{{ $message }}</div>
-    @enderror
-</div>
-
+            <div class="col-md-4 mb-3">
+                <label>
+                    Date of Birth <sup class="text-danger">*</sup>
+                    <span class="text-muted">(As per government ID)</span>
+                </label>
+                <input type="date" name="dob" id="dob" class="form-control" required
+                       value="{{ old('dob') ?? fmtDate($ed->dob ?? $employee->dob ?? '') }}">
+                @error('dob')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
+            </div>
 
             <div class="col-md-4 mb-3">
                 <label>Reporting To</label>
@@ -435,41 +440,69 @@
             <form id="addDesignationForm">@csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Designation</h5>
+                        <h5 class="modal-title">Manage Designations</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         @if($designations->isNotEmpty())
                             <div class="mb-3">
                                 <label class="form-label">Existing Designations</label>
-                                <ul class="list-group mb-2">
-                                    @foreach($designations as $des)
-                                        <li class="list-group-item small">{{ $des->name }} @if($des->unique_code) ({{ $des->unique_code }}) @endif</li>
-                                    @endforeach
-                                </ul>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered mb-3">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Level</th>
+                                                <th width="100">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="designation-list">
+                                            @foreach($designations as $des)
+                                                <tr id="des-row-{{ $des->id }}">
+                                                    <td>{{ $des->name }}</td>
+                                                    <td>{{ $des->level ?? 'Not Set' }}</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-warning edit-designation"
+                                                                data-id="{{ $des->id }}"
+                                                                data-name="{{ $des->name }}"
+                                                                data-level="{{ $des->level ?? '' }}"
+                                                                title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-danger delete-designation" data-id="{{ $des->id }}" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         @endif
 
-                        <div class="mb-3">
-                            <label>Designation Name <sup class="text-danger">*</sup></label>
-                            <input type="text" name="name" id="designationName" class="form-control" required>
-                            <div class="text-danger mt-2 d-none" id="designation-error"></div>
+                        <div class="border-top pt-3">
+                            <h6>Add New Designation</h6>
+                            <div class="mb-3">
+                                <label>Designation Name <sup class="text-danger">*</sup></label>
+                                <input type="text" name="name" id="designationName" class="form-control" required>
+                                <div class="text-danger mt-2 d-none" id="designation-error"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Designation Level <span class="text-danger">*</span></label>
+                                <input type="number" min="0" max="6" name="level" class="form-control" id="designationLevel" placeholder="Enter level (0-6)" required>
+                                <small class="text-muted">Level range: 0-6 (e.g., 0=Intern, 1=Associate, 2=Sr. Associate, etc.)</small>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label>Parent (optional)</label>
-                            <select name="parent_id" id="designation_parent" class="form-control">
-                                <option value="">None</option>
-                                @foreach($designations as $des)
-                                    <option value="{{ $des->id }}">{{ $des->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <!-- Hidden fields for edit mode -->
+                        <input type="hidden" id="edit_designation_id" value="">
                         <input type="hidden" name="status" value="Active">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="saveDesignationBtn">Save</button>
+                        <button type="submit" class="btn btn-primary" id="saveDesignationBtn">Add Designation</button>
                     </div>
                 </div>
             </form>
@@ -503,10 +536,17 @@ input.readonly-locked:focus {
   outline: none;
   box-shadow: none;
 }
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
 </style>
 @endpush
 
 @push('js')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 const $el = id => document.getElementById(id);
 
@@ -562,6 +602,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const desBtn = $el('openDesignationModalBtn');
     if (desBtn) desBtn.addEventListener('click', function () {
+        // Reset form to add mode
+        $('#addDesignationForm')[0].reset();
+        $('#edit_designation_id').val('');
+        $('#saveDesignationBtn').text('Add Designation');
+        $('.modal-title').text('Manage Designations');
+        $('#designation-error').addClass('d-none').text('');
+
         const modal = new bootstrap.Modal($el('designationModal'));
         modal.show();
     });
@@ -641,7 +688,8 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
-(function($){
+$(document).ready(function() {
+    // Load sub-departments when parent department changes
     function loadSubDepartments(parentId, selectedId = null) {
         const $sub = $('#department_id');
         $sub.empty().append('<option value="">Select</option>');
@@ -663,143 +711,322 @@ document.addEventListener('DOMContentLoaded', function () {
          .fail(function () { console.error('Failed to load sub-departments'); });
     }
 
-    $(document).ready(function () {
-        const initialParent = $('#prt_department_id').val();
-        const selectedSub   = $('#department_id').data('selected');
+    const initialParent = $('#prt_department_id').val();
+    const selectedSub   = $('#department_id').data('selected');
 
-        if (initialParent) loadSubDepartments(initialParent, selectedSub);
+    if (initialParent) loadSubDepartments(initialParent, selectedSub);
 
-        $('#prt_department_id').on('change', function () {
-            loadSubDepartments($(this).val(), null);
-        });
+    $('#prt_department_id').on('change', function () {
+        loadSubDepartments($(this).val(), null);
+    });
 
-        $('#addPrtDptForm').on('submit', function(e) {
-            e.preventDefault();
-            const $form = $(this);
-            const data = $form.serialize();
-            $.ajax({
-                url: '{{ route('parent-departments.store') }}',
-                method: 'POST',
-                data: data,
-                success: function(res) {
-                    if (res.status === 'success' && res.dpt) {
-                        $('#prt_department_id').append(`<option value="${res.dpt.id}" selected>${res.dpt.dpt_name}</option>`);
-                        $('#prt-dpt-list').append(`<tr id="prt-row-${res.dpt.id}"><td>#</td><td>${res.dpt.dpt_name}</td><td><button type="button" class="btn btn-sm btn-danger delete-prt" data-id="${res.dpt.id}">Delete</button></td></tr>`);
-                        $form[0].reset();
-                        $('#prtModal').modal('hide');
-                    } else {
-                        $('#prt-group-error').removeClass('d-none').text(res.message || 'Something went wrong.');
-                    }
-                },
-                error: function(xhr) {
-                    const msg = xhr.responseJSON?.message || (xhr.responseJSON?.errors ? Object.values(xhr.responseJSON.errors).flat().join(' ') : 'Error occurred.');
-                    $('#prt-group-error').removeClass('d-none').text(msg);
+    // Handle parent department form submission
+    $('#addPrtDptForm').on('submit', function(e) {
+        e.preventDefault();
+        const $form = $(this);
+        const data = $form.serialize();
+        $.ajax({
+            url: '{{ route('parent-departments.store') }}',
+            method: 'POST',
+            data: data,
+            success: function(res) {
+                if (res.status === 'success' && res.dpt) {
+                    $('#prt_department_id').append(`<option value="${res.dpt.id}" selected>${res.dpt.dpt_name}</option>`);
+                    $('#prt-dpt-list').append(`<tr id="prt-row-${res.dpt.id}"><td>#</td><td>${res.dpt.dpt_name}</td><td><button type="button" class="btn btn-sm btn-danger delete-prt" data-id="${res.dpt.id}">Delete</button></td></tr>`);
+                    $form[0].reset();
+                    $('#prtModal').modal('hide');
+                } else {
+                    $('#prt-group-error').removeClass('d-none').text(res.message || 'Something went wrong.');
                 }
-            });
-        });
-
-        $(document).on('click', '.delete-prt', function () {
-            const id = $(this).data('id');
-            if (!confirm('Are you sure you want to delete this parent department?')) return;
-            $.ajax({
-                url: `{{ url('parent-departments') }}/${id}`,
-                method: 'POST',
-                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
-                success: function(res) {
-                    if (res.status === 'success') {
-                        $(`#prt-row-${id}`).remove();
-                        $(`#prt_department_id option[value="${id}"]`).remove();
-                    }
-                }
-            });
-        });
-
-        $('#addDptForm').on('submit', function(e) {
-            e.preventDefault();
-            const data = $(this).serialize();
-            $.ajax({
-                url: '{{ route('departments.store') }}',
-                method: 'POST',
-                data: data,
-                success: function(res) {
-                    if (res.status === 'success' && res.dpt) {
-                        const currentParent = $('#prt_department_id').val();
-                        loadSubDepartments(currentParent, res.dpt.id);
-                        $('#dpt-list').append(`<tr id="dpt-row-${res.dpt.id}"><td>#</td><td>${res.dpt.parent_name ? res.dpt.parent_name : 'N/A'}</td><td>${res.dpt.dpt_name}</td><td><button type="button" class="btn btn-sm btn-danger delete-dpt" data-id="${res.dpt.id}">Delete</button></td></tr>`);
-                        $('#addDptForm')[0].reset();
-                        $('#dptModal').modal('hide');
-                        Swal.fire({ icon: 'success', title: 'Added', text: 'Department added successfully', timer: 1400, showConfirmButton: false });
-                    } else {
-                        $('#dpt-group-error').removeClass('d-none').text(res.message || 'Error occurred.');
-                    }
-                },
-                error: function(xhr) {
-                    const msg = xhr.responseJSON?.message || (xhr.responseJSON?.errors ? Object.values(xhr.responseJSON.errors).flat().join(' ') : 'Error occurred.');
-                    $('#dpt-group-error').removeClass('d-none').text(msg);
-                }
-            });
-        });
-
-        $(document).on('click', '.delete-dpt', function () {
-            const id = $(this).data('id');
-            if (!confirm('Are you sure you want to delete this department?')) return;
-            $.ajax({
-                url: `{{ url('departments') }}/${id}`,
-                method: 'POST',
-                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
-                success: function(res) {
-                    if (res.status === 'success') {
-                        $(`#dpt-row-${id}`).remove();
-                        $(`#department_id option[value="${id}"]`).remove();
-                    }
-                }
-            });
-        });
-
-        $('#addDesignationForm').on('submit', function (e) {
-            e.preventDefault();
-            const $btn = $('#saveDesignationBtn');
-            const name = $('#designationName').val().trim();
-            const parent_id = $('#designation_parent').val() || null;
-            const token = '{{ csrf_token() }}';
-            $('#designation-error').addClass('d-none').text('');
-            if (!name) {
-                $('#designation-error').removeClass('d-none').text('Please enter a designation name.');
-                return;
+            },
+            error: function(xhr) {
+                const msg = xhr.responseJSON?.message || (xhr.responseJSON?.errors ? Object.values(xhr.responseJSON.errors).flat().join(' ') : 'Error occurred.');
+                $('#prt-group-error').removeClass('d-none').text(msg);
             }
-            $btn.prop('disabled', true);
-            $.ajax({
-                url: '{{ route('designations.ajax.store') }}',
-                method: 'POST',
-                data: { _token: token, name: name, parent_id: parent_id, status: 'Active' },
-                success: function (res) {
-                    if (res.designation && res.designation.id) {
-                        const label = res.designation.unique_code ? `${res.designation.name} (${res.designation.unique_code})` : res.designation.name;
-                        $('#designation_id').append(`<option value="${res.designation.id}" selected>${label}</option>`);
-                        $('#addDesignationForm')[0].reset();
-                        $('#designationModal').modal('hide');
-                        Swal.fire({ icon: 'success', title: 'Created', text: 'Designation created successfully', timer: 1400, showConfirmButton: false });
-                    } else {
-                        $('#designation-error').removeClass('d-none').text(res.message || 'Designation created but unexpected response.');
-                    }
-                },
-                error: function (xhr) {
-                    let msg = 'Something went wrong';
-                    if (xhr.responseJSON?.message) msg = xhr.responseJSON.message;
-                    else if (xhr.responseJSON?.errors) msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
-                    $('#designation-error').removeClass('d-none').text(msg);
-                },
-                complete: function () {
-                    $btn.prop('disabled', false);
-                }
-            });
         });
     });
-})(jQuery);
-</script>
 
-<script>
-$(document).ready(function () {
+    // Delete parent department
+    $(document).on('click', '.delete-prt', function () {
+        const id = $(this).data('id');
+        if (!confirm('Are you sure you want to delete this parent department?')) return;
+        $.ajax({
+            url: `{{ url('parent-departments') }}/${id}`,
+            method: 'POST',
+            data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.status === 'success') {
+                    $(`#prt-row-${id}`).remove();
+                    $(`#prt_department_id option[value="${id}"]`).remove();
+                }
+            }
+        });
+    });
+
+    // Handle department form submission
+    $('#addDptForm').on('submit', function(e) {
+        e.preventDefault();
+        const data = $(this).serialize();
+        $.ajax({
+            url: '{{ route('departments.store') }}',
+            method: 'POST',
+            data: data,
+            success: function(res) {
+                if (res.status === 'success' && res.dpt) {
+                    const currentParent = $('#prt_department_id').val();
+                    loadSubDepartments(currentParent, res.dpt.id);
+                    $('#dpt-list').append(`<tr id="dpt-row-${res.dpt.id}"><td>#</td><td>${res.dpt.parent_name ? res.dpt.parent_name : 'N/A'}</td><td>${res.dpt.dpt_name}</td><td><button type="button" class="btn btn-sm btn-danger delete-dpt" data-id="${res.dpt.id}">Delete</button></td></tr>`);
+                    $('#addDptForm')[0].reset();
+                    $('#dptModal').modal('hide');
+                    Swal.fire({ icon: 'success', title: 'Added', text: 'Department added successfully', timer: 1400, showConfirmButton: false });
+                } else {
+                    $('#dpt-group-error').removeClass('d-none').text(res.message || 'Error occurred.');
+                }
+            },
+            error: function(xhr) {
+                const msg = xhr.responseJSON?.message || (xhr.responseJSON?.errors ? Object.values(xhr.responseJSON.errors).flat().join(' ') : 'Error occurred.');
+                $('#dpt-group-error').removeClass('d-none').text(msg);
+            }
+        });
+    });
+
+    // Delete department
+    $(document).on('click', '.delete-dpt', function () {
+        const id = $(this).data('id');
+        if (!confirm('Are you sure you want to delete this department?')) return;
+        $.ajax({
+            url: `{{ url('departments') }}/${id}`,
+            method: 'POST',
+            data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.status === 'success') {
+                    $(`#dpt-row-${id}`).remove();
+                    $(`#department_id option[value="${id}"]`).remove();
+                }
+            }
+        });
+    });
+
+    // Edit designation button click
+    $(document).on('click', '.edit-designation', function () {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        const level = $(this).data('level') || '';
+
+        $('#designationName').val(name);
+        $('#designationLevel').val(level);
+        $('#edit_designation_id').val(id);
+        $('#saveDesignationBtn').text('Update Designation');
+        $('.modal-title').text('Edit Designation');
+        $('#designation-error').addClass('d-none').text('');
+    });
+
+    // Delete designation
+    $(document).on('click', '.delete-designation', function () {
+        const id = $(this).data('id');
+        if (!confirm('Are you sure you want to delete this designation? This may affect existing employees.')) return;
+
+        $.ajax({
+            url: `{{ url('designations') }}/${id}`,
+            method: 'POST',
+            data: {
+                _method: 'DELETE',
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(res) {
+                if (res.status === 'success') {
+                    // Remove from table
+                    $(`#des-row-${id}`).remove();
+                    // Remove from select dropdown
+                    $(`#designation_id option[value="${id}"]`).remove();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted',
+                        text: 'Designation deleted successfully',
+                        timer: 1400,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: res.message || 'Failed to delete designation'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to delete designation. Please try again.'
+                });
+            }
+        });
+    });
+
+    // Handle designation form submission (Add/Edit)
+    $('#addDesignationForm').on('submit', function (e) {
+        e.preventDefault();
+        const $btn = $('#saveDesignationBtn');
+        const name = $('#designationName').val().trim();
+        const level = $('#designationLevel').val();
+        const editId = $('#edit_designation_id').val();
+        const token = '{{ csrf_token() }}';
+        const isEditMode = editId !== '';
+
+        $('#designation-error').addClass('d-none').text('');
+
+        // Basic validation - same as create page
+        if (!name) {
+            $('#designation-error').removeClass('d-none').text('Please enter a designation name.');
+            return;
+        }
+
+        // FIXED: Simplified validation - same as create page
+        if (level === '' || level === null) {
+            $('#designation-error').removeClass('d-none').text('Please enter a level between 0-6.');
+            return;
+        }
+
+        // Convert to number and validate range - ALLOW 0
+        const levelNum = parseInt(level);
+        if (isNaN(levelNum) || levelNum < 0 || levelNum > 6) {
+            $('#designation-error').removeClass('d-none').text('Level must be a whole number between 0-6.');
+            return;
+        }
+
+        $btn.prop('disabled', true);
+
+        let url, method, data;
+
+        if (isEditMode) {
+            // Update existing designation
+            url = `{{ url('designations') }}/${editId}`;
+            method = 'POST';
+            data = {
+                _token: token,
+                _method: 'PUT',
+                name: name,
+                level: levelNum,
+                status: 'Active'
+            };
+        } else {
+            // Create new designation
+            url = '{{ route('designations.ajax.store') }}';
+            method = 'POST';
+            data = {
+                _token: token,
+                name: name,
+                level: levelNum,
+                status: 'Active'
+            };
+        }
+
+        $.ajax({
+            url: url,
+            method: method,
+            data: data,
+            success: function (res) {
+                if (res.designation && res.designation.id) {
+                    let label = res.designation.name;
+                    if (res.designation.unique_code) {
+                        label += ` (${res.designation.unique_code})`;
+                    }
+                    if (res.designation.level !== null) {
+                        label += ` - Level ${res.designation.level}`;
+                    }
+
+                    if (isEditMode) {
+                        // Update in table
+                        $(`#des-row-${res.designation.id} td:first`).text(res.designation.name);
+                        $(`#des-row-${res.designation.id} td:nth-child(2)`).text(res.designation.level !== null ? res.designation.level : 'Not Set');
+
+                        // Update edit button data attributes
+                        $(`#des-row-${res.designation.id} .edit-designation`)
+                            .data('name', res.designation.name)
+                            .data('level', res.designation.level !== null ? res.designation.level : '');
+
+                        // Update in select dropdown
+                        const $option = $(`#designation_id option[value="${res.designation.id}"]`);
+                        if ($option.length) {
+                            $option.text(label);
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: 'Designation updated successfully',
+                            timer: 1400,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        // Add to table
+                        const newRow = `
+                            <tr id="des-row-${res.designation.id}">
+                                <td>${res.designation.name}</td>
+                                <td>${res.designation.level !== null ? res.designation.level : 'Not Set'}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-warning edit-designation"
+                                            data-id="${res.designation.id}"
+                                            data-name="${res.designation.name}"
+                                            data-level="${res.designation.level !== null ? res.designation.level : ''}"
+                                            title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger delete-designation" data-id="${res.designation.id}" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        $('#designation-list').append(newRow);
+
+                        // Add to select dropdown
+                        $('#designation_id').append(`<option value="${res.designation.id}">${label}</option>`);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Created',
+                            text: 'Designation created successfully',
+                            timer: 1400,
+                            showConfirmButton: false
+                        });
+                    }
+
+                    // Reset form
+                    $('#addDesignationForm')[0].reset();
+                    $('#edit_designation_id').val('');
+                    $('#saveDesignationBtn').text('Add Designation');
+                    $('.modal-title').text('Manage Designations');
+
+                    // Don't close modal on edit, allow more operations
+                    if (!isEditMode) {
+                        $('#designationModal').modal('hide');
+                    }
+                } else {
+                    $('#designation-error').removeClass('d-none').text(res.message || 'Operation completed but unexpected response.');
+                }
+            },
+            error: function (xhr) {
+                let msg = 'Something went wrong';
+                if (xhr.responseJSON?.message) {
+                    msg = xhr.responseJSON.message;
+                    if (msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('taken')) {
+                        msg = 'This designation name already exists. Please choose a different name.';
+                    }
+                } else if (xhr.responseJSON?.errors) {
+                    msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                }
+                $('#designation-error').removeClass('d-none').text(msg);
+            },
+            complete: function () {
+                $btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // Initialize Select2 for country
     function formatCountry (state) {
         if (!state.id) return state.text;
         let flag = $(state.element).data("flag");
@@ -809,19 +1036,32 @@ $(document).ready(function () {
         return state.text;
     }
 
-    $('#country').select2({
-        theme: "bootstrap-5",
-        templateResult: formatCountry,
-        templateSelection: formatCountry,
-        placeholder: "Select Country",
-        allowClear: true
-    });
+    if ($('#country').length) {
+        $('#country').select2({
+            theme: "bootstrap-5",
+            templateResult: formatCountry,
+            templateSelection: formatCountry,
+            placeholder: "Select Country",
+            allowClear: true
+        });
 
-    const $country = $('#country');
-    const indiaOption = $country.find('option').filter(function(){ return $(this).text().trim() === 'India'; }).first();
-    if (indiaOption.length) {
-        $country.prepend(indiaOption);
-        if (!$country.val()) $country.val(indiaOption.val()).trigger('change.select2');
+        const $country = $('#country');
+        const indiaOption = $country.find('option').filter(function(){ return $(this).text().trim() === 'India'; }).first();
+        if (indiaOption.length) {
+            $country.prepend(indiaOption);
+            if (!$country.val()) $country.val(indiaOption.val()).trigger('change.select2');
+        }
+    }
+
+    // Initialize Select2 for language if exists
+    if ($('#language').length) {
+        $('#language').select2({
+            theme: "bootstrap-5",
+            templateResult: formatCountry,
+            templateSelection: formatCountry,
+            placeholder: "Select Language",
+            allowClear: true
+        });
     }
 });
 </script>
