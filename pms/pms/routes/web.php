@@ -342,6 +342,9 @@ Route::resource('designations', DesignationController::class);
         ->name('departments.bulk-delete');
     Route::resource('departments', DepartmentController::class);
 
+    Route::delete('departments/bulk-destroy', [DepartmentController::class, 'bulkDestroy'])
+    ->name('departments.bulkDestroy');
+
     // Employees
     Route::delete('/employees/bulk-delete', [EmployeeController::class, 'bulkDelete'])
         ->name('employees.bulk.delete');

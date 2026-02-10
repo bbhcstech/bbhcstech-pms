@@ -137,48 +137,108 @@ class ParentDepartmentController extends Controller
      * Remove the specified parent department.
      * Prevent deletion if sub-departments OR employees exist.
      */
+    // public function destroy(Request $request, ParentDepartment $parentDepartment)
+    // {
+    //     try {
+    //         // Check if department has sub-departments
+    //         if ($parentDepartment->departments()->exists()) {
+    //             $message = 'This department cannot be deleted because it has sub-departments linked to it.';
+
+    //             if ($request->wantsJson() || $request->ajax()) {
+    //                 return response()->json(['status' => 'error', 'message' => $message], 422);
+    //             }
+
+    //             return back()->with('error', $message);
+    //         }
+
+    //         // Check if department has employees
+    //         if ($parentDepartment->employees()->exists()) {
+    //             $message = 'This department cannot be deleted because it is tagged with employees.';
+
+    //             if ($request->wantsJson() || $request->ajax()) {
+    //                 return response()->json(['status' => 'error', 'message' => $message], 422);
+    //             }
+
+    //             return back()->with('error', $message);
+    //         }
+
+    //         $parentDepartment->delete();
+
+    //         if ($request->wantsJson() || $request->ajax()) {
+    //             return response()->json(['status' => 'success', 'message' => 'Department deleted successfully.']);
+    //         }
+
+    //         return redirect()->route('parent-departments.index')->with('success', 'Department deleted successfully.');
+    //     } catch (\Throwable $e) {
+    //         logger()->error('ParentDepartment delete error: ' . $e->getMessage(), ['exception' => $e]);
+
+    //         if ($request->wantsJson() || $request->ajax()) {
+    //             return response()->json(['status' => 'error', 'message' => 'Delete failed.', 'error' => $e->getMessage()], 500);
+    //         }
+
+    //         return back()->with('error', 'Delete failed: ' . $e->getMessage());
+    //     }
+    // }
+
+
+
+
     public function destroy(Request $request, ParentDepartment $parentDepartment)
-    {
-        try {
-            // Check if department has sub-departments
-            if ($parentDepartment->departments()->exists()) {
-                $message = 'This department cannot be deleted because it has sub-departments linked to it.';
-
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json(['status' => 'error', 'message' => $message], 422);
-                }
-
-                return back()->with('error', $message);
-            }
-
-            // Check if department has employees
-            if ($parentDepartment->employees()->exists()) {
-                $message = 'This department cannot be deleted because it is tagged with employees.';
-
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json(['status' => 'error', 'message' => $message], 422);
-                }
-
-                return back()->with('error', $message);
-            }
-
-            $parentDepartment->delete();
+{
+    try {
+        // Check if department has sub-departments
+        if ($parentDepartment->departments()->exists()) {
+            $message = 'This department cannot be deleted because it has sub-departments linked to it.';
 
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['status' => 'success', 'message' => 'Department deleted successfully.']);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $message
+                ], 422);
             }
 
-            return redirect()->route('parent-departments.index')->with('success', 'Department deleted successfully.');
-        } catch (\Throwable $e) {
-            logger()->error('ParentDepartment delete error: ' . $e->getMessage(), ['exception' => $e]);
-
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['status' => 'error', 'message' => 'Delete failed.', 'error' => $e->getMessage()], 500);
-            }
-
-            return back()->with('error', 'Delete failed: ' . $e->getMessage());
+            return back()->with('error', $message);
         }
+
+        // Check if department has employees
+        if ($parentDepartment->employees()->exists()) {
+            $message = 'This department cannot be deleted because it is tagged with employees.';
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $message
+                ], 422);
+            }
+
+            return back()->with('error', $message);
+        }
+
+        $parentDepartment->delete();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Department deleted successfully.',
+                'deleted_id' => $parentDepartment->id
+            ]);
+        }
+
+        return redirect()->route('parent-departments.index')
+            ->with('success', 'Department deleted successfully.');
+    } catch (\Throwable $e) {
+        logger()->error('ParentDepartment delete error: ' . $e->getMessage());
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Delete failed: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return back()->with('error', 'Delete failed: ' . $e->getMessage());
     }
+}
 
     /**
      * Bulk delete multiple ParentDepartment records.

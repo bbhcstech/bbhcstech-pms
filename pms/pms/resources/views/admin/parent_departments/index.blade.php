@@ -488,46 +488,7 @@ $(document).ready(function () {
             }
         },
         buttons: [
-            {
-                extend: 'copy',
-                text: '<i class="bi bi-copy me-1"></i>Copy',
-                className: 'btn btn-sm',
-                exportOptions: {
-                    columns: [1, 2, 3]
-                }
-            },
-            {
-                extend: 'csv',
-                text: '<i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV',
-                className: 'btn btn-sm',
-                exportOptions: {
-                    columns: [1, 2, 3]
-                }
-            },
-            {
-                extend: 'excel',
-                text: '<i class="bi bi-file-excel me-1"></i>Excel',
-                className: 'btn btn-sm',
-                exportOptions: {
-                    columns: [1, 2, 3]
-                }
-            },
-            {
-                extend: 'pdf',
-                text: '<i class="bi bi-file-pdf me-1"></i>PDF',
-                className: 'btn btn-sm',
-                exportOptions: {
-                    columns: [1, 2, 3]
-                }
-            },
-            {
-                extend: 'print',
-                text: '<i class="bi bi-printer me-1"></i>Print',
-                className: 'btn btn-sm',
-                exportOptions: {
-                    columns: [1, 2, 3]
-                }
-            }
+            // ... your existing buttons ...
         ],
         columnDefs: [
             {
@@ -559,8 +520,10 @@ $(document).ready(function () {
         }
     });
 
-    // Individual Delete
-    $(document).on('click', '.delete-btn', function() {
+    // **FIXED: Individual Delete**
+    $(document).on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+
         const deleteBtn = $(this);
         const departmentId = deleteBtn.data('id');
         const departmentName = deleteBtn.data('name');
@@ -575,58 +538,42 @@ $(document).ready(function () {
         deleteBtn.prop('disabled', true);
         deleteBtn.addClass('loading');
 
+        // FIXED: Use the exact route from your web.php
         $.ajax({
-            url: `{{ url('admin/parent-departments') }}/${departmentId}`,
-            method: 'POST',
+            url: `{{ route('parent-departments.destroy', ':id') }}`.replace(':id', departmentId),
+            method: 'POST', // Laravel expects POST with _method=DELETE
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             data: {
-                _token: '{{ csrf_token() }}',
                 _method: 'DELETE'
             },
+            dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
+                    // Remove row from DataTable
                     const row = deleteBtn.closest('tr');
                     table.row(row).remove().draw();
+
                     showToast('success', 'Department deleted successfully');
 
+                    // Reload page if table is empty for proper empty state
                     if (table.rows().count() === 0) {
-                        table.draw();
+                        setTimeout(() => location.reload(), 1500);
                     }
                 } else {
-                    let message = response.message || 'Error deleting department';
-                    let type = 'danger';
-
-                    if (message.includes('tagged with employees')) {
-                        message = `<div class="mb-2">${message}</div>
-                                  <small class="text-muted">Reassign employees before deletion</small>`;
-                        type = 'warning';
-                    } else if (message.includes('sub-departments')) {
-                        message = `<div class="mb-2">${message}</div>
-                                  <small class="text-muted">Remove sub-departments first</small>`;
-                        type = 'info';
-                    }
-
-                    showToast(type, message);
+                    handleDeleteError(response.message);
                 }
             },
             error: function(xhr) {
                 let message = 'Error deleting department';
-                let type = 'danger';
-
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
-
-                    if (message.includes('tagged with employees')) {
-                        message = `<div class="mb-2">${message}</div>
-                                  <small class="text-muted">Reassign employees before deletion</small>`;
-                        type = 'warning';
-                    } else if (message.includes('sub-departments')) {
-                        message = `<div class="mb-2">${message}</div>
-                                  <small class="text-muted">Remove sub-departments first</small>`;
-                        type = 'info';
-                    }
+                } else if (xhr.status === 422) {
+                    message = 'Validation error: Cannot delete department.';
                 }
-
-                showToast(type, message);
+                handleDeleteError(message);
             },
             complete: function() {
                 deleteBtn.html(originalHtml);
@@ -636,8 +583,10 @@ $(document).ready(function () {
         });
     });
 
-    // Bulk Delete
-    $('#bulk-delete-btn').on('click', function() {
+    // **FIXED: Bulk Delete**
+    $('#bulk-delete-btn').on('click', function(e) {
+        e.preventDefault();
+
         const ids = $('.row-checkbox:checked').map(function() {
             return $(this).val();
         }).get();
@@ -657,28 +606,40 @@ $(document).ready(function () {
         deleteBtn.html('<i class="bi bi-hourglass-split me-1"></i> Deleting...');
         deleteBtn.prop('disabled', true);
 
+        // FIXED: Use the bulk-delete route
         $.ajax({
             url: "{{ route('parent-departments.bulk-delete') }}",
             method: 'POST',
-            data: {
-                bulk_ids: ids,
-                _token: '{{ csrf_token() }}'
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
             },
+            data: {
+                bulk_ids: ids
+            },
+            dataType: 'json',
             success: function(res) {
                 if (res.status === 'success' || res.status === 'warning') {
+                    // Remove successfully deleted rows
                     if (res.deleted_ids && res.deleted_ids.length) {
                         res.deleted_ids.forEach(function(id) {
-                            table.row($('.row-checkbox[value="' + id + '"]').closest('tr')).remove().draw();
+                            const checkbox = $(`.row-checkbox[value="${id}"]`);
+                            if (checkbox.length) {
+                                table.row(checkbox.closest('tr')).remove().draw();
+                            }
                         });
                     }
 
+                    // Clear selection
                     $('#select-all, #select-all-header').prop('checked', false);
-                    $('.row-checkbox').closest('tr').removeClass('table-active');
+                    $('.row-checkbox').prop('checked', false).closest('tr').removeClass('table-active');
 
+                    // Show appropriate message
                     showToast(res.status === 'warning' ? 'warning' : 'success', res.message);
 
+                    // Reload if empty
                     if (table.rows().count() === 0) {
-                        table.draw();
+                        setTimeout(() => location.reload(), 1500);
                     }
                 } else {
                     showToast('danger', res.message || 'Error deleting departments');
@@ -688,6 +649,8 @@ $(document).ready(function () {
                 let message = 'Error deleting departments';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
+                } else if (xhr.status === 422) {
+                    message = 'Validation error occurred.';
                 }
                 showToast('danger', message);
             },
@@ -698,18 +661,46 @@ $(document).ready(function () {
         });
     });
 
+    // Helper function to handle delete errors with proper formatting
+    function handleDeleteError(message) {
+        let type = 'danger';
+        let formattedMessage = message;
+
+        if (message.includes('tagged with employees')) {
+            formattedMessage = `<div class="mb-2"><strong>Cannot Delete Department</strong></div>
+                              <div>${message}</div>
+                              <div class="mt-2 small text-muted"><i class="bi bi-info-circle me-1"></i>Reassign employees to another department before deletion.</div>`;
+            type = 'warning';
+        } else if (message.includes('sub-departments')) {
+            formattedMessage = `<div class="mb-2"><strong>Contains Sub-Departments</strong></div>
+                              <div>${message}</div>
+                              <div class="mt-2 small text-muted"><i class="bi bi-info-circle me-1"></i>Delete or move sub-departments first.</div>`;
+            type = 'info';
+        }
+
+        showToast(type, formattedMessage);
+    }
+
     // Toast notification function
     function showToast(type, message) {
         // Remove existing toasts
         $('.toast-alert').remove();
+
+        // Define icons for each type
+        const icons = {
+            'success': 'bi-check-circle-fill text-success',
+            'danger': 'bi-x-circle-fill text-danger',
+            'warning': 'bi-exclamation-triangle-fill text-warning',
+            'info': 'bi-info-circle-fill text-info'
+        };
 
         // Create toast
         const toast = $(`
             <div class="toast-alert position-fixed top-3 end-3" style="z-index: 1060;">
                 <div class="alert alert-${type} border-0 shadow-sm rounded-sm fade show" role="alert">
                     <div class="d-flex align-items-start">
-                        <i class="bi ${getToastIcon(type)} me-2 mt-1"></i>
-                        <div style="flex: 1;">${message}</div>
+                        <i class="bi ${icons[type] || 'bi-info-circle-fill'} me-2 mt-1"></i>
+                        <div class="flex-grow-1">${message}</div>
                         <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
                     </div>
                 </div>
@@ -718,21 +709,11 @@ $(document).ready(function () {
 
         $('body').append(toast);
 
-        // Auto remove
+        // Auto remove after 7 seconds
         setTimeout(() => {
             toast.find('.alert').alert('close');
             setTimeout(() => toast.remove(), 300);
-        }, 5000);
-    }
-
-    function getToastIcon(type) {
-        const icons = {
-            'success': 'bi-check-circle-fill',
-            'danger': 'bi-x-circle-fill',
-            'warning': 'bi-exclamation-triangle-fill',
-            'info': 'bi-info-circle-fill'
-        };
-        return icons[type] || 'bi-info-circle-fill';
+        }, 7000);
     }
 
     // Table row hover effect
