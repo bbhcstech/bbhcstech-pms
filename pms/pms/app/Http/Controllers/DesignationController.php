@@ -220,37 +220,78 @@ class DesignationController extends Controller
             ->with('success', 'Designation deleted successfully.');
     }
 
-    public function bulkDelete(Request $request)
-    {
-        $ids = $request->input('ids', []);
+        public function bulkDelete(Request $request)
+        {
+            $ids = $request->input('ids', []);
 
-        if (empty($ids) || !is_array($ids)) {
-            return $request->ajax()
-                ? response()->json(['status' => false, 'message' => 'No designations selected.'], 422)
-                : back()->with('error', 'No designations selected.');
-        }
-
-        $deleted = 0;
-        $blocked = 0;
-
-        foreach ($ids as $id) {
-            $designation = Designation::find($id);
-
-            if ($designation && $designation->employeeDetails()->count() == 0) {
-                $designation->delete();
-                $deleted++;
-            } else {
-                $blocked++;
+            if (empty($ids) || !is_array($ids)) {
+                return $request->ajax()
+                    ? response()->json(['status' => false, 'message' => 'No designations selected.'], 422)
+                    : back()->with('error', 'No designations selected.');
             }
+
+            $deleted = 0;
+            $blocked = 0;
+            $blockedNames = [];
+
+            foreach ($ids as $id) {
+                $designation = Designation::find($id);
+
+                if (!$designation) {
+                    continue;
+                }
+
+                if ($designation->employeeDetails()->count() > 0) {
+                    $blocked++;
+                    $blockedNames[] = $designation->name;
+                } else {
+                    $designation->delete();
+                    $deleted++;
+                }
+            }
+
+            // Prepare success and error messages
+            $successMessage = '';
+            $errorMessage = '';
+
+            if ($deleted > 0) {
+                $successMessage = $deleted . ' designation(s) deleted successfully.';
+            }
+
+            if ($blocked > 0) {
+                $errorMessage = $blocked . ' designation(s) cannot be deleted because employees are tagged under them.';
+                if (!empty($blockedNames)) {
+                    $errorMessage .= ' (' . implode(', ', $blockedNames) . ')';
+                }
+            }
+
+            // For AJAX requests
+            if ($request->ajax()) {
+                if ($blocked > 0 && $deleted == 0) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => $errorMessage
+                    ], 422);
+                } else {
+                    return response()->json([
+                        'status' => true,
+                        'message' => $successMessage,
+                        'error_message' => $blocked > 0 ? $errorMessage : null
+                    ]);
+                }
+            }
+
+            // For regular requests
+            if ($deleted > 0) {
+                session()->flash('success', $successMessage);
+            }
+
+            if ($blocked > 0) {
+                session()->flash('error', $errorMessage);
+            }
+
+            return back();
         }
-
-        $message = "{$deleted} item(s) deleted. {$blocked} item(s) were not deleted because Employees are tagged under them.";
-
-        return $request->ajax()
-            ? response()->json(['status' => true, 'message' => $message])
-            : back()->with('success', $message);
-    }
-
     public function hierarchy()
     {
         $designations = Designation::orderBy('order', 'asc')->get();

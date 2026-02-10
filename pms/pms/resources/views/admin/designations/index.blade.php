@@ -471,19 +471,19 @@
             @endif
         </div>
 
-        <!-- Legend -->
+       <!-- Legend -->
         <div class="mt-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
                         <span class="text-muted fw-medium me-2">Level Legend:</span>
-                        <span class="badge bg-primary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL 0 (Intern)</span>
-                        <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL1 (Associate)</span>
-                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL2 (Sr.Associate)</span>
-                        <span class="badge bg-secondary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL3 (Manager)</span>
-                        <span class="badge bg-secondary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL4 (Sr.Manager)</span>
-                        <span class="badge bg-secondary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL5(Associate Director)</span>
-                        <span class="badge bg-secondary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>LL6(Director)</span>
+                        <span class="badge bg-dark text-white rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L0 (Intern)</span>
+                        <span class="badge bg-primary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L1 (Associate)</span>
+                        <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L2 (Sr. Associate)</span>
+                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L3 (Manager)</span>
+                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L4 (Sr. Manager)</span>
+                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L5 (Associate Director)</span>
+                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L6 (Director)</span>
                     </div>
                 </div>
             </div>
@@ -734,20 +734,61 @@ $(document).ready(function() {
         table.search(this.value).draw();
     });
 
-    // Level filter buttons
-    $('.level-filter-btn').on('click', function() {
-        $('.level-filter-btn').removeClass('active');
-        $(this).addClass('active');
-        var level = $(this).data('level');
-        table.column(3).search('^' + level + '$', true, false).draw();
-    });
+    // // Level filter buttons
+    // $('.level-filter-btn').on('click', function() {
+    //     $('.level-filter-btn').removeClass('active');
+    //     $(this).addClass('active');
+    //     var level = $(this).data('level');
+    //     table.column(3).search('^' + level + '$', true, false).draw();
+    // });
 
-    // Reset filters
-    window.resetFilters = function() {
-        $('.level-filter-btn').removeClass('active');
-        table.search('').columns().search('').draw();
-        $('#designationSearch').val('');
-    };
+    // Level filter buttons
+        $('.level-filter-btn').on('click', function() {
+            $('.level-filter-btn').removeClass('active');
+            $(this).addClass('active');
+            var level = $(this).data('level');
+
+            // Clear other filters
+            table.search('').draw();
+
+            // Show only rows with matching level
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    var rowLevel = table.row(dataIndex).data()[3]; // Level is in 4th column (index 3)
+                    // Extract the number from L0, L1, etc.
+                    var rowLevelNum = rowLevel.match(/L(\d+)/);
+                    if (rowLevelNum && rowLevelNum[1] == level) {
+                        return true;
+                    }
+                    return false;
+                }
+            );
+
+            table.draw();
+
+            // Remove the filter function so it doesn't accumulate
+            $.fn.dataTable.ext.search.pop();
+        });
+
+    // // Reset filters
+    // window.resetFilters = function() {
+    //     $('.level-filter-btn').removeClass('active');
+    //     table.search('').columns().search('').draw();
+    //     $('#designationSearch').val('');
+    // };
+
+
+            // Reset filters
+        window.resetFilters = function() {
+            $('.level-filter-btn').removeClass('active');
+            table.search('').columns().search('').draw();
+            $('#designationSearch').val('');
+
+            // Clear any custom filters
+            $.fn.dataTable.ext.search = [];
+            table.draw();
+        };
+
 
     // Get selected IDs
     function getSelectedIds() {
@@ -849,35 +890,38 @@ $(document).ready(function() {
         }
     };
 
-    function submitBulkDelete(ids) {
-        // Create a hidden form to submit
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ route("designations.bulk-delete") }}';
-        form.style.display = 'none';
+   function submitBulkDelete(ids) {
+    // Create a hidden form to submit
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("designations.bulk-delete") }}';
+    form.style.display = 'none';
 
-        var csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = '{{ csrf_token() }}';
-        form.appendChild(csrfToken);
+    var csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = '_token';
+    csrfToken.value = '{{ csrf_token() }}';
+    form.appendChild(csrfToken);
 
-        var methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'DELETE';
-        form.appendChild(methodInput);
+    // FIX: Add method spoofing for DELETE
+    var methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
 
-        var idsInput = document.createElement('input');
-        idsInput.type = 'hidden';
-        idsInput.name = 'ids';
-        idsInput.value = JSON.stringify(ids);
-        form.appendChild(idsInput);
+    // FIX: Send array properly
+    ids.forEach(function(id) {
+        var idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'ids[]';
+        idInput.value = id;
+        form.appendChild(idInput);
+    });
 
-        document.body.appendChild(form);
-        form.submit();
-    }
-
+    document.body.appendChild(form);
+    form.submit();
+}
     // Show toast notification
     function showToast(message, type = 'info') {
         if (typeof toastr !== 'undefined') {

@@ -82,6 +82,9 @@ Route::get('attendance/export/excel', [AttendanceExport::class, 'exportExcel'])
 Route::get('attendance/export/pdf', [AttendanceExport::class, 'exportPdf'])
     ->name('attendance.export.pdf');
 
+// Add this route for bulk delete
+Route::delete('designations/bulk-delete', [DesignationController::class, 'bulkDelete'])->name('designations.bulk-delete');
+
 
 
 Route::get('attendance/filter', [App\Http\Controllers\AttendanceController::class, 'filter'])->name('attendance.filter');
