@@ -192,6 +192,51 @@ Route::get('/debug-create-notif', function () {
     ]);
 })->middleware(['web', 'auth']);
 
+
+// // Notification routes (works for both admin and employee)
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+//     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+//     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+//     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+//     Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
+//     Route::get('/notifications/latest', [NotificationController::class, 'getLatest'])->name('notifications.latest');
+// });
+
+// Route::middleware(['auth'])->group(function () {
+//     // 🔥 FIX: Remove duplicate route for /employee/notifications
+//     // Keep only this one:
+//     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+//     Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+//     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+//     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+//     Route::delete('/notifications/delete/{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
+
+//     // Send notification routes
+//     Route::post('/notifications/admin-to-employees', [NotificationController::class, 'adminToEmployees'])->name('notifications.adminToEmployees');
+//     Route::post('/notifications/employee-to-admins', [NotificationController::class, 'employeeToAdmins'])->name('notifications.employeeToAdmins');
+//     Route::post('/notifications/send-to-users', [NotificationController::class, 'sendToUsers'])->name('notifications.sendToUsers');
+// });
+
+// Admin specific routes
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Your existing admin routes
+    // Example: Route::get('/dashboard', ...)->name('admin.dashboard');
+});
+
+// Employee specific routes (without duplicate notifications route)
+Route::middleware(['auth'])->prefix('employee')->group(function () {
+    // Other employee routes
+    // Example: Route::get('/dashboard', ...)->name('employee.dashboard');
+
+    // 🔥 REMOVE THIS DUPLICATE LINE:
+    // Route::get('/notifications', [NotificationController::class, 'index'])->name('employee.notifications.index');
+});
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Public / auth scaffolding routes
@@ -409,6 +454,11 @@ Route::resource('designations', DesignationController::class);
     Route::patch('/leaves/{leave}/status', [LeaveController::class, 'updateStatus'])->name('leaves.updateStatus');
     Route::get('/admin/leaves/report', [LeaveController::class, 'leaveReport'])->name('admin.leave.report');
 
+
+
+    Route::post('/leaves/policy', [LeaveController::class, 'updatePolicy'])->name('leaves.update-policy');
+    Route::post('/leaves/reset/{id}', [LeaveController::class, 'resetEmployeeLeaves'])->name('leaves.reset-employee-leaves');
+    Route::get('/leaves/export', [LeaveController::class, 'export'])->name('leaves.export');
    /*
 |----------------------------------------------------------------------
 | Holidays

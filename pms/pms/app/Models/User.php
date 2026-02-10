@@ -32,6 +32,14 @@ class User extends Authenticatable
         'profile_image',
         'login_allowed',
         'email_notifications',
+        // ADD THESE NEW FIELDS:
+        'joining_date',
+        'annual_leave_balance',
+        'leaves_taken_this_year',
+        'remaining_leaves',
+        'leave_amount',
+        'last_leave_reset',
+        'carry_forward_leaves',
     ];
 
     protected $hidden = [
@@ -46,6 +54,14 @@ class User extends Authenticatable
             'password' => 'hashed',
             'login_allowed' => 'boolean',
             'email_notifications' => 'boolean',
+            // ADD THESE NEW CASTS:
+            'joining_date' => 'date',
+            'last_leave_reset' => 'date',
+            'annual_leave_balance' => 'integer',
+            'leaves_taken_this_year' => 'integer',
+            'remaining_leaves' => 'integer',
+            'leave_amount' => 'decimal:2',
+            'carry_forward_leaves' => 'integer',
         ];
     }
 
@@ -69,6 +85,117 @@ class User extends Authenticatable
         return $this->belongsToMany(\App\Models\Project::class, 'project_user', 'user_id', 'project_id')
                     ->withPivot('hourly_rate', 'role')
                     ->withTimestamps();
+    }
+
+    // ADD THESE NEW RELATIONSHIPS FOR LEAVE SYSTEM:
+    public function leaveBalances()
+    {
+        return $this->hasMany(\App\Models\LeaveBalance::class);
+    }
+
+    public function currentYearBalance()
+    {
+        $currentYear = date('Y');
+        return $this->hasOne(\App\Models\LeaveBalance::class)->where('year', $currentYear);
+    }
+
+    /**
+     * Calculate pro-rated leaves based on joining date
+     */
+    public function calculateProRatedLeaves($annualLeaves = 18, $fiscalYearStart = '04-01')
+    {
+        if (!$this->joining_date) {
+            return $annualLeaves; // Full leaves if no joining date
+        }
+
+        $joinDate = Carbon::parse($this->joining_date);
+        $currentYear = date('Y');
+
+        // Determine fiscal year
+        $fiscalStart = Carbon::createFromFormat('m-d', $fiscalYearStart)->year($currentYear);
+
+        // If current date is before fiscal start, use previous year
+        if (Carbon::now()->lt($fiscalStart)) {
+            $fiscalStart = $fiscalStart->subYear();
+        }
+
+        $fiscalEnd = $fiscalStart->copy()->addYear()->subDay();
+
+        // If employee joined after fiscal year start
+        if ($joinDate->gt($fiscalStart)) {
+            $monthsRemaining = $joinDate->diffInMonths($fiscalEnd);
+            if ($monthsRemaining > 0) {
+                $proRatedLeaves = floor(($annualLeaves / 12) * $monthsRemaining);
+                return max(1, $proRatedLeaves); // At least 1 leave
+            }
+            return 0;
+        }
+
+        return $annualLeaves; // Joined before fiscal year start
+    }
+
+    /**
+     * Get leave utilization percentage
+     */
+    public function getLeaveUtilizationPercentage()
+    {
+        if ($this->annual_leave_balance <= 0) {
+            return 0;
+        }
+
+        $used = $this->leaves_taken_this_year;
+        $total = $this->annual_leave_balance;
+
+        return ($used / $total) * 100;
+    }
+
+    /**
+     * Get leave status color
+     */
+    public function getLeaveStatusColor()
+    {
+        $percentage = $this->getLeaveUtilizationPercentage();
+
+        if ($percentage >= 90) {
+            return 'danger';
+        } elseif ($percentage >= 75) {
+            return 'warning';
+        } else {
+            return 'success';
+        }
+    }
+
+    /**
+     * Get monetary value of remaining leaves
+     */
+    public function getRemainingLeaveValue()
+    {
+        if (!$this->leave_amount) {
+            return 0;
+        }
+
+        return $this->remaining_leaves * $this->leave_amount;
+    }
+
+    /**
+     * Check if employee can take paid leave
+     */
+    public function canTakePaidLeave($requestedDays = 1)
+    {
+        return $this->remaining_leaves >= $requestedDays;
+    }
+
+    /**
+     * Get days until next leave reset
+     */
+    public function getDaysUntilReset()
+    {
+        if (!$this->last_leave_reset) {
+            return 0;
+        }
+
+        $nextReset = Carbon::parse($this->last_leave_reset)->addYear();
+        return Carbon::now()->diffInDays($nextReset, false);
     }
 
     /**
@@ -152,5 +279,21 @@ class User extends Authenticatable
         $exitDate = Carbon::parse($this->employeeDetail->exit_date);
 
         return $today->gte($exitDate); // $today >= $exitDate
+    }
+
+    /**
+     * Get current fiscal year
+     */
+    public function getCurrentFiscalYear()
+    {
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+
+        // Assuming fiscal year starts in April (04)
+        if ($currentMonth >= 4) {
+            return $currentYear . '-' . ($currentYear + 1);
+        } else {
+            return ($currentYear - 1) . '-' . $currentYear;
+        }
     }
 }
