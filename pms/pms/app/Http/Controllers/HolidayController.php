@@ -13,6 +13,9 @@ class HolidayController extends Controller
 {
     public function index(Request $request)
     {
+        // Check user role
+        $isAdmin = auth()->user()->role === 'admin';
+
         $query = Holiday::query();
 
         if ($request->filled('year')) {
@@ -25,13 +28,19 @@ class HolidayController extends Controller
 
         $holidays = $query->orderBy('date', 'asc')->get();
 
-        return view('admin.holidays.index', compact('holidays'))
+        return view('admin.holidays.index', compact('holidays', 'isAdmin'))
             ->with('selectedYear', $request->year)
             ->with('selectedMonth', $request->month);
     }
 
     public function create()
     {
+        // Only admin can create
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('holidays.index')
+                ->with('error', 'You are not authorized to add holidays.');
+        }
+
         $department = Department::get();
         $designations = Designation::get();
         return view('admin.holidays.create', compact('department', 'designations'));
@@ -39,6 +48,12 @@ class HolidayController extends Controller
 
     public function store(Request $request)
     {
+        // Only admin can store
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('holidays.index')
+                ->with('error', 'You are not authorized to add holidays.');
+        }
+
         $request->validate([
             'date.*'                => 'required|date',
             'occassion.*'           => 'required|string|max:255',
@@ -68,16 +83,21 @@ class HolidayController extends Controller
 
     public function destroy(Holiday $holiday)
     {
+        // Only admin can delete
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('holidays.index')
+                ->with('error', 'You are not authorized to delete holidays.');
+        }
+
         $holiday->delete();
         return back()->with('success', 'Holiday deleted.');
     }
 
-    // CALENDAR VIEW - For both Admin and Employee
     public function calendar(Request $request)
     {
         $isAdmin = auth()->user()->role === 'admin';
 
-        // Get all holidays (no need for createdBy)
+        // Get all holidays
         $holidays = Holiday::all();
 
         // Format for FullCalendar
@@ -91,10 +111,14 @@ class HolidayController extends Controller
                 'end' => $holiday->date,
                 'color' => $this->getHolidayColor($holiday),
                 'textColor' => '#fff',
-                'allDay' => true
+                'allDay' => true,
+                'extendedProps' => [
+                    'description' => $holiday->occassion,
+                    'type' => $holiday->type
+                ]
             ];
 
-            // Admin এর জন্য edit url
+            // Only admin gets edit URL
             if ($isAdmin) {
                 $event['url'] = route('holidays.edit', $holiday->id);
             }
@@ -108,25 +132,14 @@ class HolidayController extends Controller
         ]);
     }
 
-    // EMPLOYEE LIST VIEW
-    public function employeeView(Request $request)
-    {
-        $month = $request->month ?? now()->month;
-        $year = $request->year ?? now()->year;
-
-        $holidays = Holiday::whereMonth('date', $month)
-            ->whereYear('date', $year)
-            ->orderBy('date')
-            ->get()
-            ->groupBy(function ($holiday) {
-                return Carbon::parse($holiday->date)->startOfWeek()->format('W');
-            });
-
-        return view('admin.holidays.employee-index', compact('holidays', 'month', 'year'));
-    }
-
     public function edit(Holiday $holiday)
     {
+        // Only admin can edit
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('holidays.index')
+                ->with('error', 'You are not authorized to edit holidays.');
+        }
+
         $department = Department::get();
         $designations = Designation::get();
         return view('admin.holidays.edit', compact('holiday', 'department', 'designations'));
@@ -134,6 +147,12 @@ class HolidayController extends Controller
 
     public function update(Request $request, Holiday $holiday)
     {
+        // Only admin can update
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('holidays.index')
+                ->with('error', 'You are not authorized to update holidays.');
+        }
+
         $request->validate([
             'date.*'                => 'required|date',
             'occassion.*'           => 'required|string|max:255',
@@ -178,13 +197,19 @@ class HolidayController extends Controller
 
     public function markHoliday(Request $request)
     {
+        // Only admin can mark holidays
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('holidays.index')
+                ->with('error', 'You are not authorized to mark holidays.');
+        }
+
         $request->validate([
             'office_holiday_days' => 'nullable|array',
             'occassion'           => 'nullable|string|max:255',
             'date'                => 'nullable|date',
         ]);
 
-        // 1️⃣ Handle recurring weekly holidays
+        // Handle recurring weekly holidays
         if ($request->filled('office_holiday_days')) {
             $days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
             $startOfYear = Carbon::now()->startOfYear();
@@ -212,7 +237,7 @@ class HolidayController extends Controller
             }
         }
 
-        // 2️⃣ Handle a one-time custom holiday
+        // Handle a one-time custom holiday
         if ($request->filled('occassion') && $request->filled('date')) {
             Holiday::create([
                 'group_id'            => uniqid(),
@@ -227,12 +252,18 @@ class HolidayController extends Controller
             ]);
         }
 
-        return redirect()->route('holidays.index')
-            ->with('success', 'Holiday(s) added successfully');
+        return redirect()->route('holidays.index')->with('success', 'Holiday(s) added successfully');
     }
 
     public function bulkAction(Request $request)
     {
+        // Only admin can perform bulk actions
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'error' => 'You are not authorized to perform this action.'
+            ], 403);
+        }
+
         $request->validate([
             'holiday_ids' => 'required|array',
             'action' => 'required|string|in:delete,mark_active,mark_inactive',
@@ -246,7 +277,6 @@ class HolidayController extends Controller
                 return response()->json(['message' => 'Selected holidays deleted successfully.']);
 
             case 'mark_active':
-                // যদি notification_sent column থাকে
                 $holidays->update(['notification_sent' => 1]);
                 return response()->json(['message' => 'Selected holidays marked as active.']);
 

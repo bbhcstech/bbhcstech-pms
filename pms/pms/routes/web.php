@@ -111,6 +111,32 @@ Route::post('/attendance/get-employee-timeline', [AttendanceController::class, '
 
 
 
+
+
+Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+Route::get('/attendance/filter', [AttendanceController::class, 'filter'])->name('attendance.filter');
+Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
+
+// Admin-only routes - controller will check role
+Route::get('/attendance/create', [AttendanceController::class, 'create'])->name('attendance.create');
+Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
+Route::get('/attendance/by-member', [AttendanceController::class, 'byMember'])->name('attendance.byMember');
+Route::get('/attendance/by-hour', [AttendanceController::class, 'byHour'])->name('attendance.byHour');
+Route::get('/attendance/map-view', [AttendanceController::class, 'todayAttendanceByMap'])->name('attendance.today.map');
+Route::get('/attendance/report', [AttendanceController::class, 'attendanceReport'])->name('attendance.report');
+Route::get('/attendance/export/excel', [AttendanceController::class, 'exportExcel'])->name('attendance.export.excel');
+Route::get('/attendance/export/pdf', [AttendanceController::class, 'exportPdf'])->name('attendance.export.pdf');
+Route::get('/attendance/export/multi-pdf', [AttendanceController::class, 'exportMultiPdf'])->name('attendance.export.multi.pdf');
+Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
+Route::get('/attendance/edit', [AttendanceController::class, 'edit'])->name('attendance.edit');
+Route::put('/attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
+
+// Employee-only route (optional separate view)
+Route::get('/my-attendance', [AttendanceController::class, 'employeeIndex'])->name('attendance.employee.index');
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Utility / Debug routes (mostly dev helpers)
@@ -500,24 +526,49 @@ Route::get('employee/calendar-holidays', [HolidayController::class, 'calendar'])
     |----------------------------------------------------------------------
     */
 
+    // Route::post('/awards/bulk-action', [AwardController::class, 'bulkAction'])->name('awards.bulkAction');
+    // Route::post('/apreciation/bulk-action', [AwardController::class, 'apreciationbulkAction'])->name('apreciation.bulkAction');
+    // // Route::post('awards/bulk-delete', [AwardController::class, 'bulkDeleteAwards'])->name('awards.bulk-delete');
+    // Route::post('awards/bulk-delete', [AwardController::class, 'bulkDelete'])->name('awards.bulk-delete');
+    // Route::post('/appreciations/{id}/status', [AwardController::class, 'updateStatus'])->name('appreciations.updateStatus');
+    // Route::resource('awards', AwardController::class)->except(['show']);
+    // Route::get('my-awards', [AwardController::class, 'myAwards'])->name('employee.awards');
+
+    // Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationstore'])->name('awards.appreciation-store');
+
+    // // Add this TEMPORARY route at the TOP of your routes file
+    //     Route::get('/awards/appreciation-index', [AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
+
+
+    // Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationedit'])->name('awards.appreciation-edit');
+    // Route::get('/awards/appreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.appreciation-create');
+    // Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationupdate'])->name('awards.appreciation-update');
+    // Route::delete('/awards/appreciation/{id}', [AwardController::class, 'appreciationdestroy'])->name('awards.appreciation-destroy');
+
+
+
+
+
+
     Route::post('/awards/bulk-action', [AwardController::class, 'bulkAction'])->name('awards.bulkAction');
-    Route::post('/apreciation/bulk-action', [AwardController::class, 'apreciationbulkAction'])->name('apreciation.bulkAction');
-    // Route::post('awards/bulk-delete', [AwardController::class, 'bulkDeleteAwards'])->name('awards.bulk-delete');
-    Route::post('awards/bulk-delete', [AwardController::class, 'bulkDelete'])->name('awards.bulk-delete');
-    Route::post('/appreciations/{id}/status', [AwardController::class, 'updateStatus'])->name('appreciations.updateStatus');
-    Route::resource('awards', AwardController::class)->except(['show']);
-    Route::get('my-awards', [AwardController::class, 'myAwards'])->name('employee.awards');
+Route::post('/awards/bulk-delete', [AwardController::class, 'bulkDelete'])->name('awards.bulk-delete');
+Route::post('/appreciations/{id}/status', [AwardController::class, 'updateStatus'])->name('appreciations.updateStatus');
 
-    Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationstore'])->name('awards.appreciation-store');
+// Appreciation routes with CORRECT spelling (double 'p')
+Route::get('/awards/appreciation-index', [AwardController::class, 'appreciationIndex'])->name('awards.appreciation-index');
+Route::get('/awards/appreciation-create', [AwardController::class, 'appreciationCreate'])->name('awards.appreciation-create');
+Route::post('/awards/appreciation-store', [AwardController::class, 'appreciationStore'])->name('awards.appreciation-store');
+Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationEdit'])->name('awards.appreciation-edit');
+Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationUpdate'])->name('awards.appreciation-update');
+Route::delete('/awards/appreciation/{id}', [AwardController::class, 'appreciationDestroy'])->name('awards.appreciation-destroy');
+Route::post('/awards/appreciation-bulk-action', [AwardController::class, 'appreciationBulkAction'])->name('awards.appreciation-bulk-action');
 
-    // Add this TEMPORARY route at the TOP of your routes file
-        Route::get('/awards/appreciation-index', [AwardController::class, 'apreciationIndex'])->name('awards.apreciation-index');
+// Resource routes
+Route::resource('awards', AwardController::class)->except(['show']);
+Route::get('my-awards', [AwardController::class, 'myAwards'])->name('employee.awards');
+Route::get('/my-awards', [AwardController::class, 'myAwards'])->name('awards.my-awards');
 
 
-    Route::get('/awards/appreciation/edit/{id}', [AwardController::class, 'appreciationedit'])->name('awards.appreciation-edit');
-    Route::get('/awards/appreciation-create', [AwardController::class, 'appreciationcreate'])->name('awards.appreciation-create');
-    Route::put('/awards/appreciation/update/{id}', [AwardController::class, 'appreciationupdate'])->name('awards.appreciation-update');
-    Route::delete('/awards/appreciation/{id}', [AwardController::class, 'appreciationdestroy'])->name('awards.appreciation-destroy');
 
     /*
     |----------------------------------------------------------------------

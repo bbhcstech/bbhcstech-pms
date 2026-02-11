@@ -63,7 +63,7 @@
                    data-toggle="tooltip" data-original-title="Awards">
                     <i class="bi bi-trophy"></i>
                 </a>
-                <a href="{{ route('awards.apreciation-index') }}"
+                <a href="{{ route('awards.appreciation-index') }}"
                    class="btn btn-secondary f-14"
                    data-toggle="tooltip" data-original-title="Appreciation Templates">
                     <i class="bi bi-award"></i>

@@ -268,7 +268,7 @@ class AwardController extends Controller
         return response()->json(['message' => 'No action performed']);
     }
 
-    // NEW METHOD: Bulk Actions for Appreciations
+    // Bulk Actions for Appreciations
     public function appreciationBulkAction(Request $request)
     {
         $ids = $request->ids;
@@ -295,7 +295,7 @@ class AwardController extends Controller
         return response()->json(['message' => 'No action performed']);
     }
 
-    // NEW METHOD: Update individual appreciation status
+    // Update individual appreciation status
     public function updateStatus(Request $request, $id)
     {
         $appreciation = Appreciations::findOrFail($id);
