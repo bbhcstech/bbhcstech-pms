@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Designation; // Make sure this line is at the top
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage; 
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -17,47 +17,75 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        if (auth()->user()->role == 'admin' || auth()->user()->role == 'employee' || auth()->user()->role == 'client'  ) {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-        
+        // Get active designations from database
+        $designations = Designation::where('status', 'active')
+            ->orderBy('order')
+            ->orderBy('name')
+            ->get();
+
+        if (auth()->user()->role == 'admin' || auth()->user()->role == 'employee' || auth()->user()->role == 'client') {
+            return view('profile.edit', [
+                'user' => $request->user(),
+                'designations' => $designations // Pass designations to view
+            ]);
         }
-        
-   
     }
 
     /**
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    $user->fill($request->validated());
+        // Validate designation exists in database
+        if ($request->has('designation')) {
+            $designationExists = Designation::where('name', $request->designation)
+                ->where('status', 'active')
+                ->exists();
 
-    // Handle profile image upload
-    if ($request->hasFile('profile_image')) {
-        $image = $request->file('profile_image');
-        $imageName = time() . '-' . $image->getClientOriginalName();
+            if (!$designationExists && $request->designation !== '' && $request->designation !== null) {
+                return back()->withErrors(['designation' => 'Selected designation is not valid.']);
+            }
+        }
 
-        // Store in: public/admin/uploads/profile-images/
-        $image->move(public_path('admin/uploads/profile-images'), $imageName);
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = time() . '-' . $image->getClientOriginalName();
 
-        // Save the relative path to DB (you can change this path structure)
-        $user->profile_image = 'admin/uploads/profile-images/' . $imageName;
+            // Store in: public/admin/uploads/profile-images/
+            $image->move(public_path('admin/uploads/profile-images'), $imageName);
+
+            // Save the relative path to DB
+            $user->profile_image = 'admin/uploads/profile-images/' . $imageName;
+        }
+
+        // Update user data (excluding password fields)
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->designation = $request->designation;
+        $user->mobile = $request->mobile;
+        $user->gender = $request->gender;
+        $user->dob = $request->dob;
+        $user->marital_status = $request->marital_status;
+        $user->address = $request->address;
+        $user->about = $request->about;
+        $user->country = $request->country;
+        $user->language = $request->language;
+        $user->slack_id = $request->slack_id;
+        $user->email_notify = $request->email_notify;
+        $user->google_calendar = $request->google_calendar;
+
+        // Reset email verification if email changed
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
-
-    // Reset email verification if email changed
-    if ($user->isDirty('email')) {
-        $user->email_verified_at = null;
-    }
-
-    $user->save();
-
-    return Redirect::route('profile.edit')->with('status', 'profile-updated');
-}
-
 
     /**
      * Delete the user's account.

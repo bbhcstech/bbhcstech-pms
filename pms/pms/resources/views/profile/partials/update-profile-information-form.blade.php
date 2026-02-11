@@ -13,7 +13,7 @@
         @csrf
     </form>
 
-    
+
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -44,22 +44,27 @@
             <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
         </div>
 
-        <!-- Designation -->
+     <!-- Designation -->
         <div class="col-md-6">
             <label class="form-label">Designation <span class="text-danger">*</span></label>
-            <select name="designation" class="form-select" required>
+            <select name="designation" class="form-select @error('designation') is-invalid @enderror" required>
                 <option value="">Select Designation</option>
-                <option value="Data Entry Operator" {{ old('designation', $user->designation) == 'Data Entry Operator' ? 'selected' : '' }}>Data Entry Operator</option>
-                <option value="Developer" {{ old('designation', $user->designation) == 'Developer' ? 'selected' : '' }}>Developer</option>
-                <option value="HR" {{ old('designation', $user->designation) == 'HR' ? 'selected' : '' }}>HR</option>
-                <option value="Manager" {{ old('designation', $user->designation) == 'Manager' ? 'selected' : '' }}>Manager</option>
-                <option value="Intern" {{ old('designation', $user->designation) == 'Intern' ? 'selected' : '' }}>Intern</option>
-                <option value="Admin" {{ old('designation', $user->designation) == 'Admin' ? 'selected' : '' }}>Admin</option>
-                <!-- Add more if needed -->
+                @foreach($designations as $designation)
+                    <option value="{{ $designation->name }}"
+                        {{ old('designation', $user->designation) == $designation->name ? 'selected' : '' }}>
+                        {{ $designation->name }}
+                    </option>
+                @endforeach
             </select>
+            @error('designation')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+            @if($designations->isEmpty())
+                <div class="text-warning small mt-1">No designations found in database. Please add designations first.</div>
+            @endif
         </div>
 
-        
+
 
         <!-- Mobile -->
         <div class="col-md-6">
