@@ -5,105 +5,402 @@
 @php $userId = Auth::id(); @endphp
 
 <style>
+   /* ===================== PURPLE & WHITE COLOR THEME ===================== */
+
+   /* Global Purple Theme Variables */
+   :root {
+       --purple-primary: #7C3AED;
+       --purple-light: #8B5CF6;
+       --purple-dark: #6D28D9;
+       --purple-soft: #EDE9FE;
+       --purple-gradient: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+       --purple-hover: rgba(124, 58, 237, 0.08);
+       --white-pure: #FFFFFF;
+       --white-soft: #F9FAFB;
+       --text-dark: #1F2937;
+       --text-soft: #4B5563;
+       --shadow-purple: 0 4px 20px rgba(124, 58, 237, 0.12);
+   }
+
    /* ===================== GLOBAL MODAL FIX ===================== */
-.modal-backdrop.show {
-  opacity: 0.4 !important;
+   .modal-backdrop.show {
+       opacity: 0.4 !important;
+   }
+
+   body.modal-open {
+       opacity: 1 !important;
+   }
+
+   .modal { z-index: 1050; }
+   .modal-backdrop { z-index: 1040; }
+
+   .modal-content {
+       background-color: var(--white-pure) !important;
+       box-shadow: 0 0.75rem 1.5rem rgba(124, 58, 237, 0.15);
+       border-radius: 10px;
+       border: 1px solid rgba(124, 58, 237, 0.1);
+   }
+
+   .modal-header {
+       border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+       color: var(--purple-dark);
+   }
+
+   .modal-title {
+       color: var(--purple-primary);
+       font-weight: 700;
+   }
+
+   .btn-close:hover {
+       background-color: var(--purple-soft);
+       border-radius: 4px;
+   }
+
+   /* ===================== NAVBAR CORE FIX ===================== */
+   #layout-navbar {
+       display: flex;
+       flex-wrap: nowrap !important;
+       align-items: center;
+       width: 100%;
+       background: var(--white-pure) !important;
+       box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08);
+   }
+
+   #layout-navbar .navbar-nav {
+       display: flex;
+       flex-direction: row;
+       flex-wrap: nowrap !important;
+       align-items: center;
+   }
+
+   #layout-navbar .navbar-nav > * {
+       flex: 0 0 auto;
+       white-space: nowrap;
+   }
+
+   .navbar-nav > div {
+       display: contents;
+   }
+
+   /* ===================== RIGHT ICONS FIX ===================== */
+   .navbar-nav-right,
+   #layout-navbar .navbar-nav-right {
+       display: flex;
+       flex-direction: row !important;
+       flex-wrap: nowrap !important;
+       align-items: center;
+       gap: 8px;
+   }
+
+   .header-icon-box {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       min-width: 36px;
+       color: var(--purple-primary);
+       transition: all 0.2s ease;
+   }
+
+   .header-icon-box:hover {
+       color: var(--purple-dark);
+       transform: scale(1.1);
+   }
+
+   .header-icon-box i {
+       color: var(--purple-primary);
+   }
+
+   /* ===================== SEARCH FIELD CONTROL ===================== */
+   @media (max-width: 992px) {
+       #layout-navbar input[type="text"] {
+           display: none !important;
+       }
+   }
+
+   /* ===================== MOBILE / TABLET FINAL FIX ===================== */
+   @media (max-width: 992px) {
+
+       #layout-navbar {
+           padding: 0.5rem 0.75rem;
+       }
+
+       #layout-navbar .navbar-nav,
+       #layout-navbar .navbar-nav-right {
+           flex-direction: row !important;
+           flex-wrap: nowrap !important;
+           align-items: center;
+       }
+
+       #layout-navbar .navbar-nav > *,
+       #layout-navbar .navbar-nav-right > * {
+           flex: 0 0 auto;
+       }
+
+       /* hide username only, keep avatar */
+       .dropdown-user .d-md-block {
+           display: none !important;
+       }
+   }
+
+   /* ===================== EXTRA SAFETY ===================== */
+   .layout-menu {
+       transition: transform 0.3s ease;
+       background: linear-gradient(135deg, var(--white-pure) 0%, var(--white-soft) 100%);
+       border-right: 1px solid rgba(124, 58, 237, 0.1);
+   }
+
+   .layout-menu-active .layout-menu {
+       transform: translateX(0);
+   }
+
+   /* ===================== MENU THEME - PURPLE & WHITE ===================== */
+   .bg-menu-theme {
+       background: linear-gradient(135deg, var(--white-pure) 0%, var(--white-soft) 100%) !important;
+   }
+
+   .app-brand {
+       background: var(--white-pure);
+       border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+   }
+
+   .app-brand-text {
+       color: var(--purple-primary) !important;
+       font-weight: 800 !important;
+   }
+
+   .menu-inner .menu-item .menu-link {
+       color: var(--text-dark);
+       transition: all 0.2s ease;
+   }
+
+   .menu-inner .menu-item .menu-link i {
+       color: var(--purple-primary);
+   }
+
+   .menu-inner .menu-item:hover > .menu-link {
+       background-color: var(--purple-hover);
+       color: var(--purple-primary);
+   }
+
+   .menu-inner .menu-item.active > .menu-link {
+       background: var(--purple-gradient);
+       color: var(--white-pure);
+       box-shadow: var(--shadow-purple);
+   }
+
+   .menu-inner .menu-item.active > .menu-link i {
+       color: var(--white-pure);
+   }
+
+   .menu-inner .menu-item.open > .menu-link {
+       background-color: var(--purple-hover);
+       color: var(--purple-primary);
+   }
+
+   .menu-sub {
+       background: rgba(124, 58, 237, 0.02);
+   }
+
+   .menu-sub .menu-item .menu-link {
+       color: var(--text-soft);
+   }
+
+   .menu-sub .menu-item:hover .menu-link {
+       color: var(--purple-primary);
+       background-color: var(--purple-hover);
+   }
+
+   .menu-sub .menu-item.active .menu-link {
+       color: var(--purple-primary);
+       font-weight: 700;
+       background: linear-gradient(90deg, var(--purple-soft) 0%, rgba(124, 58, 237, 0.05) 100%);
+       border-left: 3px solid var(--purple-primary);
+   }
+
+   .menu-divider {
+       border-color: rgba(124, 58, 237, 0.1) !important;
+   }
+
+   /* Dropdown Menu Purple Theme */
+   .dropdown-menu {
+       border: 1px solid rgba(124, 58, 237, 0.1);
+       box-shadow: var(--shadow-purple);
+   }
+
+   .dropdown-item:hover {
+       background-color: var(--purple-hover);
+       color: var(--purple-primary);
+   }
+
+   .dropdown-item i {
+       color: var(--purple-primary);
+   }
+
+   /* Badge Purple Theme */
+   .badge.bg-danger {
+       background: var(--purple-gradient) !important;
+       color: var(--white-pure);
+   }
+
+   /* Form Controls Purple Theme */
+   .form-control:focus,
+   .form-select:focus {
+       border-color: var(--purple-light);
+       box-shadow: 0 0 0 0.25rem rgba(124, 58, 237, 0.1);
+   }
+
+   .btn-primary {
+       background: var(--purple-gradient) !important;
+       border: none !important;
+       color: var(--white-pure) !important;
+   }
+
+   .btn-primary:hover {
+       background: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple-primary) 100%) !important;
+       box-shadow: var(--shadow-purple);
+   }
+
+   .btn-outline-primary {
+       border-color: var(--purple-primary) !important;
+       color: var(--purple-primary) !important;
+   }
+
+   .btn-outline-primary:hover {
+       background: var(--purple-gradient) !important;
+       color: var(--white-pure) !important;
+   }
+
+   /* Text Colors */
+   .text-primary {
+       color: var(--purple-primary) !important;
+   }
+
+   .text-dark {
+       color: var(--text-dark) !important;
+   }
+
+   .text-muted {
+       color: var(--text-soft) !important;
+   }
+
+   /* Links */
+   a {
+       color: var(--purple-primary);
+       transition: color 0.2s ease;
+   }
+
+   a:hover {
+       color: var(--purple-dark);
+   }
+
+   /* Notification Dropdown */
+   .notification-dropdown {
+       border-top: 3px solid var(--purple-primary);
+   }
+
+   .notification-dropdown li:hover {
+       background-color: var(--purple-hover);
+   }
+
+   /* Avatar border */
+   .avatar-online img {
+       border: 2px solid var(--purple-primary);
+   }
+
+   /* Timer Icon */
+   .text-danger {
+       color: var(--purple-primary) !important;
+   }
+
+   /* Modal Footer */
+   .modal-footer {
+       border-top: 1px solid rgba(124, 58, 237, 0.1);
+   }
+
+   /* Active Timer Modal Header */
+   .modal-header.bg-danger {
+       background: var(--purple-gradient) !important;
+   }
+
+   /* List Group Items */
+   .list-group-item {
+       border-left: 5px solid var(--purple-primary) !important;
+       border-color: rgba(124, 58, 237, 0.1);
+   }
+
+   /* ===================== END PURPLE THEME ===================== */
+
+   /* ===================== SIDEBAR FONT BOLD FIX ===================== */
+/* Make all sidebar menu text bold for better visibility */
+.menu-inner .menu-item .menu-link,
+.menu-inner .menu-item .menu-link div,
+.menu-inner .menu-item .menu-link .text-truncate,
+.menu-sub .menu-item .menu-link,
+.menu-sub .menu-item .menu-link div,
+.menu-sub .menu-item .menu-link .text-truncate {
+    font-weight: 600 !important;
+    color: #1F2937 !important; /* Dark gray for better contrast */
 }
 
-body.modal-open {
-  opacity: 1 !important;
+/* Make active menu items even bolder */
+.menu-inner .menu-item.active > .menu-link,
+.menu-inner .menu-item.active > .menu-link div,
+.menu-inner .menu-item.active > .menu-link .text-truncate {
+    font-weight: 700 !important;
+    color: #FFFFFF !important; /* White text on purple gradient */
 }
 
-.modal { z-index: 1050; }
-.modal-backdrop { z-index: 1040; }
-
-.modal-content {
-  background-color: #fff !important;
-  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
+/* Active submenu items */
+.menu-sub .menu-item.active .menu-link,
+.menu-sub .menu-item.active .menu-link div,
+.menu-sub .menu-item.active .menu-link .text-truncate {
+    font-weight: 700 !important;
+    color: #7C3AED !important; /* Purple for active submenu items */
 }
 
-/* ===================== NAVBAR CORE FIX ===================== */
-#layout-navbar {
-  display: flex;
-  flex-wrap: nowrap !important;
-  align-items: center;
-  width: 100%;
+/* Hover states */
+.menu-inner .menu-item:hover > .menu-link,
+.menu-inner .menu-item:hover > .menu-link div,
+.menu-inner .menu-item:hover > .menu-link .text-truncate,
+.menu-sub .menu-item:hover .menu-link,
+.menu-sub .menu-item:hover .menu-link div,
+.menu-sub .menu-item:hover .menu-link .text-truncate {
+    font-weight: 600 !important;
+    color: #7C3AED !important; /* Purple on hover */
 }
 
-#layout-navbar .navbar-nav {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap !important;
-  align-items: center;
+/* Section headers/ parent menu items with toggle */
+.menu-item.has-sub > .menu-link,
+.menu-item .menu-toggle {
+    font-weight: 650 !important;
 }
 
-#layout-navbar .navbar-nav > * {
-  flex: 0 0 auto;
-  white-space: nowrap;
+/* Ensure submenu items are also bold */
+.menu-sub .menu-link {
+    font-weight: 600 !important;
 }
 
-
-.navbar-nav > div {
-  display: contents;
+/* Department submenu items fix */
+.menu-sub .menu-sub .menu-link,
+.menu-sub .menu-sub .menu-link div {
+    font-weight: 600 !important;
 }
 
-/* ===================== RIGHT ICONS FIX ===================== */
-.navbar-nav-right,
-#layout-navbar .navbar-nav-right {
-  display: flex;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center;
-  gap: 8px;
+/* Override any existing font weights */
+.app-brand-text {
+    font-weight: 800 !important; /* Keep brand text extra bold */
 }
 
-.header-icon-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
+/* Ensure all sidebar text is visible */
+.menu-text,
+[data-i18n] {
+    font-weight: 600 !important;
 }
 
-/* ===================== SEARCH FIELD CONTROL ===================== */
-@media (max-width: 992px) {
-  #layout-navbar input[type="text"] {
-    display: none !important;
-  }
-}
-
-/* ===================== MOBILE / TABLET FINAL FIX ===================== */
-@media (max-width: 992px) {
-
-  #layout-navbar {
-    padding: 0.5rem 0.75rem;
-  }
-
-  #layout-navbar .navbar-nav,
-  #layout-navbar .navbar-nav-right {
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center;
-  }
-
-  #layout-navbar .navbar-nav > *,
-  #layout-navbar .navbar-nav-right > * {
-    flex: 0 0 auto;
-  }
-
-  /* hide username only, keep avatar */
-  .dropdown-user .d-md-block {
-    display: none !important;
-  }
-}
-
-/* ===================== EXTRA SAFETY ===================== */
-.layout-menu {
-  transition: transform 0.3s ease;
-}
-
-.layout-menu-active .layout-menu {
-  transform: translateX(0);
+/* Fix for the department toggle text */
+.menu-item .menu-toggle .text-truncate,
+.menu-item.has-sub .menu-link .text-truncate {
+    font-weight: 650 !important;
 }
 
 </style>
@@ -352,7 +649,7 @@ body.modal-open {
 
                     <!-- Contracts Section - Admin Only -->
 
-                    @if(auth()->user()->role === 'admin')
+                    <!-- @if(auth()->user()->role === 'admin')
                          <li class="menu-item {{ request()->routeIs('admin.contracts.*') ? 'active open' : '' }}">
                             <a href="{{ route('admin.contracts.index') }}" class="menu-link">
                                 <div class="text-truncate" data-i18n="Contracts">Contracts</div>
@@ -363,7 +660,7 @@ body.modal-open {
                             <a href="{{ route('admin.contract-templates.index') }}" class="menu-link">
                                 <div class="text-truncate" data-i18n="Contract Templates">Contract Templates</div>
                             </a>
-                        </li>
+                        </li> -->
                     @endif
                 </ul>
             </li>
@@ -959,5 +1256,5 @@ body.modal-open {
 
           </script>
 
-    <!-- / Navbar -->
+    <!-- / Navbar -->
 </body>

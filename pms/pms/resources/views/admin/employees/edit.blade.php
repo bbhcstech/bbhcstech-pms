@@ -1,8 +1,8 @@
 @extends('admin.layout.app')
 
 @section('content')
-<div class="container mt-4">
-    <h4>Edit Employee</h4>
+<div class="container mt-4" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%); padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h4 style="color: #4a1c6c; font-weight: 600; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(255,255,255,0.5);">Edit Employee</h4>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -31,7 +31,7 @@
         }
     @endphp
 
-    <form id="employeeForm" action="{{ route('employees.update', $employee->id) }}" method="POST" enctype="multipart/form-data">
+    <form id="employeeForm" action="{{ route('employees.update', $employee->id) }}" method="POST" enctype="multipart/form-data" style="background-color: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(106, 13, 173, 0.08); border: 1px solid #f0e6ff;">
         @csrf
         @method('PUT')
 
@@ -41,11 +41,11 @@
         <input type="hidden" name="new_department" id="new_department" value="">
         <input type="hidden" name="new_sub_department" id="new_sub_department" value="">
 
-        <h5 class="mb-3">Account Details</h5>
+        <h5 class="mb-3" style="color: #5a2a8c; border-bottom: 2px solid #e6d0ff; padding-bottom: 10px;">Account Details</h5>
 
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label class="d-block">Employee ID <sup class="text-danger">*</sup></label>
+                <label class="d-block" style="color: #4a1c6c; font-weight: 500;">Employee ID <sup class="text-danger">*</sup></label>
 
                 @php
                     $empOption = old('employee_id_option') ?? (($ed && $ed->employee_id) ? 'custom' : 'auto');
@@ -67,17 +67,17 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Employee Name <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">Employee Name <sup class="text-danger">*</sup></label>
                 <input type="text" name="name" class="form-control" required value="{{ old('name') ?? ($employee->name ?? '') }}">
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Email <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">Email <sup class="text-danger">*</sup></label>
                 <input type="email" name="email" class="form-control" required value="{{ old('email') ?? ($employee->email ?? '') }}">
             </div>
 
             <div class="col-md-4 mb-3">
-                <label for="password">Password</label>
+                <label for="password" style="color: #4a1c6c; font-weight: 500;">Password</label>
                 <div class="input-group">
                     <input type="password" name="password" id="password" class="form-control" autocomplete="off" minlength="8">
                     <button type="button" class="btn btn-outline-secondary toggle-password" title="Show/Hide Password">
@@ -94,7 +94,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Designation <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">Designation <sup class="text-danger">*</sup></label>
                 @php $selectedDesignation = old('designation_id') ?? ($ed->designation_id ?? null); @endphp
                 <div class="input-group">
                     <select name="designation_id" id="designation_id" class="form-control" required>
@@ -111,7 +111,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <button type="button" class="btn btn-outline-secondary" id="openDesignationModalBtn" title="Add/Edit Designation">Manage</button>
+                    <button type="button" class="btn btn-outline-secondary" id="openDesignationModalBtn" title="Add/Edit Designation" style="border-color: #d0b0ff; color: #5a2a8c;">Manage</button>
                 </div>
                 @if($designations->isEmpty())
                     <div class="mt-2 p-2" style="background:#fff3cd; border:1px solid #ffeeba; border-radius:4px; color:#856404;">
@@ -121,7 +121,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Department <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">Department <sup class="text-danger">*</sup></label>
                 <div class="input-group">
                     @php $selectedPrt = old('parent_dpt_id') ?? ($ed->parent_dpt_id ?? ''); @endphp
                     <select name="parent_dpt_id" id="prt_department_id" class="form-control" required>
@@ -132,23 +132,23 @@
                             </option>
                         @endforeach
                     </select>
-                    <button type="button" class="btn btn-outline-secondary" id="openPrtModalBtn" title="Add parent department">Add</button>
+                    <button type="button" class="btn btn-outline-secondary" id="openPrtModalBtn" title="Add parent department" style="border-color: #d0b0ff; color: #5a2a8c;">Manage</button>
                 </div>
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Sub Department</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Sub Department</label>
                 <div class="input-group">
                     @php $selectedDpt = old('department_id') ?? ($ed->department_id ?? ''); @endphp
                     <select name="department_id" id="department_id" class="form-control" data-selected="{{ $selectedDpt }}">
                         <option value="">Select</option>
                     </select>
-                    <button type="button" class="btn btn-outline-secondary" id="openDptModalBtn" title="Add department">Add</button>
+                    <button type="button" class="btn btn-outline-secondary" id="openDptModalBtn" title="Add department" style="border-color: #d0b0ff; color: #5a2a8c;">Manage </button>
                 </div>
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Profile Picture</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Profile Picture</label>
                 <input type="file" name="profile_picture" class="form-control" id="profile_picture">
                 @if(!empty($employee->profile_image))
                     <small class="d-block mt-1">Current: <a href="{{ asset($employee->profile_image) }}" target="_blank">view</a></small>
@@ -156,7 +156,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label class="form-label fw-semibold">Country <sup class="text-danger">*</sup></label>
+                <label class="form-label fw-semibold" style="color: #4a1c6c; font-weight: 500;">Country <sup class="text-danger">*</sup></label>
                 <select name="country" id="country" class="form-select form-select-sm select2">
                     <option value="">Select Country</option>
                     @php $selectedCountry = old('country') ?? ($ed->country ?? ($employee->country ?? '')); @endphp
@@ -169,7 +169,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Mobile <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">Mobile <sup class="text-danger">*</sup></label>
                 <div class="input-group">
                   <span class="input-group-text">+91</span>
                   <input id="mobile_only_digits" type="text" name="mobile" class="form-control" required maxlength="10" placeholder="9876543210"
@@ -179,7 +179,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Gender</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Gender</label>
                 @php $gender = old('gender') ?? ($ed->gender ?? ($employee->gender ?? '')) @endphp
                 <select name="gender" class="form-control">
                     <option value="">Select</option>
@@ -191,7 +191,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
+                <label class="form-label fw-medium" style="color: #4a1c6c; font-weight: 500;">Joining Date <span class="text-danger">*</span></label>
                 <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
                        value="{{ old('joining_date') ?? (isset($ed->joining_date) ? fmtDate($ed->joining_date) : date('Y-m-d')) }}">
                 <small class="text-muted d-block mt-1">Put your joining date</small>
@@ -202,7 +202,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>
+                <label style="color: #4a1c6c; font-weight: 500;">
                     Date of Birth <sup class="text-danger">*</sup>
                     <span class="text-muted">(As per government ID)</span>
                 </label>
@@ -214,7 +214,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Reporting To</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Reporting To</label>
                 @php $selectedReporting = old('reporting_to') ?? ($ed->reporting_to ?? ''); @endphp
                 <select name="reporting_to" class="form-control">
                     <option value="">Select</option>
@@ -227,7 +227,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label class="form-label fw-semibold">Change Language</label>
+                <label class="form-label fw-semibold" style="color: #4a1c6c; font-weight: 500;">Change Language</label>
                 <select name="language" id="language" class="form-select form-select-sm select2">
                     @php $lang = old('language') ?? ($ed->language ?? ($employee->language ?? 'en')); @endphp
                     <option value="en" data-flag="https://flagcdn.com/w20/gb.png" {{ $lang === 'en' ? 'selected' : '' }}>English</option>
@@ -239,7 +239,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>User Role <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">User Role <sup class="text-danger">*</sup></label>
                 @php $role = old('user_role') ?? ($employee->role ?? 'employee') @endphp
                 <select name="user_role" class="form-control select-picker" required>
                     <option value="">Select Role</option>
@@ -249,17 +249,17 @@
             </div>
 
             <div class="col-md-6 mb-3">
-                <label>Address</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Address</label>
                 <textarea name="address" class="form-control">{{ old('address') ?? ($ed->address ?? $employee->address ?? '') }}</textarea>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label>About</label>
+                <label style="color: #4a1c6c; font-weight: 500;">About</label>
                 <textarea name="about" class="form-control">{{ old('about') ?? ($ed->about ?? $employee->about ?? '') }}</textarea>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label>Login Allowed?</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Login Allowed?</label>
                 @php $loginAllowed = (string) (old('login_allowed') ?? (string)($ed->login_allowed ?? $employee->login_allowed ?? '1')); @endphp
                 <select name="login_allowed" class="form-control">
                     <option value="1" {{ $loginAllowed === '1' ? 'selected' : '' }}>Yes</option>
@@ -268,7 +268,7 @@
             </div>
 
             <div class="col-md-6 mb-3">
-                <label>Email Notifications?</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Email Notifications?</label>
                 @php $emailNotif = (string) (old('email_notifications') ?? (string)($ed->email_notifications ?? $employee->email_notifications ?? '1')); @endphp
                 <select name="email_notifications" class="form-control">
                     <option value="1" {{ $emailNotif === '1' ? 'selected' : '' }}>Yes</option>
@@ -277,12 +277,12 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Skills</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Skills</label>
                 <textarea name="skills" class="form-control">{{ old('skills') ?? ($ed->skills ?? $employee->skills ?? '') }}</textarea>
             </div>
 
             <div class="col-md-4 mb-3">
-                <label for="employment_type" class="form-label">Employment Type</label>
+                <label for="employment_type" class="form-label" style="color: #4a1c6c; font-weight: 500;">Employment Type</label>
                 @php $employmentType = old('employment_type') ?? ($ed->employment_type ?? $employee->employment_type ?? '') @endphp
                 <select name="employment_type" id="employment_type" class="form-control select-picker" data-size="8">
                     <option value="">Select</option>
@@ -295,7 +295,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label for="marital_status" class="form-label">Marital Status</label>
+                <label for="marital_status" class="form-label" style="color: #4a1c6c; font-weight: 500;">Marital Status</label>
                 @php $marital = old('marital_status') ?? ($ed->marital_status ?? $employee->marital_status ?? '') @endphp
                 <select name="marital_status" id="marital_status" class="form-control select-picker" data-size="8">
                     <option value="">Select</option>
@@ -310,12 +310,12 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <label>Business Address <sup class="text-danger">*</sup></label>
+                <label style="color: #4a1c6c; font-weight: 500;">Business Address <sup class="text-danger">*</sup></label>
                 <textarea name="business_address" class="form-control" required>{{ old('business_address') ?? ($ed->business_address ?? $employee->business_address ?? 'Kolkata') }}</textarea>
             </div>
 
             <div class="col-md-4 mb-3 d-flex align-items-center">
-                <label class="me-3 mb-0" style="min-width: 70px;">Status <sup class="text-danger">*</sup></label>
+                <label class="me-3 mb-0" style="min-width: 70px; color: #4a1c6c; font-weight: 500;">Status <sup class="text-danger">*</sup></label>
                 @php $status = old('status') ?? ($ed->status ?? 'Active') @endphp
                 <div class="d-flex gap-3">
                     <div class="form-check form-check-inline">
@@ -330,14 +330,14 @@
             </div>
 
             <div class="col-md-4" id="exit-date-container">
-                <label>Exit Date</label>
+                <label style="color: #4a1c6c; font-weight: 500;">Exit Date</label>
                 <input type="date" name="exit_date" id="exit_date" class="form-control" value="{{ old('exit_date') ?? fmtDate($ed->exit_date ?? '') }}">
             </div>
         </div>
 
         <div class="text-start mt-3">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{{ route('employees.index') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); border: none; padding: 10px 25px; font-weight: 500; box-shadow: 0 2px 5px rgba(106, 27, 154, 0.3);">Update</button>
+            <a href="{{ route('employees.index') }}" class="btn btn-secondary" style="background-color: #f0f0f0; color: #4a4a4a; border: 1px solid #d0d0d0; padding: 10px 25px;">Cancel</a>
         </div>
     </form>
 
@@ -346,8 +346,8 @@
         <div class="modal-dialog modal-lg">
             <form id="addPrtDptForm">@csrf
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Manage Parent Department</h5>
+                    <div class="modal-header" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%);">
+                        <h5 class="modal-title" style="color: #4a1c6c;">Manage Parent Department</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -369,14 +369,14 @@
                         </table>
 
                         <div class="mb-3">
-                            <label>Parent Department Name <sup class="text-danger">*</sup></label>
+                            <label style="color: #4a1c6c; font-weight: 500;">Parent Department Name <sup class="text-danger">*</sup></label>
                             <input type="text" name="dpt_name" id="prt_dpt_name" class="form-control" required>
                             <div id="prt-group-error" class="text-danger d-none mt-2"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); border: none;">Save</button>
                     </div>
                 </div>
             </form>
@@ -387,8 +387,8 @@
         <div class="modal-dialog modal-lg">
             <form id="addDptForm">@csrf
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Manage Department</h5>
+                    <div class="modal-header" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%);">
+                        <h5 class="modal-title" style="color: #4a1c6c;">Manage Department</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -411,7 +411,7 @@
                         </table>
 
                         <div class="mb-3">
-                            <label>Parent Department (optional)</label>
+                            <label style="color: #4a1c6c; font-weight: 500;">Parent Department (optional)</label>
                             <select name="parent_dpt_id" id="dpt_parent_select" class="form-control">
                                 <option value="">None</option>
                                 @foreach($prtdepartments as $pd)
@@ -421,14 +421,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label>Department Name <sup class="text-danger">*</sup></label>
+                            <label style="color: #4a1c6c; font-weight: 500;">Department Name <sup class="text-danger">*</sup></label>
                             <input type="text" name="dpt_name" id="dpt_name" class="form-control" required>
                             <div id="dpt-group-error" class="text-danger d-none mt-2"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); border: none;">Save</button>
                     </div>
                 </div>
             </form>
@@ -439,14 +439,14 @@
         <div class="modal-dialog">
             <form id="addDesignationForm">@csrf
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Manage Designations</h5>
+                    <div class="modal-header" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%);">
+                        <h5 class="modal-title" style="color: #4a1c6c;">Manage Designations</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         @if($designations->isNotEmpty())
                             <div class="mb-3">
-                                <label class="form-label">Existing Designations</label>
+                                <label class="form-label" style="color: #4a1c6c; font-weight: 500;">Existing Designations</label>
                                 <div class="table-responsive">
                                     <table class="table table-bordered mb-3">
                                         <thead class="table-light">
@@ -482,15 +482,15 @@
                         @endif
 
                         <div class="border-top pt-3">
-                            <h6>Add New Designation</h6>
+                            <h6 style="color: #4a1c6c; font-weight: 600;">Add New Designation</h6>
                             <div class="mb-3">
-                                <label>Designation Name <sup class="text-danger">*</sup></label>
+                                <label style="color: #4a1c6c; font-weight: 500;">Designation Name <sup class="text-danger">*</sup></label>
                                 <input type="text" name="name" id="designationName" class="form-control" required>
                                 <div class="text-danger mt-2 d-none" id="designation-error"></div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Designation Level <span class="text-danger">*</span></label>
+                                <label class="form-label" style="color: #4a1c6c; font-weight: 500;">Designation Level <span class="text-danger">*</span></label>
                                 <input type="number" min="0" max="6" name="level" class="form-control" id="designationLevel" placeholder="Enter level (0-6)" required>
                                 <small class="text-muted">Level range: 0-6 (e.g., 0=Intern, 1=Associate, 2=Sr. Associate, etc.)</small>
                             </div>
@@ -502,7 +502,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="saveDesignationBtn">Add Designation</button>
+                        <button type="submit" class="btn btn-primary" id="saveDesignationBtn" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); border: none;">Add Designation</button>
                     </div>
                 </div>
             </form>
@@ -539,6 +539,10 @@ input.readonly-locked:focus {
 .btn-sm {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
+}
+.form-control:focus, .btn:focus, .select2:focus {
+    border-color: #b380ff !important;
+    box-shadow: 0 0 0 0.2rem rgba(138, 43, 226, 0.15) !important;
 }
 </style>
 @endpush
@@ -606,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#addDesignationForm')[0].reset();
         $('#edit_designation_id').val('');
         $('#saveDesignationBtn').text('Add Designation');
-        $('.modal-title').text('Manage Designations');
+        // $('.modal-title').text('');
         $('#designation-error').addClass('d-none').text('');
 
         const modal = new bootstrap.Modal($el('designationModal'));

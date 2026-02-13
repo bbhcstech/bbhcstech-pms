@@ -1,3 +1,6 @@
+<!-- //dashboard blade page -->
+
+
 @extends('admin.layout.app')
 
 @section('title', 'Admin Dashboard')
@@ -38,6 +41,16 @@
         --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+        /* Font Sizes - Enhanced Readability */
+        --font-xs: 0.75rem;    /* 12px */
+        --font-sm: 0.875rem;   /* 14px */
+        --font-base: 1rem;     /* 16px */
+        --font-lg: 1.125rem;   /* 18px */
+        --font-xl: 1.25rem;    /* 20px */
+        --font-2xl: 1.5rem;    /* 24px */
+        --font-3xl: 1.875rem;  /* 30px */
+        --font-4xl: 2.25rem;   /* 36px */
     }
 
     * {
@@ -51,6 +64,8 @@
         min-height: 100vh;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         background-attachment: fixed;
+        font-size: var(--font-base);
+        line-height: 1.6;
     }
 
     /* ===== Animations ===== */
@@ -153,6 +168,25 @@
         }
     }
 
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    @keyframes shine {
+        0% {
+            left: -100%;
+        }
+        20% {
+            left: 100%;
+        }
+        100% {
+            left: 100%;
+        }
+    }
+
     /* ===== Main Container ===== */
     #main {
         min-height: 100vh;
@@ -243,13 +277,15 @@
         padding: 1.125rem 1.5rem;
         border-radius: var(--radius-sm);
         color: var(--dark);
-        font-weight: 600;
+        font-weight: 700;
+        font-size: var(--font-base);
         transition: all var(--transition-base);
         position: relative;
         overflow: hidden;
         z-index: 1;
         border: 2px solid transparent;
         margin: 0 0.25rem;
+        letter-spacing: 0.3px;
     }
 
     .nav-pills .nav-link::before {
@@ -285,7 +321,7 @@
     }
 
     .nav-pills .nav-link i {
-        font-size: 1.25rem;
+        font-size: 1.35rem;
         margin-right: 0.75rem;
         transition: transform var(--transition-base);
     }
@@ -301,7 +337,7 @@
     }
 
     .welcome-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -310,6 +346,7 @@
         position: relative;
         box-shadow: var(--shadow-xl);
         transition: all var(--transition-base);
+        min-height: 280px;
     }
 
     .welcome-card:hover {
@@ -334,22 +371,24 @@
     }
 
     .welcome-title {
-        font-size: 2.25rem;
+        font-size: var(--font-4xl);
         font-weight: 800;
         background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
         line-height: 1.2;
+        letter-spacing: -0.5px;
     }
 
     .welcome-text {
-        font-size: 1.125rem;
-        color: var(--gray);
-        line-height: 1.6;
+        font-size: var(--font-lg);
+        color: var(--dark);
+        line-height: 1.7;
         max-width: 600px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.75rem;
+        font-weight: 450;
     }
 
     .welcome-badges {
@@ -359,37 +398,41 @@
     }
 
     .welcome-badge {
-        padding: 0.5rem 1.25rem;
+        padding: 0.6rem 1.35rem;
         border-radius: 50px;
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--font-sm);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
         transition: all var(--transition-fast);
     }
 
     .welcome-badge:nth-child(1) {
-        background: rgba(124, 58, 237, 0.1);
+        background: rgba(124, 58, 237, 0.12);
         color: var(--primary);
-        border: 2px solid rgba(124, 58, 237, 0.2);
+        border: 2px solid rgba(124, 58, 237, 0.25);
     }
 
     .welcome-badge:nth-child(2) {
-        background: rgba(16, 185, 129, 0.1);
+        background: rgba(16, 185, 129, 0.12);
         color: var(--success);
-        border: 2px solid rgba(16, 185, 129, 0.2);
+        border: 2px solid rgba(16, 185, 129, 0.25);
     }
 
     .welcome-badge:nth-child(3) {
-        background: rgba(245, 158, 11, 0.1);
+        background: rgba(245, 158, 11, 0.12);
         color: var(--warning);
-        border: 2px solid rgba(245, 158, 11, 0.2);
+        border: 2px solid rgba(245, 158, 11, 0.25);
     }
 
     .welcome-badge:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-sm);
+    }
+
+    .welcome-badge i {
+        font-size: var(--font-lg);
     }
 
     .welcome-illustration {
@@ -398,6 +441,7 @@
         align-items: center;
         justify-content: center;
         position: relative;
+        height: 100%;
     }
 
     .welcome-illustration::before {
@@ -413,7 +457,7 @@
     .welcome-illustration img {
         animation: float 6s infinite ease-in-out;
         filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
-        max-height: 220px;
+        max-height: 200px;
         position: relative;
         z-index: 1;
     }
@@ -426,12 +470,12 @@
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 1.5rem;
     }
 
     .stat-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.4);
@@ -441,6 +485,9 @@
         overflow: hidden;
         transition: all var(--transition-base);
         box-shadow: var(--shadow-md);
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
     }
 
     .stat-card:hover {
@@ -479,19 +526,19 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
+        width: 65px;
+        height: 65px;
         border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         position: relative;
         overflow: hidden;
     }
@@ -515,6 +562,7 @@
     .stat-dropdown .btn {
         color: var(--gray);
         transition: all var(--transition-fast);
+        font-size: var(--font-lg);
     }
 
     .stat-dropdown .btn:hover {
@@ -523,11 +571,11 @@
     }
 
     .stat-title {
-        font-size: 0.875rem;
+        font-size: var(--font-sm);
         color: var(--gray);
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 600;
+        letter-spacing: 1.2px;
+        font-weight: 700;
         margin-bottom: 0.5rem;
     }
 
@@ -542,32 +590,34 @@
     }
 
     .stat-value {
-        font-size: 2.5rem;
+        font-size: var(--font-3xl);
         font-weight: 800;
         color: var(--dark);
-        line-height: 1;
+        line-height: 1.1;
         margin-bottom: 0.75rem;
-        background: linear-gradient(135deg, var(--dark) 0%, var(--gray) 100%);
+        background: linear-gradient(135deg, var(--dark) 0%, #4B5563 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        letter-spacing: -0.5px;
     }
 
     .stat-progress {
-        margin-top: 1rem;
+        margin-top: auto;
+        padding-top: 0.75rem;
     }
 
     .progress-container {
-        height: 6px;
+        height: 8px;
         background: rgba(0, 0, 0, 0.05);
-        border-radius: 3px;
+        border-radius: 4px;
         overflow: hidden;
         margin-bottom: 0.5rem;
     }
 
     .progress-bar {
         height: 100%;
-        border-radius: 3px;
+        border-radius: 4px;
         animation: progressFill 1.5s ease-out;
         position: relative;
         overflow: hidden;
@@ -593,12 +643,17 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.875rem;
+        font-size: var(--font-sm);
         font-weight: 600;
+        color: var(--dark);
     }
 
     .stat-trend.positive {
         color: var(--success);
+    }
+
+    .stat-trend i {
+        font-size: var(--font-base);
     }
 
     /* ===== Content Cards Section ===== */
@@ -608,7 +663,7 @@
 
     .content-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
     }
 
@@ -621,6 +676,9 @@
         overflow: hidden;
         transition: all var(--transition-base);
         box-shadow: var(--shadow-md);
+        display: flex;
+        flex-direction: column;
+        height: 500px;
     }
 
     .content-card:hover {
@@ -655,39 +713,45 @@
     }
 
     .card-title {
-        font-size: 1.25rem;
+        font-size: var(--font-xl);
         font-weight: 700;
         color: var(--dark);
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        letter-spacing: -0.3px;
     }
 
     .card-title i {
         color: var(--primary);
-        font-size: 1.5rem;
+        font-size: 1.65rem;
     }
 
     .card-action {
-        padding: 0.5rem 1.25rem;
+        padding: 0.6rem 1.35rem;
         background: var(--gradient-primary);
         color: white;
         border-radius: var(--radius-sm);
         text-decoration: none;
-        font-weight: 600;
-        font-size: 0.875rem;
+        font-weight: 700;
+        font-size: var(--font-sm);
         transition: all var(--transition-base);
         box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        letter-spacing: 0.3px;
     }
 
     .card-action:hover {
         transform: translateX(5px) scale(1.05);
         box-shadow: 0 6px 25px rgba(124, 58, 237, 0.3);
+        color: white;
     }
 
     .card-body {
-        padding: 1.75rem;
-        max-height: 400px;
+        padding: 1.5rem;
+        flex: 1;
         overflow-y: auto;
     }
 
@@ -714,10 +778,11 @@
         margin-bottom: 0.75rem;
         position: relative;
         overflow: hidden;
+        background: rgba(255, 255, 255, 0.5);
     }
 
     .list-item:hover {
-        background: rgba(124, 58, 237, 0.03);
+        background: rgba(124, 58, 237, 0.05);
         transform: translateX(8px);
         box-shadow: var(--shadow-sm);
     }
@@ -753,9 +818,10 @@
     .list-item-title {
         font-weight: 700;
         color: var(--dark);
-        font-size: 1rem;
+        font-size: var(--font-base);
         margin-bottom: 0.5rem;
         transition: color var(--transition-fast);
+        line-height: 1.5;
     }
 
     .list-item:hover .list-item-title {
@@ -763,12 +829,13 @@
     }
 
     .list-item-meta {
-        font-size: 0.875rem;
-        color: var(--gray);
+        font-size: var(--font-sm);
+        color: var(--dark);
         display: flex;
         align-items: center;
         gap: 1rem;
         flex-wrap: wrap;
+        font-weight: 500;
     }
 
     .list-item-meta span {
@@ -777,33 +844,39 @@
         gap: 0.375rem;
     }
 
+    .list-item-meta i {
+        font-size: var(--font-base);
+        color: var(--primary);
+    }
+
     .badge {
-        padding: 0.375rem 0.875rem;
+        padding: 0.5rem 1rem;
         border-radius: 50px;
         font-weight: 700;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
+        font-size: var(--font-xs);
+        letter-spacing: 0.8px;
         text-transform: uppercase;
         white-space: nowrap;
         transition: all var(--transition-fast);
+        border: 2px solid transparent;
     }
 
     .badge-high {
-        background: rgba(239, 68, 68, 0.1);
+        background: rgba(239, 68, 68, 0.12);
         color: var(--danger);
-        border: 2px solid rgba(239, 68, 68, 0.2);
+        border: 2px solid rgba(239, 68, 68, 0.25);
     }
 
     .badge-medium {
-        background: rgba(245, 158, 11, 0.1);
+        background: rgba(245, 158, 11, 0.12);
         color: var(--warning);
-        border: 2px solid rgba(245, 158, 11, 0.2);
+        border: 2px solid rgba(245, 158, 11, 0.25);
     }
 
     .badge-low {
-        background: rgba(59, 130, 246, 0.1);
+        background: rgba(59, 130, 246, 0.12);
         color: var(--info);
-        border: 2px solid rgba(59, 130, 246, 0.2);
+        border: 2px solid rgba(59, 130, 246, 0.25);
     }
 
     .badge:hover {
@@ -847,18 +920,18 @@
         border-radius: 50%;
         background: var(--primary);
         border: 3px solid white;
-        box-shadow: 0 0 0 4px var(--primary-light);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
         animation: pulse 2s infinite;
     }
 
-    .timeline-item:nth-child(2)::before { background: var(--secondary); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3); }
-    .timeline-item:nth-child(3)::before { background: var(--success); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3); }
+    .timeline-item:nth-child(2)::before { background: var(--secondary); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2); }
+    .timeline-item:nth-child(3)::before { background: var(--success); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); }
 
     .timeline-content {
-        background: rgba(255, 255, 255, 0.5);
-        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 1.1rem 1.35rem;
         border-radius: var(--radius-sm);
-        border: 1px solid rgba(124, 58, 237, 0.1);
+        border: 1px solid rgba(124, 58, 237, 0.15);
         transition: all var(--transition-fast);
     }
 
@@ -869,33 +942,44 @@
     }
 
     .timeline-title {
-        font-weight: 600;
+        font-weight: 700;
         color: var(--dark);
-        margin-bottom: 0.375rem;
+        margin-bottom: 0.5rem;
+        font-size: var(--font-base);
+        line-height: 1.5;
     }
 
     .timeline-project {
-        font-weight: 700;
+        font-weight: 600;
         color: var(--primary);
         margin-bottom: 0.25rem;
+        font-size: var(--font-sm);
     }
 
     .timeline-time {
-        font-size: 0.875rem;
-        color: var(--gray);
+        font-size: var(--font-sm);
+        color: var(--dark);
         display: flex;
         align-items: center;
         gap: 0.5rem;
         margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    .timeline-time i {
+        color: var(--primary);
+        font-size: var(--font-base);
     }
 
     /* ===== Empty States ===== */
     .empty-state {
         text-align: center;
         padding: 3rem 1.5rem;
-        color: var(--gray);
+        color: var(--dark);
         position: relative;
         overflow: hidden;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: var(--radius-md);
     }
 
     .empty-state::before {
@@ -913,23 +997,29 @@
     .empty-state i {
         font-size: 3.5rem;
         margin-bottom: 1.25rem;
-        opacity: 0.3;
+        opacity: 0.4;
         position: relative;
         z-index: 1;
         animation: float 4s infinite ease-in-out;
+        color: var(--primary);
     }
 
     .empty-state p {
-        font-size: 1rem;
+        font-size: var(--font-base);
         margin: 0;
         position: relative;
         z-index: 1;
+        font-weight: 500;
     }
 
     /* ===== Responsive Design ===== */
     @media (max-width: 1200px) {
         .content-wrapper {
             padding: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .content-grid {
@@ -947,17 +1037,21 @@
         }
 
         .welcome-illustration img {
-            max-height: 180px;
+            max-height: 160px;
         }
 
         .nav-pills .nav-link {
             padding: 1rem;
-            font-size: 0.875rem;
+            font-size: var(--font-sm);
         }
 
         .nav-pills .nav-link i {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             margin-right: 0.5rem;
+        }
+
+        .welcome-title {
+            font-size: var(--font-3xl);
         }
     }
 
@@ -977,7 +1071,7 @@
         }
 
         .welcome-title {
-            font-size: 1.75rem;
+            font-size: var(--font-2xl);
         }
 
         .welcome-content {
@@ -986,10 +1080,15 @@
 
         .stat-card {
             padding: 1.5rem;
+            min-height: 200px;
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: var(--font-2xl);
+        }
+
+        .content-card {
+            height: 450px;
         }
     }
 
@@ -1008,7 +1107,7 @@
 
         .nav-pills .nav-link {
             padding: 0.875rem 0.5rem;
-            font-size: 0.8125rem;
+            font-size: var(--font-xs);
         }
 
         .nav-pills .nav-link i {
@@ -1030,6 +1129,18 @@
         .card-action {
             align-self: flex-start;
         }
+
+        .welcome-title {
+            font-size: var(--font-xl);
+        }
+
+        .welcome-text {
+            font-size: var(--font-base);
+        }
+
+        .stat-value {
+            font-size: var(--font-xl);
+        }
     }
 
     /* ===== Loading Animation ===== */
@@ -1038,6 +1149,46 @@
         background-size: 400% 100%;
         animation: shimmer 1.5s infinite linear;
         border-radius: var(--radius-sm);
+    }
+
+    /* ===== Additional Readability Enhancements ===== */
+    .dropdown-menu {
+        font-size: var(--font-sm);
+        border: 1px solid rgba(124, 58, 237, 0.1);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .dropdown-item {
+        font-weight: 500;
+        padding: 0.6rem 1.25rem;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(124, 58, 237, 0.05);
+        color: var(--primary);
+    }
+
+    .dropdown-item i {
+        margin-right: 0.5rem;
+        color: var(--primary);
+    }
+
+    /* Fix for text contrast */
+    .text-muted {
+        color: #4B5563 !important;
+    }
+
+    .text-primary {
+        color: var(--primary) !important;
+    }
+
+    /* Ensure all text meets WCAG contrast standards */
+    p, span, div, a {
+        color: var(--dark);
+    }
+
+    .bg-white {
+        background: rgba(255, 255, 255, 0.95) !important;
     }
 </style>
 
@@ -1119,9 +1270,21 @@
             </div>
         </div>
 
-        <!-- Statistics Section -->
+        <!-- Statistics Section - DIVISION BY ZERO FIXED -->
         <div class="stats-section">
             <div class="stats-grid">
+                @php
+                    // Safe calculation for attendance percentage
+                    $totalEmployees = $totalEmployees ?? 0;
+                    $presentCount = $presentCount ?? 0;
+                    $totalClient = $totalClient ?? 0;
+                    $totalProject = $totalProject ?? 0;
+
+                    // Calculate attendance percentage safely
+                    $attendancePercentage = $totalEmployees > 0 ? round(($presentCount / $totalEmployees) * 100) : 0;
+                    $attendanceWidth = $totalEmployees > 0 ? ($presentCount / $totalEmployees) * 100 : 0;
+                @endphp
+
                 <!-- Total Employees -->
                 <div class="stat-card">
                     <div class="stat-header">
@@ -1133,13 +1296,17 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="{{ route('employees.index') }}">View All</a>
-                                <a class="dropdown-item" href="#">Export Report</a>
+                                <a class="dropdown-item" href="{{ route('employees.index') }}">
+                                    <i class="bx bx-list-ul"></i> View All
+                                </a>
+                                <!-- <a class="dropdown-item" href="#">
+                                    <i class="bx bx-download"></i> Export Report
+                                </a> -->
                             </div>
                         </div>
                     </div>
                     <p class="stat-title"><a href="{{ route('employees.index') }}">Total Employees</a></p>
-                    <div class="stat-value">{{ $totalEmployees ?? 0 }}</div>
+                    <div class="stat-value">{{ $totalEmployees }}</div>
                     <div class="stat-trend positive">
                         <i class="bx bx-up-arrow-alt"></i>
                         <span>All Active</span>
@@ -1151,7 +1318,7 @@
                     </div>
                 </div>
 
-                <!-- Total Attendance -->
+                <!-- Total Attendance - DIVISION BY ZERO FIXED -->
                 <div class="stat-card">
                     <div class="stat-header">
                         <div class="stat-icon">
@@ -1162,20 +1329,24 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="{{ route('attendance.report') }}">View Report</a>
-                                <a class="dropdown-item" href="#">Daily Logs</a>
+                                <a class="dropdown-item" href="{{ route('attendance.report') }}">
+                                    <i class="bx bx-bar-chart"></i> View Report
+                                </a>
+                                <!-- <a class="dropdown-item" href="#">
+                                    <i class="bx bx-time"></i> Daily Logs
+                                </a> -->
                             </div>
                         </div>
                     </div>
                     <p class="stat-title"><a href="{{ route('attendance.report') }}">Today's Attendance</a></p>
-                    <div class="stat-value">{{ $presentCount ?? 0 }}/{{ $totalEmployees ?? 0 }}</div>
+                    <div class="stat-value">{{ $presentCount }}/{{ $totalEmployees }}</div>
                     <div class="stat-trend positive">
                         <i class="bx bx-up-arrow-alt"></i>
-                        <span>{{ round(($presentCount/$totalEmployees)*100) ?? 0 }}% Present</span>
+                        <span>{{ $attendancePercentage }}% Present</span>
                     </div>
                     <div class="stat-progress">
                         <div class="progress-container">
-                            <div class="progress-bar" style="width: {{ ($presentCount/$totalEmployees)*100 ?? 0 }}%"></div>
+                            <div class="progress-bar" style="width: {{ $attendanceWidth }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -1191,13 +1362,17 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="{{ route('clients.index') }}">View All</a>
-                                <a class="dropdown-item" href="#">Add New</a>
+                                <a class="dropdown-item" href="{{ route('clients.index') }}">
+                                    <i class="bx bx-list-ul"></i> View All
+                                </a>
+                                <!-- <a class="dropdown-item" href="#">
+                                    <i class="bx bx-plus-circle"></i> Add New
+                                </a> -->
                             </div>
                         </div>
                     </div>
                     <p class="stat-title"><a href="{{ route('clients.index') }}">Active Clients</a></p>
-                    <div class="stat-value">{{ $totalClient ?? 0 }}</div>
+                    <div class="stat-value">{{ $totalClient }}</div>
                     <div class="stat-trend positive">
                         <i class="bx bx-up-arrow-alt"></i>
                         <span>All Engaged</span>
@@ -1220,13 +1395,17 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="{{ route('projects.index') }}">View All</a>
-                                <a class="dropdown-item" href="#">Create New</a>
+                                <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                    <i class="bx bx-list-ul"></i> View All
+                                </a>
+                                <!-- <a class="dropdown-item" href="#">
+                                    <i class="bx bx-plus-circle"></i> Create New
+                                </a> -->
                             </div>
                         </div>
                     </div>
                     <p class="stat-title"><a href="{{ route('projects.index') }}">Active Projects</a></p>
-                    <div class="stat-value">{{ $totalProject ?? 0 }}</div>
+                    <div class="stat-value">{{ $totalProject }}</div>
                     <div class="stat-trend positive">
                         <i class="bx bx-up-arrow-alt"></i>
                         <span>All Running</span>
@@ -1255,7 +1434,7 @@
                         </a>
                     </div>
                     <div class="card-body">
-                        @forelse($openTickets as $ticket)
+                        @forelse($openTickets ?? [] as $ticket)
                             <div class="list-item">
                                 <div class="list-item-header">
                                     <div>
@@ -1270,8 +1449,8 @@
                                     </span>
                                 </div>
                                 <div class="list-item-meta">
-                                    <span><i class="bx bx-calendar"></i> {{ \Carbon\Carbon::parse($ticket->created_at)->format('d M, Y') }}</span>
-                                    <span><i class="bx bx-time"></i> {{ \Carbon\Carbon::parse($ticket->created_at)->format('h:i A') }}</span>
+                                    <span><i class="bx bx-calendar"></i> {{ \Carbon\Carbon::parse($ticket->created_at ?? now())->format('d M, Y') }}</span>
+                                    <span><i class="bx bx-time"></i> {{ \Carbon\Carbon::parse($ticket->created_at ?? now())->format('h:i A') }}</span>
                                 </div>
                             </div>
                         @empty
@@ -1295,14 +1474,14 @@
                         </a>
                     </div>
                     <div class="card-body">
-                        @forelse($pendingTasksTotal as $task)
+                        @forelse($pendingTasksTotal ?? [] as $task)
                             <div class="list-item">
                                 <div class="list-item-header">
                                     <div>
                                         <h6 class="list-item-title">{{ $task->title ?? 'N/A' }}</h6>
                                         <div class="list-item-meta">
                                             <span><i class="bx bx-folder"></i> {{ $task->project->name ?? 'N/A' }}</span>
-                                            <span><i class="bx bx-calendar"></i> {{ \Carbon\Carbon::parse($task->start_date)->format('d M') }}</span>
+                                            <span><i class="bx bx-calendar"></i> {{ \Carbon\Carbon::parse($task->start_date ?? now())->format('d M') }}</span>
                                         </div>
                                     </div>
                                     <span class="badge badge-low">
@@ -1332,14 +1511,14 @@
                     </div>
                     <div class="card-body">
                         <div class="timeline">
-                            @forelse($activities as $activity)
+                            @forelse($activities ?? [] as $activity)
                                 <div class="timeline-item">
                                     <div class="timeline-content">
                                         <div class="timeline-title">{{ $activity->activity ?? 'No activity' }}</div>
                                         <div class="timeline-project">{{ $activity->project_name ?? 'N/A' }}</div>
                                         <div class="timeline-time">
                                             <i class="bx bx-time"></i>
-                                            {{ \Carbon\Carbon::parse($activity->created_at)->format('h:i A • d M') }}
+                                            {{ \Carbon\Carbon::parse($activity->created_at ?? now())->format('h:i A • d M') }}
                                         </div>
                                     </div>
                                 </div>
@@ -1370,7 +1549,7 @@
 
             if (isFraction) {
                 const [numerator, denominator] = originalText.split('/');
-                animateFraction(value, parseInt(numerator), parseInt(denominator));
+                animateFraction(value, parseInt(numerator) || 0, parseInt(denominator) || 1);
             } else {
                 animateNumber(value, parseInt(originalText.replace(/\D/g, '')) || 0);
             }
@@ -1392,19 +1571,17 @@
 
         function animateFraction(element, numerator, denominator) {
             let currentNum = 0;
-            let currentDen = 0;
+            let currentDen = denominator;
             const incrementNum = numerator / 20;
-            const incrementDen = denominator / 20;
 
             const timer = setInterval(() => {
                 currentNum += incrementNum;
-                currentDen += incrementDen;
 
-                if (currentNum >= numerator && currentDen >= denominator) {
+                if (currentNum >= numerator) {
                     element.textContent = `${numerator}/${denominator}`;
                     clearInterval(timer);
                 } else {
-                    element.textContent = `${Math.floor(currentNum)}/${Math.floor(currentDen)}`;
+                    element.textContent = `${Math.floor(currentNum)}/${denominator}`;
                 }
             }, 50);
         }
@@ -1455,18 +1632,6 @@
                 setTimeout(() => ripple.remove(), 600);
             });
         });
-
-        // Add ripple animation style
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
 
         // Add parallax effect to floating elements
         document.addEventListener('mousemove', function(e) {

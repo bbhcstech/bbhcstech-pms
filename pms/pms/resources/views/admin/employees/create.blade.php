@@ -2,24 +2,24 @@
 
 @section('content')
 
-<div class="container-fluid mt-4 px-3 px-md-4">
+<div class="container-fluid mt-4 px-3 px-md-4" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%); padding: 25px; border-radius: 15px;">
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="h4 fw-bold text-primary mb-1">
-                <i class="fas fa-user-plus me-2"></i>{{ isset($employee) ? 'Edit Employee' : 'Add New Employee' }}
+            <h2 class="h4 fw-bold mb-1" style="color: #4a1c6c;">
+                <i class="fas fa-user-plus me-2" style="color: #6a1b9a;"></i>{{ isset($employee) ? 'Edit Employee' : 'Add New Employee' }}
             </h2>
-            <p class="text-muted mb-0">Fill in the employee details below</p>
+            <p class="mb-0" style="color: #5a4a6e;">Fill in the employee details below</p>
         </div>
-        <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('employees.index') }}" class="btn" style="background-color: #f0f0f0; color: #4a4a4a; border: 1px solid #d0d0d0; padding: 8px 20px; border-radius: 8px;">
             <i class="fas fa-arrow-left me-2"></i>Back to List
         </a>
     </div>
 
     <!-- Success Alert -->
     @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="background-color: #f0ffe6; border-left: 4px solid #28a745; border-radius: 8px;">
+        <i class="fas fa-check-circle me-2" style="color: #28a745;"></i>
         {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -27,10 +27,10 @@
 
     <!-- Error Alert -->
     @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Please fix the following errors:</strong>
-        <ul class="mb-0 mt-2">
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="background-color: #fff0f0; border-left: 4px solid #dc3545; border-radius: 8px;">
+        <i class="fas fa-exclamation-triangle me-2" style="color: #dc3545;"></i>
+        <strong style="color: #721c24;">Please fix the following errors:</strong>
+        <ul class="mb-0 mt-2" style="color: #721c24;">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
@@ -40,9 +40,9 @@
     @endif
 
     <!-- Main Form Card -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-light border-0 py-3">
-            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Employee Information</h5>
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header border-0 py-3" style="background: white; border-bottom: 2px solid #e6d0ff;">
+            <h5 class="mb-0" style="color: #5a2a8c;"><i class="fas fa-id-card me-2" style="color: #6a1b9a;"></i>Employee Information</h5>
         </div>
 
         <form id="employeeForm" action="{{ isset($employee) ? route('employees.update', $employee->id) : route('employees.store') }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
@@ -53,43 +53,44 @@
 
             <!-- Hidden fields for new designation/department -->
             <input type="hidden" name="new_designation" id="new_designation" value="">
-            <input type="hidden" name="new_designation_level" id="new_designation_level" value=""> <!-- ADDED: Level field -->
+            <input type="hidden" name="new_designation_level" id="new_designation_level" value="">
             <input type="hidden" name="new_department" id="new_department" value="">
             <input type="hidden" name="new_sub_department" id="new_sub_department" value="">
 
-            <div class="card-body">
+            <div class="card-body" style="background-color: white;">
                 <!-- Account Details Section -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">
-                            <i class="fas fa-user-circle me-2"></i>Account Details
+                        <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: #4a1c6c; border-bottom-color: #e6d0ff !important;">
+                            <i class="fas fa-user-circle me-2" style="color: #6a1b9a;"></i>Account Details
                         </h6>
                     </div>
 
                     <!-- Employee ID -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Employee ID <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Employee ID <span class="text-danger">*</span></label>
                         @php
                             $empOption = old('employee_id_option') ?? ((isset($employee) && $employee?->employeeDetail?->employee_id) ? 'custom' : 'auto');
                         @endphp
 
                         <div class="mb-2">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="employee_id_option" id="emp_auto" value="auto" {{ $empOption === 'auto' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="emp_auto">Auto-generate</label>
+                                <input class="form-check-input" type="radio" name="employee_id_option" id="emp_auto" value="auto" {{ $empOption === 'auto' ? 'checked' : '' }} style="border-color: #b380ff;">
+                                <label class="form-check-label" for="emp_auto" style="color: #4a4a4a;">Auto-generate</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="employee_id_option" id="emp_custom" value="custom" {{ $empOption === 'custom' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="emp_custom">Custom ID</label>
+                                <input class="form-check-input" type="radio" name="employee_id_option" id="emp_custom" value="custom" {{ $empOption === 'custom' ? 'checked' : '' }} style="border-color: #b380ff;">
+                                <label class="form-check-label" for="emp_custom" style="color: #4a4a4a;">Custom ID</label>
                             </div>
                         </div>
 
                         <input type="text" id="employee_id_input" name="employee_id" class="form-control"
                                placeholder="e.g. BBH2025001"
                                value="{{ old('employee_id') ?? ($employee?->employeeDetail?->employee_id ?? ($nextEmployeeId ?? '')) }}"
-                               @if($empOption === 'auto') readonly @endif>
+                               @if($empOption === 'auto') readonly @endif
+                               style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                         <small class="text-muted">Employee ID will be auto-generated</small>
-                        <div class="invalid-feedback employee-id-error d-none">Please enter a valid employee ID</div>
+                        <div class="invalid-feedback employee-id-error d-none"></div>
                         @error('employee_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -97,11 +98,12 @@
 
                     <!-- Employee Name -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Full Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" class="form-control" required
                                value="{{ old('name') ?? $employee?->name ?? '' }}"
-                               placeholder="Enter full name">
-                        <div class="invalid-feedback name-error d-none">Please enter the employee's full name</div>
+                               placeholder="Enter full name"
+                               style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
+                        <div class="invalid-feedback name-error d-none"></div>
                         @error('name')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -109,11 +111,12 @@
 
                     <!-- Email -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Email Address <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Email Address <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control email-input" required
                                value="{{ old('email') ?? $employee?->email ?? '' }}"
-                               placeholder="employee@company.com">
-                        <div class="invalid-feedback email-error d-none">Please enter a valid email address</div>
+                               placeholder="employee@company.com"
+                               style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
+                        <div class="invalid-feedback email-error d-none"></div>
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -121,20 +124,21 @@
 
                     <!-- Password -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Password</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Password</label>
                         <div class="input-group">
                             <input type="password" name="password" id="password" class="form-control password-input"
                                    autocomplete="new-password" minlength="8"
-                                   placeholder="Leave blank for auto-generate">
-                            <button type="button" class="btn btn-outline-secondary toggle-password" title="Show/Hide">
+                                   placeholder="Leave blank for auto-generate"
+                                   style="border-color: #d0b0ff; border-radius: 8px 0 0 8px; padding: 0.6rem 1rem;">
+                            <button type="button" class="btn toggle-password" title="Show/Hide" style="border: 1px solid #d0b0ff; background: white; color: #6a1b9a;">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary generate-password" title="Generate">
+                            <button type="button" class="btn generate-password" title="Generate" style="border: 1px solid #d0b0ff; border-left: none; background: white; color: #6a1b9a; border-radius: 0 8px 8px 0;">
                                 <i class="fas fa-random"></i>
                             </button>
                         </div>
                         <small class="text-muted">Minimum 8 characters. Leave empty for auto-generation.</small>
-                        <div class="invalid-feedback password-error d-none">Password must be at least 8 characters</div>
+                        <div class="invalid-feedback password-error d-none"></div>
                         @error('password')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -142,10 +146,10 @@
 
                     <!-- Designation -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Designation <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Designation <span class="text-danger">*</span></label>
                         @php $selectedDesignation = old('designation_id') ?? ($employee?->employeeDetail?->designation_id ?? null); @endphp
                         <div class="input-group">
-                            <select name="designation_id" id="designation_id" class="form-select designation-select" required>
+                            <select name="designation_id" id="designation_id" class="form-select designation-select" required style="border-color: #d0b0ff; border-radius: 8px 0 0 8px; padding: 0.6rem 1rem;">
                                 <option value="">Select Designation</option>
                                 @foreach($designations as $designation)
                                     <option value="{{ $designation->id }}" {{ $selectedDesignation == $designation->id ? 'selected' : '' }}>
@@ -153,12 +157,12 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn btn-outline-primary" id="openDesignationModalBtn">
+                            <button type="button" class="btn" id="openDesignationModalBtn" style="border: 1px solid #d0b0ff; background: white; color: #6a1b9a; border-radius: 0 8px 8px 0;">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                         <small class="text-muted">Select existing or add new (will be saved with employee)</small>
-                        <div class="invalid-feedback designation-error d-none">Please select a designation</div>
+                        <div class="invalid-feedback designation-error d-none"></div>
                         @error('designation_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -166,10 +170,10 @@
 
                     <!-- Department -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Department <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Department <span class="text-danger">*</span></label>
                         @php $selectedPrt = old('parent_dpt_id') ?? ($employee?->employeeDetail?->parent_dpt_id ?? ''); @endphp
                         <div class="input-group">
-                            <select name="parent_dpt_id" id="prt_department_id" class="form-select department-select" required>
+                            <select name="parent_dpt_id" id="prt_department_id" class="form-select department-select" required style="border-color: #d0b0ff; border-radius: 8px 0 0 8px; padding: 0.6rem 1rem;">
                                 <option value="">Select Department</option>
                                 @foreach($prtdepartments as $dept)
                                     <option value="{{ $dept->id }}" {{ $selectedPrt == $dept->id ? 'selected' : '' }}>
@@ -177,12 +181,12 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn btn-outline-primary" id="openPrtModalBtn">
+                            <button type="button" class="btn" id="openPrtModalBtn" style="border: 1px solid #d0b0ff; background: white; color: #6a1b9a; border-radius: 0 8px 8px 0;">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                         <small class="text-muted">Select existing or add new (will be saved with employee)</small>
-                        <div class="invalid-feedback department-error d-none">Please select a department</div>
+                        <div class="invalid-feedback department-error d-none"></div>
                         @error('parent_dpt_id')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -190,13 +194,13 @@
 
                     <!-- Sub Department -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Sub Department</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Sub Department</label>
                         @php $selectedDpt = old('department_id') ?? ($employee?->employeeDetail?->department_id ?? ''); @endphp
                         <div class="input-group">
-                            <select name="department_id" id="department_id" class="form-select subdepartment-select" data-selected="{{ $selectedDpt }}">
+                            <select name="department_id" id="department_id" class="form-select subdepartment-select" data-selected="{{ $selectedDpt }}" style="border-color: #d0b0ff; border-radius: 8px 0 0 8px; padding: 0.6rem 1rem;">
                                 <option value="">Select Sub Department</option>
                             </select>
-                            <button type="button" class="btn btn-outline-primary" id="openDptModalBtn">
+                            <button type="button" class="btn" id="openDptModalBtn" style="border: 1px solid #d0b0ff; background: white; color: #6a1b9a; border-radius: 0 8px 8px 0;">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -205,23 +209,23 @@
 
                     <!-- Profile Picture -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Profile Picture</label>
-                        <input type="file" name="profile_picture" class="form-control profile-input" accept="image/*">
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Profile Picture</label>
+                        <input type="file" name="profile_picture" class="form-control profile-input" accept="image/*" style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                         <small class="text-muted d-block mt-2">
-                            <i class="fas fa-info-circle me-1 text-info"></i>
+                            <i class="fas fa-info-circle me-1" style="color: #6a1b9a;"></i>
                             Allowed formats: JPG, JPEG, PNG, GIF, WEBP, SVG
                         </small>
                         <small class="text-muted d-block mb-2">
-                            <i class="fas fa-file-archive me-1 text-info"></i>
+                            <i class="fas fa-file-archive me-1" style="color: #6a1b9a;"></i>
                             Maximum file size: 2MB
                         </small>
 
                         @if(isset($employee) && $employee?->profile_image)
-                            <div class="mt-2 border rounded p-2 bg-light">
+                            <div class="mt-2 border rounded p-2" style="background: #f9f5ff; border-color: #e6d0ff !important;">
                                 <div class="d-flex align-items-center">
                                     <img src="{{ asset($employee->profile_image) }}" alt="Current Profile" class="rounded-circle me-3" width="60" height="60">
                                     <div>
-                                        <small class="d-block text-muted fw-medium">Current profile picture</small>
+                                        <small class="d-block fw-medium" style="color: #4a1c6c;">Current profile picture</small>
                                         <small class="d-block text-muted">Will be replaced if you upload a new one</small>
                                     </div>
                                 </div>
@@ -231,8 +235,8 @@
 
                     <!-- Country -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Country <span class="text-danger">*</span></label>
-                        <select name="country" id="country" class="form-select select2 country-select">
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Country <span class="text-danger">*</span></label>
+                        <select name="country" id="country" class="form-select select2 country-select" style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="">Select Country</option>
                             @php $selectedCountry = old('country') ?? ($employee?->country ?? 'India'); @endphp
                             @foreach($countries as $country)
@@ -241,7 +245,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback country-error d-none">Please select a country</div>
+                        <div class="invalid-feedback country-error d-none"></div>
                         @error('country')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -249,13 +253,14 @@
 
                     <!-- Mobile -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Mobile Number <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Mobile Number <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light">+91</span>
+                            <span class="input-group-text bg-light" style="border-color: #d0b0ff; color: #4a1c6c;">+91</span>
                             <input id="mobile_only_digits" type="text" name="mobile" class="form-control mobile-input" required
                                    maxlength="10" placeholder="9876543210"
                                    value="{{ old('mobile') ?? ($employee?->mobile ? preg_replace('/^\+91/', '', $employee->mobile) : '') }}"
-                                   @if(isset($employee)) data-current-id="{{ $employee->id }}" @endif>
+                                   @if(isset($employee)) data-current-id="{{ $employee->id }}" @endif
+                                   style="border-color: #d0b0ff; border-radius: 0 8px 8px 0; padding: 0.6rem 1rem;">
                         </div>
                         <small class="text-muted">Enter 10-digit mobile number without 0 or +91</small>
                         <div id="mobile-error" class="invalid-feedback mobile-error d-none"></div>
@@ -267,9 +272,9 @@
 
                     <!-- Gender -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Gender</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Gender</label>
                         @php $gender = old('gender') ?? ($employee?->gender ?? '') @endphp
-                        <select name="gender" class="form-select gender-select">
+                        <select name="gender" class="form-select gender-select" style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="">Select Gender</option>
                             <option value="Male" {{ $gender === 'Male' ? 'selected' : '' }}>Male</option>
                             <option value="Female" {{ $gender === 'Female' ? 'selected' : '' }}>Female</option>
@@ -281,13 +286,14 @@
                         @enderror
                     </div>
 
-                    <!-- Joining Date - FIXED: Allow past, present, and future dates -->
+                    <!-- Joining Date -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Joining Date <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Joining Date <span class="text-danger">*</span></label>
                         <input type="date" required class="form-control joining-date-input" name="joining_date" id="joining_date"
-                               value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}">
+                               value="{{ old('joining_date') ?? ($employee?->employeeDetail?->joining_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
+                               style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                         <small class="text-muted d-block mt-1">Joining date can be any date (past, present, or future)</small>
-                        <div class="invalid-feedback joining-date-error d-none">Please select a joining date</div>
+                        <div class="invalid-feedback joining-date-error d-none"></div>
                         @error('joining_date')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -295,11 +301,12 @@
 
                     <!-- Date of Birth -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Date of Birth <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Date of Birth <span class="text-danger">*</span></label>
                         <input type="date" name="dob" id="dob" class="form-control dob-input" required
-                               value="{{ old('dob') ?? ($employee?->dob ?? '') }}">
+                               value="{{ old('dob') ?? ($employee?->dob ?? '') }}"
+                               style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                         <small class="text-muted">As per government ID</small>
-                        <div class="invalid-feedback dob-error d-none">Please select a valid date of birth</div>
+                        <div class="invalid-feedback dob-error d-none"></div>
                         @error('dob')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -307,9 +314,9 @@
 
                     <!-- Reporting To -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Reporting To</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Reporting To</label>
                         @php $selectedReporting = old('reporting_to') ?? ($employee?->employeeDetail?->reporting_to ?? ''); @endphp
-                        <select name="reporting_to" class="form-select reporting-select">
+                        <select name="reporting_to" class="form-select reporting-select" style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="">Select Reporting Manager</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" {{ $selectedReporting == $user->id ? 'selected' : '' }}>
@@ -324,24 +331,24 @@
 
                     <!-- Language -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Language</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Language</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" value="English" readonly>
-                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <input type="text" class="form-control" value="English" readonly style="border-color: #d0b0ff; background: #f9f5ff; border-radius: 8px; padding: 0.6rem 1rem;">
+                            <span class="input-group-text" style="border-color: #d0b0ff; background: #f9f5ff; color: #4a1c6c;"><i class="fas fa-globe"></i></span>
                         </div>
                         <input type="hidden" name="language" value="en">
                     </div>
 
                     <!-- User Role -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">User Role <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">User Role <span class="text-danger">*</span></label>
                         @php $role = old('user_role') ?? ($employee?->role ?? '') @endphp
-                        <select name="user_role" class="form-select role-select" required>
+                        <select name="user_role" class="form-select role-select" required style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="">Select Role</option>
                             <option value="employee" {{ $role === 'employee' ? 'selected' : '' }}>Employee</option>
                             <option value="admin" {{ $role === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
-                        <div class="invalid-feedback role-error d-none">Please select a user role</div>
+                        <div class="invalid-feedback role-error d-none"></div>
                         @error('user_role')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -351,15 +358,16 @@
                 <!-- Additional Information Section -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">
-                            <i class="fas fa-info-circle me-2"></i>Additional Information
+                        <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: #4a1c6c; border-bottom-color: #e6d0ff !important;">
+                            <i class="fas fa-info-circle me-2" style="color: #6a1b9a;"></i>Additional Information
                         </h6>
                     </div>
 
                     <!-- Address -->
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-medium">Address</label>
-                        <textarea name="address" class="form-control address-input" rows="3" placeholder="Enter complete address">{{ old('address') ?? ($employee?->address ?? '') }}</textarea>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Address</label>
+                        <textarea name="address" class="form-control address-input" rows="3" placeholder="Enter complete address"
+                                  style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">{{ old('address') ?? ($employee?->address ?? '') }}</textarea>
                         @error('address')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -367,8 +375,9 @@
 
                     <!-- About -->
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-medium">About</label>
-                        <textarea name="about" class="form-control about-input" rows="3" placeholder="About the employee">{{ old('about') ?? ($employee?->about ?? '') }}</textarea>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">About</label>
+                        <textarea name="about" class="form-control about-input" rows="3" placeholder="About the employee"
+                                  style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">{{ old('about') ?? ($employee?->about ?? '') }}</textarea>
                         @error('about')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -376,14 +385,14 @@
 
                     <!-- Login Allowed -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Allow Login? <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Allow Login? <span class="text-danger">*</span></label>
                         @php $loginAllowed = old('login_allowed') ?? ($employee?->login_allowed ?? '1'); @endphp
-                        <select name="login_allowed" class="form-select login-allowed-select" required>
+                        <select name="login_allowed" class="form-select login-allowed-select" required style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="1" {{ $loginAllowed == '1' ? 'selected' : '' }}>Yes - Can login to system</option>
                             <option value="0" {{ $loginAllowed == '0' ? 'selected' : '' }}>No - Cannot login</option>
                         </select>
                         <small class="text-muted">Employee can only login if this is "Yes" AND Status is "Active"</small>
-                        <div class="invalid-feedback login-allowed-error d-none">Please select login permission</div>
+                        <div class="invalid-feedback login-allowed-error d-none"></div>
                         @error('login_allowed')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -391,9 +400,9 @@
 
                     <!-- Email Notifications -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Email Notifications?</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Email Notifications?</label>
                         @php $emailNotif = old('email_notifications') ?? ($employee?->email_notifications ?? '1'); @endphp
-                        <select name="email_notifications" class="form-select email-notif-select">
+                        <select name="email_notifications" class="form-select email-notif-select" style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="1" {{ $emailNotif == '1' ? 'selected' : '' }}>Yes - Receive emails</option>
                             <option value="0" {{ $emailNotif == '0' ? 'selected' : '' }}>No - No emails</option>
                         </select>
@@ -404,8 +413,9 @@
 
                     <!-- Skills -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Skills</label>
-                        <textarea name="skills" class="form-control skills-input" rows="3" placeholder="e.g. PHP, Laravel, JavaScript">{{ old('skills') ?? ($employee?->skills ?? '') }}</textarea>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Skills</label>
+                        <textarea name="skills" class="form-control skills-input" rows="3" placeholder="e.g. PHP, Laravel, JavaScript"
+                                  style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">{{ old('skills') ?? ($employee?->skills ?? '') }}</textarea>
                         @error('skills')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -413,9 +423,9 @@
 
                     <!-- Employment Type -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Employment Type <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Employment Type <span class="text-danger">*</span></label>
                         @php $employmentType = old('employment_type') ?? ($employee?->employment_type ?? '') @endphp
-                        <select name="employment_type" id="employment_type" class="form-select employment-type-select" required>
+                        <select name="employment_type" id="employment_type" class="form-select employment-type-select" required style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="">Select Type</option>
                             <option value="full_time" {{ $employmentType === 'full_time' ? 'selected' : '' }}>Full Time</option>
                             <option value="part_time" {{ $employmentType === 'part_time' ? 'selected' : '' }}>Part Time</option>
@@ -423,7 +433,7 @@
                             <option value="internship" {{ $employmentType === 'internship' ? 'selected' : '' }}>Internship</option>
                             <option value="trainee" {{ $employmentType === 'trainee' ? 'selected' : '' }}>Trainee</option>
                         </select>
-                        <div class="invalid-feedback employment-type-error d-none">Please select employment type</div>
+                        <div class="invalid-feedback employment-type-error d-none"></div>
                         @error('employment_type')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -431,9 +441,9 @@
 
                     <!-- Marital Status -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Marital Status</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Marital Status</label>
                         @php $marital = old('marital_status') ?? ($employee?->marital_status ?? '') @endphp
-                        <select name="marital_status" id="marital_status" class="form-select marital-status-select">
+                        <select name="marital_status" id="marital_status" class="form-select marital-status-select" style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                             <option value="">Select Status</option>
                             <option value="single" {{ $marital === 'single' ? 'selected' : '' }}>Single</option>
                             <option value="married" {{ $marital === 'married' ? 'selected' : '' }}>Married</option>
@@ -450,9 +460,10 @@
 
                     <!-- Business Address -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Business Address <span class="text-danger">*</span></label>
-                        <textarea name="business_address" class="form-control business-address-input" required>{{ old('business_address') ?? ($employee?->employeeDetail?->business_address ?? 'Kolkata') }}</textarea>
-                        <div class="invalid-feedback business-address-error d-none">Please enter business address</div>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Business Address <span class="text-danger">*</span></label>
+                        <textarea name="business_address" class="form-control business-address-input" required
+                                  style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">{{ old('business_address') ?? ($employee?->employeeDetail?->business_address ?? 'Kolkata') }}</textarea>
+                        <div class="invalid-feedback business-address-error d-none"></div>
                         @error('business_address')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -462,31 +473,31 @@
                 <!-- Status Section -->
                 <div class="row">
                     <div class="col-12">
-                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">
-                            <i class="fas fa-user-check me-2"></i>Employment Status
+                        <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: #4a1c6c; border-bottom-color: #e6d0ff !important;">
+                            <i class="fas fa-user-check me-2" style="color: #6a1b9a;"></i>Employment Status
                         </h6>
                     </div>
 
                     <!-- Status -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-medium">Employment Status <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Employment Status <span class="text-danger">*</span></label>
                         @php $status = old('status') ?? ($employee?->employeeDetail?->status ?? 'Active') @endphp
                         <div class="d-flex gap-3 status-radio-group">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="status" id="status-active" value="Active" {{ $status === 'Active' ? 'checked' : '' }} onchange="toggleExitDate()">
-                                <label class="form-check-label text-success fw-medium" for="status-active">
-                                    <i class="fas fa-circle-check me-1"></i>Active
+                                <input class="form-check-input" type="radio" name="status" id="status-active" value="Active" {{ $status === 'Active' ? 'checked' : '' }} onchange="toggleExitDate()" style="border-color: #b380ff;">
+                                <label class="form-check-label fw-medium" for="status-active" style="color: #2e7d32;">
+                                    <i class="fas fa-circle-check me-1" style="color: #2e7d32;"></i>Active
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="status" id="status-inactive" value="Inactive" {{ $status === 'Inactive' ? 'checked' : '' }} onchange="toggleExitDate()">
-                                <label class="form-check-label text-danger fw-medium" for="status-inactive">
-                                    <i class="fas fa-circle-xmark me-1"></i>Inactive
+                                <input class="form-check-input" type="radio" name="status" id="status-inactive" value="Inactive" {{ $status === 'Inactive' ? 'checked' : '' }} onchange="toggleExitDate()" style="border-color: #b380ff;">
+                                <label class="form-check-label fw-medium" for="status-inactive" style="color: #c62828;">
+                                    <i class="fas fa-circle-xmark me-1" style="color: #c62828;"></i>Inactive
                                 </label>
                             </div>
                         </div>
                         <small class="text-muted">Employee can only login if this is "Active" AND Login Allowed is "Yes"</small>
-                        <div class="invalid-feedback status-error d-none">Please select employment status</div>
+                        <div class="invalid-feedback status-error d-none"></div>
                         @error('status')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -494,14 +505,15 @@
 
                     <!-- Exit Date (Conditional) -->
                     <div class="col-md-4 mb-3" id="exit-date-container" style="display: {{ $status === 'Inactive' ? 'block' : 'none' }};">
-                        <label class="form-label fw-medium">Exit Date</label>
+                        <label class="form-label fw-medium" style="color: #4a1c6c;">Exit Date</label>
                         <input type="date" name="exit_date" id="exit_date" class="form-control exit-date-input"
-                               value="{{ old('exit_date') ?? ($employee?->employeeDetail?->exit_date ?? '') }}">
+                               value="{{ old('exit_date') ?? ($employee?->employeeDetail?->exit_date ?? '') }}"
+                               style="border-color: #d0b0ff; border-radius: 8px; padding: 0.6rem 1rem;">
                         <small class="text-muted d-block mt-2">
-                            <i class="fas fa-clock me-1 text-warning"></i>
+                            <i class="fas fa-clock me-1" style="color: #6a1b9a;"></i>
                             Employee can login UP TO this date. Login will be blocked AFTER this date.
                         </small>
-                        <div class="invalid-feedback exit-date-error d-none">Please select a valid exit date</div>
+                        <div class="invalid-feedback exit-date-error d-none"></div>
                         @error('exit_date')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -510,19 +522,19 @@
             </div>
 
             <!-- Form Footer -->
-            <div class="card-footer bg-light border-0 py-3">
+            <div class="card-footer border-0 py-3" style="background: white; border-top: 2px solid #e6d0ff;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
+                            <i class="fas fa-info-circle me-1" style="color: #6a1b9a;"></i>
                             Fields marked with <span class="text-danger">*</span> are required
                         </small>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary px-4">
+                        <a href="{{ route('employees.index') }}" class="btn px-4" style="background-color: #f0f0f0; color: #4a4a4a; border: 1px solid #d0d0d0; border-radius: 8px; padding: 0.6rem 1.5rem;">
                             <i class="fas fa-times me-2"></i>Cancel
                         </a>
-                        <button type="submit" class="btn btn-primary px-4">
+                        <button type="submit" class="btn px-4" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); color: white; border: none; border-radius: 8px; padding: 0.6rem 1.5rem; font-weight: 500; box-shadow: 0 2px 5px rgba(106, 27, 154, 0.3);">
                             <i class="fas fa-save me-2"></i>{{ isset($employee) ? 'Update Employee' : 'Save Employee' }}
                         </button>
                     </div>
@@ -535,27 +547,26 @@
 <!-- Modals -->
 <div class="modal fade" id="designationModal" tabindex="-1" aria-labelledby="designationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="designationModalLabel">Add New Designation</h5>
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%); border-bottom: 1px solid #d0b0ff;">
+                <h5 class="modal-title" id="designationModalLabel" style="color: #4a1c6c;">Add New Designation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Designation Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="designationName" placeholder="Enter designation name" required>
+                    <label class="form-label fw-medium" style="color: #4a1c6c;">Designation Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="designationName" placeholder="Enter designation name" required style="border-color: #d0b0ff; border-radius: 8px;">
                 </div>
-                <!-- FIXED: Added Level field -->
                 <div class="mb-3">
-                    <label class="form-label">Designation Level <span class="text-danger">*</span></label>
-                    <input type="number" min="0" max="6" class="form-control" id="designationLevel" placeholder="Enter level (0-6)" required>
+                    <label class="form-label fw-medium" style="color: #4a1c6c;">Designation Level <span class="text-danger">*</span></label>
+                    <input type="number" min="0" max="6" class="form-control" id="designationLevel" placeholder="Enter level (0-6)" required style="border-color: #d0b0ff; border-radius: 8px;">
                     <small class="text-muted">Level range: 0-6 (e.g., 0=Intern, 1=Associate, 2=Sr. Associate, etc.)</small>
                 </div>
                 <div class="invalid-feedback" id="designation-error"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveDesignationBtn">Add Designation</button>
+            <div class="modal-footer" style="border-top: 1px solid #e6d0ff;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f0f0f0; color: #4a4a4a; border: 1px solid #d0d0d0; border-radius: 8px;">Cancel</button>
+                <button type="button" class="btn" id="saveDesignationBtn" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); color: white; border: none; border-radius: 8px;">Add Designation</button>
             </div>
         </div>
     </div>
@@ -563,21 +574,21 @@
 
 <div class="modal fade" id="prtModal" tabindex="-1" aria-labelledby="prtModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="prtModalLabel">Add New Department</h5>
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%); border-bottom: 1px solid #d0b0ff;">
+                <h5 class="modal-title" id="prtModalLabel" style="color: #4a1c6c;">Add New Department</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Department Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="prt_dpt_name" placeholder="Enter department name" required>
+                    <label class="form-label fw-medium" style="color: #4a1c6c;">Department Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="prt_dpt_name" placeholder="Enter department name" required style="border-color: #d0b0ff; border-radius: 8px;">
                     <div class="invalid-feedback" id="prt-group-error"></div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="savePrtDepartmentBtn">Add Department</button>
+            <div class="modal-footer" style="border-top: 1px solid #e6d0ff;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f0f0f0; color: #4a4a4a; border: 1px solid #d0d0d0; border-radius: 8px;">Cancel</button>
+                <button type="button" class="btn" id="savePrtDepartmentBtn" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); color: white; border: none; border-radius: 8px;">Add Department</button>
             </div>
         </div>
     </div>
@@ -585,15 +596,15 @@
 
 <div class="modal fade" id="dptModal" tabindex="-1" aria-labelledby="dptModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dptModalLabel">Add New Sub Department</h5>
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f5e6ff 0%, #e6ccff 100%); border-bottom: 1px solid #d0b0ff;">
+                <h5 class="modal-title" id="dptModalLabel" style="color: #4a1c6c;">Add New Sub Department</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Parent Department</label>
-                    <select id="dpt_parent_select" class="form-select">
+                    <label class="form-label fw-medium" style="color: #4a1c6c;">Parent Department</label>
+                    <select id="dpt_parent_select" class="form-select" style="border-color: #d0b0ff; border-radius: 8px;">
                         <option value="">None</option>
                         @foreach($prtdepartments as $pd)
                             <option value="{{ $pd->id }}">{{ $pd->dpt_name }}</option>
@@ -601,14 +612,14 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Sub Department Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="dpt_name" placeholder="Enter sub department name" required>
+                    <label class="form-label fw-medium" style="color: #4a1c6c;">Sub Department Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="dpt_name" placeholder="Enter sub department name" required style="border-color: #d0b0ff; border-radius: 8px;">
                     <div class="invalid-feedback" id="dpt-group-error"></div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveSubDepartmentBtn">Add Sub Department</button>
+            <div class="modal-footer" style="border-top: 1px solid #e6d0ff;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f0f0f0; color: #4a4a4a; border: 1px solid #d0d0d0; border-radius: 8px;">Cancel</button>
+                <button type="button" class="btn" id="saveSubDepartmentBtn" style="background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%); color: white; border: none; border-radius: 8px;">Add Sub Department</button>
             </div>
         </div>
     </div>
@@ -647,8 +658,8 @@
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        border-color: #b380ff !important;
+        box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.15) !important;
     }
 
     .input-group-text {
@@ -656,48 +667,21 @@
         border-color: #ced4da;
     }
 
-    .btn-outline-primary {
-        border-color: #0d6efd;
-        color: #0d6efd;
-    }
-
-    .btn-outline-primary:hover {
-        background-color: #0d6efd;
-        color: white;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-        border: none;
-        padding: 0.75rem 2rem;
-        font-weight: 500;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-    }
-
     .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
+        background-color: #8a2be2;
+        border-color: #8a2be2;
     }
 
     .is-invalid {
         border-color: #dc3545 !important;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(.375em + .1875rem) center;
-        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
     }
 
-    h6.fw-bold.text-primary {
+    h6.fw-bold {
         position: relative;
         padding-left: 1.5rem;
     }
 
-    h6.fw-bold.text-primary::before {
+    h6.fw-bold::before {
         content: '';
         position: absolute;
         left: 0;
@@ -705,7 +689,7 @@
         transform: translateY(-50%);
         width: 8px;
         height: 20px;
-        background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+        background: linear-gradient(135deg, #8a2be2 0%, #b380ff 100%);
         border-radius: 4px;
     }
 
@@ -716,6 +700,17 @@
 
     .alert {
         animation: fadeIn 0.3s ease;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection {
+        border-color: #d0b0ff !important;
+        border-radius: 8px !important;
+    }
+
+    .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+    .select2-container--bootstrap-5.select2-container--open .select2-selection {
+        border-color: #b380ff !important;
+        box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.15) !important;
     }
 </style>
 @endpush
@@ -924,11 +919,10 @@ $(document).ready(function() {
         }
     });
 
-    // FIXED: Joining Date validation - Allow past, present, and future dates
+    // Joining Date validation - Allow past, present, and future dates
     $('.joining-date-input').on('blur', function() {
         const joiningDate = $(this).val();
         if (joiningDate) {
-            // Remove any previous validation - joining date can be any date
             $(this).removeClass('is-invalid');
             $(this).next('.joining-date-error').addClass('d-none').removeClass('d-block');
         }
@@ -1004,7 +998,7 @@ $(document).ready(function() {
         $('#dptModal').modal('show');
     });
 
-    // FIXED: Save new designation with level
+    // Save new designation with level
     $('#saveDesignationBtn').click(function() {
         let name = $('#designationName').val().trim();
         let level = $('#designationLevel').val().trim();
@@ -1021,11 +1015,9 @@ $(document).ready(function() {
             return;
         }
 
-        // Save both name and level to hidden fields
         $('#new_designation').val(name);
         $('#new_designation_level').val(level);
 
-        // Add to dropdown with level info
         $('#designation_id').append(
             `<option value="new" selected>${name} (Level ${level}) (New)</option>`
         );
@@ -1163,8 +1155,7 @@ $(document).ready(function() {
             }
         }
 
-        // FIXED: Joining date - REMOVED future date validation
-        // Joining date can be any date (past, present, or future)
+        // Joining date validation - just check if not empty
         const joiningDate = $('#joining_date').val();
         if (!joiningDate) {
             $('#joining_date').addClass('is-invalid');
