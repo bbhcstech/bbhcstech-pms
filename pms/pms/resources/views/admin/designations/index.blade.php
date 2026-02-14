@@ -6,34 +6,35 @@
 
 <main class="main py-4">
     <div class="container-fluid px-4">
-        <!-- Page Header -->
-        <div class="page-header card border-0 shadow-sm mb-4">
+        <!-- Page Header - Purple White Combo -->
+        <div class="page-header card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="d-flex align-items-center mb-2">
-                            <div class="symbol symbol-45px bg-primary bg-opacity-10 rounded-3 me-3 p-2">
-                                <i class="bi bi-person-badge fs-4 text-primary"></i>
+                            <div class="symbol symbol-50px bg-purple bg-opacity-10 rounded-4 me-3 p-2" style="background: rgba(139, 92, 246, 0.08) !important;">
+                                <i class="bi bi-person-badge fs-3" style="color: #8b5cf6;"></i>
                             </div>
                             <div>
-                                <h1 class="h3 mb-1 text-gray-800 fw-bold">Designation Management</h1>
-                                <p class="text-muted mb-0">Manage and organize employee designations with hierarchical structure</p>
+                                <h1 class="h3 mb-1 fw-bold" style="color: #6d28d9;">Designation Management</h1>
+                                <p class="mb-0" style="color: #a78bfa;">Manage and organize employee designations with hierarchical structure</p>
                             </div>
                         </div>
                     </div>
                     <div class="d-flex gap-2">
                         <div class="dropdown">
-                            <button class="btn btn-outline-secondary btn-lg px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-outline-purple btn-lg px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-color: #c4b5fd; color: #7c3aed; background: white;">
                                 <i class="bi bi-download me-2"></i>Export
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                <li><button type="button" class="dropdown-item" onclick="exportTo('csv')"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as CSV</button></li>
-                                <li><button type="button" class="dropdown-item" onclick="exportTo('excel')"><i class="bi bi-file-excel me-2"></i>Export as Excel</button></li>
-                                <li><button type="button" class="dropdown-item" onclick="exportTo('pdf')"><i class="bi bi-file-pdf me-2"></i>Export as PDF</button></li>
-                                <li><button type="button" class="dropdown-item" onclick="printTable()"><i class="bi bi-printer me-2"></i>Print</button></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2" style="border-radius: 16px;">
+                                <li><button type="button" class="dropdown-item rounded-3 py-2" onclick="exportTo('csv')"><i class="bi bi-file-earmark-spreadsheet me-2" style="color: #8b5cf6;"></i>Export as CSV</button></li>
+                                <li><button type="button" class="dropdown-item rounded-3 py-2" onclick="exportTo('excel')"><i class="bi bi-file-excel me-2" style="color: #8b5cf6;"></i>Export as Excel</button></li>
+                                <li><button type="button" class="dropdown-item rounded-3 py-2" onclick="exportTo('pdf')"><i class="bi bi-file-pdf me-2" style="color: #8b5cf6;"></i>Export as PDF</button></li>
+                                <li><div class="dropdown-divider"></div></li>
+                                <li><button type="button" class="dropdown-item rounded-3 py-2" onclick="printTable()"><i class="bi bi-printer me-2" style="color: #8b5cf6;"></i>Print</button></li>
                             </ul>
                         </div>
-                        <a href="{{ route('designations.create') }}" class="btn btn-primary btn-lg px-4">
+                        <a href="{{ route('designations.create') }}" class="btn btn-purple btn-lg px-4" style="background: linear-gradient(145deg, #8b5cf6, #7c3aed); border: none; color: white; box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.2);">
                             <i class="bi bi-plus-circle me-2"></i>Add New
                         </a>
                     </div>
@@ -41,83 +42,84 @@
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Cards - Purple White Theme -->
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 stats-card" style="background: white; border-radius: 20px; transition: all 0.3s ease;">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="text-muted small mb-2">Total Designations</div>
-                                <div class="h3 fw-bold text-primary mb-0">{{ $designations->total() }}</div>
-                                <div class="text-success small mt-1">
+                                <div class="small fw-medium mb-2" style="color: #9ca3af;">Total Designations</div>
+                                <div class="h2 fw-bold mb-0" style="color: #6d28d9;">{{ $designations->total() }}</div>
+                                <div class="small mt-1 d-flex align-items-center" style="color: #34d399;">
                                     <i class="bi bi-arrow-up me-1"></i>
                                     Active designations
                                 </div>
                             </div>
-                            <div class="symbol symbol-55px bg-primary bg-opacity-10 rounded-3">
-                                <i class="bi bi-person-badge fs-3 text-primary"></i>
+                            <div class="symbol symbol-60px rounded-4 d-flex align-items-center justify-content-center" style="background: rgba(139, 92, 246, 0.08);">
+                                <i class="bi bi-person-badge fs-2" style="color: #8b5cf6;"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 stats-card" style="background: white; border-radius: 20px;">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="text-muted small mb-2">Active Levels</div>
-                                <div class="h3 fw-bold text-success mb-0">{{ $levelsCount }}</div>
-                                <div class="text-muted small mt-1">
+                                <div class="small fw-medium mb-2" style="color: #9ca3af;">Active Levels</div>
+                                <div class="h2 fw-bold mb-0" style="color: #6d28d9;">{{ $levelsCount }}</div>
+                                <div class="small mt-1" style="color: #9ca3af;">
                                     @php
                                         $avgLevel = $designations->avg('level') ?? 0;
                                     @endphp
-                                    Avg. Level: {{ number_format($avgLevel, 1) }}
+                                    Present. Level
+                                    <!-- : {{ number_format($avgLevel, 1) }} -->
                                 </div>
                             </div>
-                            <div class="symbol symbol-55px bg-success bg-opacity-10 rounded-3">
-                                <i class="bi bi-layers fs-3 text-success"></i>
+                            <div class="symbol symbol-60px rounded-4 d-flex align-items-center justify-content-center" style="background: rgba(52, 211, 153, 0.08);">
+                                <i class="bi bi-layers fs-2" style="color: #34d399;"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 stats-card" style="background: white; border-radius: 20px;">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="text-muted small mb-2">Top Level (1-2)</div>
-                                <div class="h3 fw-bold text-info mb-0">
+                                <div class="small fw-medium mb-2" style="color: #9ca3af;">Top Level (1-2)</div>
+                                <div class="h2 fw-bold mb-0" style="color: #6d28d9;">
                                     {{ $designations->where('level', '<=', 2)->count() }}
                                 </div>
-                                <div class="text-muted small mt-1">
+                                <div class="small mt-1" style="color: #9ca3af;">
                                     {{ $designations->where('level', 1)->count() }} Executive
                                 </div>
                             </div>
-                            <div class="symbol symbol-55px bg-info bg-opacity-10 rounded-3">
-                                <i class="bi bi-arrow-up-circle fs-3 text-info"></i>
+                            <div class="symbol symbol-60px rounded-4 d-flex align-items-center justify-content-center" style="background: rgba(96, 165, 250, 0.08);">
+                                <i class="bi bi-arrow-up-circle fs-2" style="color: #60a5fa;"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 stats-card" style="background: white; border-radius: 20px;">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="text-muted small mb-2">Recently Updated</div>
-                                <div class="h3 fw-bold text-warning mb-0">
+                                <div class="small fw-medium mb-2" style="color: #9ca3af;">Recently Updated</div>
+                                <div class="h2 fw-bold mb-0" style="color: #6d28d9;">
                                     {{ $designations->where('updated_at', '>=', now()->subDays(7))->count() }}
                                 </div>
-                                <div class="text-muted small mt-1">
+                                <div class="small mt-1" style="color: #9ca3af;">
                                     Last: {{ optional($designations->max('updated_at'))->format('M d') ?? 'Never' }}
                                 </div>
                             </div>
-                            <div class="symbol symbol-55px bg-warning bg-opacity-10 rounded-3">
-                                <i class="bi bi-clock-history fs-3 text-warning"></i>
+                            <div class="symbol symbol-60px rounded-4 d-flex align-items-center justify-content-center" style="background: rgba(251, 191, 36, 0.08);">
+                                <i class="bi bi-clock-history fs-2" style="color: #fbbf24;"></i>
                             </div>
                         </div>
                     </div>
@@ -125,15 +127,15 @@
             </div>
         </div>
 
-        <!-- Alert Messages -->
+        <!-- Alert Messages - Purple Theme -->
         @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm mb-4" role="alert">
+        <div class="alert border-0 shadow-sm mb-4" role="alert" style="background: linear-gradient(145deg, #ffffff, #faf5ff); border-left: 4px solid #8b5cf6 !important; border-radius: 16px;">
             <div class="d-flex align-items-center">
-                <div class="symbol symbol-35px bg-success bg-opacity-10 rounded-3 me-3">
-                    <i class="bi bi-check-circle-fill text-success"></i>
+                <div class="symbol symbol-40px rounded-3 me-3 d-flex align-items-center justify-content-center" style="background: rgba(139, 92, 246, 0.08);">
+                    <i class="bi bi-check-circle-fill" style="color: #8b5cf6;"></i>
                 </div>
-                <div class="flex-grow-1">
-                    <strong>Success!</strong> {{ session('success') }}
+                <div class="flex-grow-1" style="color: #4b5563;">
+                    <strong style="color: #6d28d9;">Success!</strong> {{ session('success') }}
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -141,50 +143,52 @@
         @endif
 
         @if(session('error'))
-        <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+        <div class="alert border-0 shadow-sm mb-4" role="alert" style="background: linear-gradient(145deg, #ffffff, #fef2f2); border-left: 4px solid #ef4444 !important; border-radius: 16px;">
             <div class="d-flex align-items-center">
-                <div class="symbol symbol-35px bg-danger bg-opacity-10 rounded-3 me-3">
-                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                <div class="symbol symbol-40px rounded-3 me-3 d-flex align-items-center justify-content-center" style="background: rgba(239, 68, 68, 0.08);">
+                    <i class="bi bi-exclamation-triangle-fill" style="color: #ef4444;"></i>
                 </div>
-                <div class="flex-grow-1">
-                    <strong>Error!</strong> {{ session('error') }}
+                <div class="flex-grow-1" style="color: #4b5563;">
+                    <strong style="color: #dc2626;">Error!</strong> {{ session('error') }}
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         </div>
         @endif
 
-        <!-- Main Card -->
-        <div class="card border-0 shadow-sm">
-            <!-- Card Header with Actions -->
-            <div class="card-header bg-transparent border-0 p-4">
+        <!-- Main Card - Pure White with Purple Accents -->
+        <div class="card border-0 shadow-lg" style="border-radius: 24px; background: white;">
+            <!-- Card Header -->
+            <div class="card-header bg-transparent border-0 p-4 pb-0">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <div class="d-flex align-items-center">
-                            <span class="text-muted fw-medium me-2">View:</span>
-                            <div class="btn-group btn-group-sm" role="group">
+                            <span class="fw-medium me-2" style="color: #9ca3af;">View:</span>
+                            <div class="btn-group" style="background: #f9fafb; padding: 4px; border-radius: 12px;">
                                 <a href="{{ route('designations.index') }}"
-                                   class="btn {{ request()->route()->getName() == 'designations.index' ? 'btn-primary' : 'btn-outline-primary' }} px-3">
+                                   class="btn px-4 py-2 rounded-3 {{ request()->route()->getName() == 'designations.index' ? 'btn-purple' : '' }}"
+                                   style="{{ request()->route()->getName() == 'designations.index' ? 'background: #8b5cf6; color: white;' : 'color: #6b7280; background: transparent; border: none;' }}">
                                     <i class="bi bi-table me-1"></i>Table
                                 </a>
                                 <a href="{{ route('designations.hierarchy') }}"
-                                   class="btn {{ request()->route()->getName() == 'designations.hierarchy' ? 'btn-primary' : 'btn-outline-primary' }} px-3">
+                                   class="btn px-4 py-2 rounded-3 {{ request()->route()->getName() == 'designations.hierarchy' ? 'btn-purple' : '' }}"
+                                   style="{{ request()->route()->getName() == 'designations.hierarchy' ? 'background: #8b5cf6; color: white;' : 'color: #6b7280; background: transparent; border: none;' }}">
                                     <i class="bi bi-diagram-3 me-1"></i>Hierarchy
                                 </a>
                             </div>
                         </div>
 
-                        <div class="vr"></div>
+                        <div class="vr" style="background-color: #e5e7eb; width: 1px; height: 30px;"></div>
 
                         <div class="d-flex align-items-center gap-2">
-                            <span class="text-muted fw-medium">Levels:</span>
+                            <span class="fw-medium" style="color: #9ca3af;">Levels:</span>
                             <div class="level-filters d-flex gap-1">
                                 @for($i = 0; $i <= 6; $i++)
-                                    <button class="btn btn-sm btn-outline-secondary level-filter-btn" data-level="{{ $i }}">
+                                    <button class="btn btn-sm level-filter-btn px-3" data-level="{{ $i }}" style="border-radius: 20px; background: white; border: 1px solid #e5e7eb; color: #6b7280;">
                                         L{{ $i }}
                                     </button>
                                 @endfor
-                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                <button class="btn btn-sm px-3" onclick="resetFilters()" style="border-radius: 20px; background: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280;">
                                     All
                                 </button>
                             </div>
@@ -193,20 +197,20 @@
 
                     <div class="d-flex align-items-center gap-3">
                         <!-- Search -->
-                        <div class="position-relative" style="min-width: 250px;">
-                            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                            <input type="search" class="form-control ps-5" id="designationSearch" placeholder="Search designations...">
+                        <div class="position-relative" style="min-width: 260px;">
+                            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3" style="color: #a78bfa;"></i>
+                            <input type="search" class="form-control ps-5" id="designationSearch" placeholder="Search designations..." style="border-radius: 40px; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; background: #f9fafb;">
                         </div>
 
                         <!-- Bulk Actions -->
                         <div class="dropdown">
-                            <button class="btn btn-outline-secondary px-3" type="button" data-bs-toggle="dropdown">
+                            <button class="btn px-4 py-2" type="button" data-bs-toggle="dropdown" style="border-radius: 40px; border: 1px solid #e5e7eb; background: white; color: #6b7280;">
                                 <i class="bi bi-sliders me-1"></i>Bulk Actions
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3" style="min-width: 200px;">
-                                <h6 class="dropdown-header text-muted mb-2">Bulk Operations</h6>
+                            <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2" style="border-radius: 16px; min-width: 200px;">
+                                <h6 class="dropdown-header text-muted mb-2 px-3">Bulk Operations</h6>
                                 <button type="button"
-                                        class="dropdown-item text-danger py-2"
+                                        class="dropdown-item rounded-3 py-2 text-danger"
                                         onclick="confirmBulkDelete()"
                                         id="bulk-delete-btn">
                                     <i class="bi bi-trash me-2"></i>Delete Selected
@@ -217,130 +221,127 @@
                 </div>
             </div>
 
-            <!-- Bulk Actions Bar -->
-            <div class="bg-light border-y p-3 d-flex align-items-center justify-content-between" id="bulk-actions-bar" style="display: none;">
+            <!-- Bulk Actions Bar - Purple Theme -->
+            <div class="p-3 mx-4 mt-3 d-flex align-items-center justify-content-between" id="bulk-actions-bar" style="display: none; background: #faf5ff; border-radius: 40px; border: 1px solid #e9d5ff;">
                 <div class="d-flex align-items-center gap-3">
                     <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" id="select-all">
-                        <label class="form-check-label fw-medium" for="select-all">
+                        <input class="form-check-input" type="checkbox" id="select-all" style="border-color: #8b5cf6; border-radius: 6px;">
+                        <label class="form-check-label fw-medium ms-2" for="select-all" style="color: #6d28d9;">
                             Select All
                         </label>
                     </div>
-                    <span class="badge bg-primary rounded-pill px-3 py-2" id="selected-count">0 selected</span>
+                    <span class="badge rounded-pill px-4 py-2" style="background: #8b5cf6; color: white;" id="selected-count">0 selected</span>
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" id="clear-selection">
+                    <button class="btn btn-sm px-3" id="clear-selection" style="border-radius: 30px; border: 1px solid #e5e7eb; background: white; color: #6b7280;">
                         <i class="bi bi-x-circle me-1"></i>Clear
                     </button>
                 </div>
             </div>
 
-            <!-- Table -->
-            <div class="table-responsive">
-                <table id="designationTable" class="table table-hover mb-0">
+            <!-- Table - Clean Design -->
+            <div class="table-responsive px-2">
+                <table id="designationTable" class="table" style="border-collapse: separate; border-spacing: 0 8px;">
                     <thead>
-                        <tr>
-                            <th style="width: 50px;" class="ps-4">
+                        <tr style="background: transparent;">
+                            <th style="width: 50px; border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="table-select-all">
+                                    <input class="form-check-input" type="checkbox" id="table-select-all" style="border-color: #8b5cf6;">
                                 </div>
                             </th>
-                            <th class="ps-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span>Designation Code</span>
-                                    <i class="bi bi-arrow-down-up text-muted opacity-50"></i>
-                                </div>
-                            </th>
-                            <th>Designation Name</th>
-                            <th style="width: 100px;">Level</th>
-                            <th style="width: 180px;">Added By</th>
-                            <th style="width: 180px;">Last Updated</th>
-                            <th class="text-end pe-4" style="width: 120px;">Actions</th>
+                            <th style="border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Designation Code</th>
+                            <th style="border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Designation Name</th>
+                            <th style="border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Level</th>
+                            <th style="border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Added By</th>
+                            <th style="border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Last Updated</th>
+                            <th class="text-end" style="border: none; padding: 0.75rem 1rem; color: #9ca3af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($designations as $designation)
-                        <tr class="designation-row" data-level="{{ $designation->level }}">
-                            <td class="ps-4">
+                        <tr class="designation-row" data-level="{{ $designation->level }}" style="background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.02); border-radius: 16px; transition: all 0.2s ease;">
+                            <td style="border: none; border-radius: 16px 0 0 16px; padding: 1rem;">
                                 <div class="form-check">
-                                    <input class="form-check-input select-item" type="checkbox" value="{{ $designation->id }}">
+                                    <input class="form-check-input select-item" type="checkbox" value="{{ $designation->id }}" style="border-color: #8b5cf6;">
                                 </div>
                             </td>
-                            <td class="ps-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="symbol symbol-35px bg-light-primary rounded-2 d-flex align-items-center justify-content-center">
-                                        <span class="text-primary fw-medium">DGN</span>
+                            <td style="border: none; padding: 1rem;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="symbol symbol-40px rounded-3 d-flex align-items-center justify-content-center" style="background: rgba(139, 92, 246, 0.08);">
+                                        <span class="fw-bold" style="color: #8b5cf6; font-size: 0.85rem;">DGN</span>
                                     </div>
                                     <div>
-                                        <div class="fw-semibold text-gray-800">{{ $designation->unique_code ?? 'N/A' }}</div>
-                                        <small class="text-muted">ID: {{ str_pad($designation->id, 3, '0', STR_PAD_LEFT) }}</small>
+                                        <div class="fw-semibold" style="color: #1f2937;">{{ $designation->unique_code ?? 'N/A' }}</div>
+                                        <small style="color: #9ca3af;">ID: {{ str_pad($designation->id, 3, '0', STR_PAD_LEFT) }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <div class="fw-medium text-gray-800">{{ $designation->name ?? '-' }}</div>
+                            <td style="border: none; padding: 1rem;">
+                                <div class="fw-medium" style="color: #374151;">{{ $designation->name ?? '-' }}</div>
                                 @if($designation->parent)
-                                <small class="text-muted d-block mt-1">
-                                    <i class="bi bi-arrow-up-right me-1"></i>Reports to: {{ $designation->parent->name }}
+                                <small style="color: #9ca3af;">
+                                    <i class="bi bi-arrow-up-right me-1" style="color: #a78bfa;"></i>{{ $designation->parent->name }}
                                 </small>
                                 @endif
                             </td>
-                            <td>
-                                    @if($designation->level !== null)  <!-- CHANGE THIS LINE - check for NOT NULL -->
-                                    <span class="badge rounded-pill px-3 py-2 fw-medium
-                                        @if($designation->level == 0) bg-dark text-white
-                                        @elseif($designation->level == 1) bg-primary
-                                        @elseif($designation->level <= 3) bg-success
-                                        @elseif($designation->level <= 6) bg-info
-                                        @else bg-secondary @endif">
+                            <td style="border: none; padding: 1rem;">
+                                @if($designation->level !== null)
+                                    <span class="badge rounded-4 px-3 py-2 fw-medium"
+                                          style="@if($designation->level == 0) background: #111827; color: white;
+                                          @elseif($designation->level == 1) background: #8b5cf6; color: white;
+                                          @elseif($designation->level == 2) background: #34d399; color: white;
+                                          @elseif($designation->level == 3) background: #60a5fa; color: white;
+                                          @elseif($designation->level == 4) background: #fbbf24; color: white;
+                                          @elseif($designation->level == 5) background: #f97316; color: white;
+                                          @elseif($designation->level == 6) background: #ef4444; color: white;
+                                          @else background: #9ca3af; color: white; @endif">
                                         <i class="bi bi-chevron-double-up me-1"></i>L{{ $designation->level }}
                                     </span>
-                                    @else
-                                    <span class="badge bg-light text-muted border">Not Set</span>
-                                    @endif
-                                </td>
-                                                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="symbol symbol-35px bg-light rounded-circle d-flex align-items-center justify-content-center">
-                                        <span class="text-gray-600 fw-medium">
+                                @else
+                                    <span class="badge bg-light text-muted border px-3 py-2 rounded-4">Not Set</span>
+                                @endif
+                            </td>
+                            <td style="border: none; padding: 1rem;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="symbol symbol-40px rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(139, 92, 246, 0.08);">
+                                        <span class="fw-medium" style="color: #8b5cf6;">
                                             {{ substr($designation->addedBy?->name ?? 'S', 0, 1) }}
                                         </span>
                                     </div>
                                     <div>
-                                        <div class="text-gray-800">{{ $designation->addedBy?->name ?? 'System' }}</div>
-                                        <small class="text-muted">{{ $designation->created_at->format('d M Y') }}</small>
+                                        <div style="color: #374151;">{{ $designation->addedBy?->name ?? 'System' }}</div>
+                                        <small style="color: #9ca3af;">{{ $designation->created_at->format('d M Y') }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="symbol symbol-35px bg-light-success rounded-circle d-flex align-items-center justify-content-center">
-                                        <span class="text-success fw-medium">
+                            <td style="border: none; padding: 1rem;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="symbol symbol-40px rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(52, 211, 153, 0.08);">
+                                        <span class="fw-medium" style="color: #34d399;">
                                             {{ substr($designation->updatedBy?->name ?? '-', 0, 1) }}
                                         </span>
                                     </div>
                                     <div>
-                                        <div class="text-gray-800">{{ $designation->updatedBy?->name ?? '-' }}</div>
-                                        <small class="text-muted">{{ $designation->updated_at->format('d M Y') }}</small>
+                                        <div style="color: #374151;">{{ $designation->updatedBy?->name ?? '-' }}</div>
+                                        <small style="color: #9ca3af;">{{ $designation->updated_at->format('d M Y') }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end gap-1">
+                            <td class="text-end" style="border: none; border-radius: 0 16px 16px 0; padding: 1rem;">
+                                <div class="d-flex justify-content-end gap-2">
                                     <a href="{{ route('designations.show', $designation->id) }}"
-                                       class="btn btn-sm btn-outline-gray-400 btn-icon rounded-2"
+                                       class="btn btn-sm btn-icon rounded-3"
+                                       style="background: white; border: 1px solid #e5e7eb; color: #6b7280; padding: 0.5rem;"
                                        data-bs-toggle="tooltip" title="View">
                                         <i class="bi bi-eye"></i>
                                     </a>
-
                                     <a href="{{ route('designations.edit', $designation->id) }}"
-                                       class="btn btn-sm btn-outline-gray-400 btn-icon rounded-2"
+                                       class="btn btn-sm btn-icon rounded-3"
+                                       style="background: white; border: 1px solid #e5e7eb; color: #8b5cf6; padding: 0.5rem;"
                                        data-bs-toggle="tooltip" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-
-                                     <!-- Delete -->
                                     <form action="{{ route('designations.destroy', $designation->id) }}"
                                         method="POST"
                                         class="d-inline"
@@ -348,7 +349,8 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                                class="btn btn-sm btn-outline-gray-400 btn-icon rounded-2 hover-text-danger"
+                                                class="btn btn-sm btn-icon rounded-3"
+                                                style="background: white; border: 1px solid #e5e7eb; color: #ef4444; padding: 0.5rem;"
                                                 data-bs-toggle="tooltip"
                                                 title="Delete">
                                             <i class="bi bi-trash"></i>
@@ -359,14 +361,14 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5" style="border: none; border-radius: 16px; background: white;">
                                 <div class="py-5">
-                                    <div class="symbol symbol-80px bg-light rounded-3 mx-auto mb-4 p-4">
-                                        <i class="bi bi-person-badge fs-2 text-gray-400"></i>
+                                    <div class="symbol symbol-100px rounded-4 mx-auto mb-4 d-flex align-items-center justify-content-center" style="background: rgba(139, 92, 246, 0.08);">
+                                        <i class="bi bi-person-badge fs-1" style="color: #8b5cf6;"></i>
                                     </div>
-                                    <h5 class="text-gray-600 fw-medium mb-3">No Designations Found</h5>
-                                    <p class="text-muted mb-4">Get started by creating your first designation</p>
-                                    <a href="{{ route('designations.create') }}" class="btn btn-primary px-4">
+                                    <h5 style="color: #374151; font-weight: 600;">No Designations Found</h5>
+                                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">Get started by creating your first designation</p>
+                                    <a href="{{ route('designations.create') }}" class="btn btn-purple px-5 py-2" style="background: #8b5cf6; border: none; color: white; border-radius: 40px;">
                                         <i class="bi bi-plus-circle me-2"></i>Create Designation
                                     </a>
                                 </div>
@@ -379,13 +381,13 @@
 
             <!-- Card Footer with Pagination -->
             @if($designations->count() > 0)
-            <div class="card-footer bg-transparent border-top p-3">
+            <div class="card-footer bg-transparent border-0 p-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <!-- Show Entries -->
                     <div class="mb-0">
                         <div class="d-flex align-items-center">
-                            <span class="text-muted me-2">Show:</span>
-                            <select class="form-select form-select-sm" id="showEntries" style="width: auto;">
+                            <span style="color: #9ca3af;" class="me-2">Show:</span>
+                            <select class="form-select form-select-sm" id="showEntries" style="width: auto; border-radius: 40px; border: 1px solid #e5e7eb; background: white; padding: 0.5rem 2rem 0.5rem 1rem;">
                                 <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
                                 <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
                                 <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
@@ -393,36 +395,34 @@
                                 <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                                 <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                             </select>
-                            <span class="text-muted ms-2">entries</span>
+                            <span style="color: #9ca3af;" class="ms-2">entries</span>
                         </div>
                     </div>
 
                     <!-- Show Info -->
-                    <div class="text-muted">
-                        Showing <span class="fw-semibold">{{ $designations->firstItem() ?? 0 }}</span> to
-                        <span class="fw-semibold">{{ $designations->lastItem() ?? 0 }}</span> of
-                        <span class="fw-semibold">{{ $designations->total() }}</span> designations
+                    <div style="color: #6b7280;">
+                        Showing <span class="fw-semibold" style="color: #6d28d9;">{{ $designations->firstItem() ?? 0 }}</span> to
+                        <span class="fw-semibold" style="color: #6d28d9;">{{ $designations->lastItem() ?? 0 }}</span> of
+                        <span class="fw-semibold" style="color: #6d28d9;">{{ $designations->total() }}</span> designations
                     </div>
 
-                    <!-- Pagination -->
+                    <!-- Pagination - Purple Theme -->
                     <nav aria-label="Designation pagination">
                         <ul class="pagination pagination-sm mb-0">
-                            <!-- Previous Page Link -->
                             @if ($designations->onFirstPage())
                                 <li class="page-item disabled">
-                                    <span class="page-link">
+                                    <span class="page-link" style="border: none; background: #f3f4f6; color: #9ca3af; border-radius: 12px; margin: 0 2px;">
                                         <i class="bi bi-chevron-left"></i>
                                     </span>
                                 </li>
                             @else
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $designations->previousPageUrl() . (request('per_page') ? '&per_page=' . request('per_page') : '') }}" aria-label="Previous">
+                                    <a class="page-link" href="{{ $designations->previousPageUrl() . (request('per_page') ? '&per_page=' . request('per_page') : '') }}" style="border: none; background: white; color: #6b7280; border-radius: 12px; margin: 0 2px;">
                                         <i class="bi bi-chevron-left"></i>
                                     </a>
                                 </li>
                             @endif
 
-                            <!-- Pagination Elements -->
                             @php
                                 $current = $designations->currentPage();
                                 $last = $designations->lastPage();
@@ -431,35 +431,37 @@
                             @endphp
 
                             @if($start > 1)
-                                <li class="page-item"><a class="page-link" href="{{ $designations->url(1) . (request('per_page') ? '&per_page=' . request('per_page') : '') }}">1</a></li>
+                                <li class="page-item"><a class="page-link" href="{{ $designations->url(1) . (request('per_page') ? '&per_page=' . request('per_page') : '') }}" style="border: none; background: white; color: #6b7280; border-radius: 12px; margin: 0 2px;">1</a></li>
                                 @if($start > 2)
-                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <li class="page-item disabled"><span class="page-link" style="border: none; background: #f3f4f6; color: #9ca3af; border-radius: 12px;">...</span></li>
                                 @endif
                             @endif
 
                             @for ($i = $start; $i <= $end; $i++)
                                 <li class="page-item {{ $i == $current ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $designations->url($i) . (request('per_page') ? '&per_page=' . request('per_page') : '') }}">{{ $i }}</a>
+                                    <a class="page-link" href="{{ $designations->url($i) . (request('per_page') ? '&per_page=' . request('per_page') : '') }}"
+                                       style="{{ $i == $current ? 'background: #8b5cf6; color: white; border: none; border-radius: 12px; margin: 0 2px;' : 'border: none; background: white; color: #6b7280; border-radius: 12px; margin: 0 2px;' }}">
+                                        {{ $i }}
+                                    </a>
                                 </li>
                             @endfor
 
                             @if($end < $last)
                                 @if($end < $last - 1)
-                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <li class="page-item disabled"><span class="page-link" style="border: none; background: #f3f4f6; color: #9ca3af; border-radius: 12px;">...</span></li>
                                 @endif
-                                <li class="page-item"><a class="page-link" href="{{ $designations->url($last) . (request('per_page') ? '&per_page=' . request('per_page') : '') }}">{{ $last }}</a></li>
+                                <li class="page-item"><a class="page-link" href="{{ $designations->url($last) . (request('per_page') ? '&per_page=' . request('per_page') : '') }}" style="border: none; background: white; color: #6b7280; border-radius: 12px; margin: 0 2px;">{{ $last }}</a></li>
                             @endif
 
-                            <!-- Next Page Link -->
                             @if ($designations->hasMorePages())
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $designations->nextPageUrl() . (request('per_page') ? '&per_page=' . request('per_page') : '') }}" aria-label="Next">
+                                    <a class="page-link" href="{{ $designations->nextPageUrl() . (request('per_page') ? '&per_page=' . request('per_page') : '') }}" style="border: none; background: white; color: #6b7280; border-radius: 12px; margin: 0 2px;">
                                         <i class="bi bi-chevron-right"></i>
                                     </a>
                                 </li>
                             @else
                                 <li class="page-item disabled">
-                                    <span class="page-link">
+                                    <span class="page-link" style="border: none; background: #f3f4f6; color: #9ca3af; border-radius: 12px; margin: 0 2px;">
                                         <i class="bi bi-chevron-right"></i>
                                     </span>
                                 </li>
@@ -471,19 +473,19 @@
             @endif
         </div>
 
-       <!-- Legend -->
+        <!-- Legend - Purple White Theme -->
         <div class="mt-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-3">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px; background: white;">
+                <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <span class="text-muted fw-medium me-2">Level Legend:</span>
-                        <span class="badge bg-dark text-white rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L0 (Intern)</span>
-                        <span class="badge bg-primary rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L1 (Associate)</span>
-                        <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L2 (Sr. Associate)</span>
-                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L3 (Manager)</span>
-                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L4 (Sr. Manager)</span>
-                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L5 (Associate Director)</span>
-                        <span class="badge bg-info rounded-pill px-3 py-2"><i class="bi bi-chevron-double-up me-1"></i>L6 (Director)</span>
+                        <span class="fw-medium me-2" style="color: #9ca3af;">Level Legend:</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #111827; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L0 (Intern)</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #8b5cf6; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L1 (Associate)</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #34d399; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L2 (Sr. Associate)</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #60a5fa; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L3 (Manager)</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #fbbf24; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L4 (Sr. Manager)</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #f97316; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L5 (Associate Director)</span>
+                        <span class="badge rounded-4 px-3 py-2" style="background: #ef4444; color: white;"><i class="bi bi-chevron-double-up me-1"></i>L6 (Director)</span>
                     </div>
                 </div>
             </div>
@@ -492,200 +494,174 @@
 </main>
 
 <style>
-    .page-header.card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
-        border-left: 4px solid #0d6efd;
+/* Purple + White Theme */
+.btn-purple {
+    background: linear-gradient(145deg, #8b5cf6, #7c3aed);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-purple:hover {
+    background: linear-gradient(145deg, #7c3aed, #6d28d9);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -8px rgba(124, 58, 237, 0.3);
+}
+
+.btn-outline-purple {
+    border: 1px solid #c4b5fd;
+    color: #7c3aed;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-purple:hover {
+    background: #faf5ff;
+    border-color: #8b5cf6;
+    color: #6d28d9;
+}
+
+/* Stats Cards */
+.stats-card {
+    transition: all 0.3s ease;
+    border: 1px solid #f3f4f6;
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.1), 0 8px 10px -6px rgba(139, 92, 246, 0.05) !important;
+    border-color: #e9d5ff;
+}
+
+/* Table Rows */
+.designation-row {
+    transition: all 0.2s ease;
+    border: 1px solid #f9fafb;
+}
+
+.designation-row:hover {
+    background: #faf5ff !important;
+    transform: scale(1.01);
+    border-color: #e9d5ff;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08);
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    background: white;
+}
+
+.form-check-input:checked {
+    background-color: #8b5cf6;
+    border-color: #8b5cf6;
+}
+
+/* Level Filter Buttons */
+.level-filter-btn.active {
+    background: #8b5cf6 !important;
+    color: white !important;
+    border-color: #8b5cf6 !important;
+}
+
+/* Dropdown Items */
+.dropdown-item:hover {
+    background: #faf5ff !important;
+    color: #6d28d9 !important;
+}
+
+/* Symbols */
+.symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.symbol-35px { width: 35px; height: 35px; }
+.symbol-40px { width: 40px; height: 40px; }
+.symbol-45px { width: 45px; height: 45px; }
+.symbol-50px { width: 50px; height: 50px; }
+.symbol-55px { width: 55px; height: 55px; }
+.symbol-60px { width: 60px; height: 60px; }
+.symbol-80px { width: 80px; height: 80px; }
+.symbol-100px { width: 100px; height: 100px; }
+
+/* Pagination */
+.page-item.active .page-link {
+    background: #8b5cf6 !important;
+    color: white !important;
+}
+
+.page-link:focus {
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Table */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.table td:first-child,
+.table th:first-child {
+    padding-left: 1.5rem;
+}
+
+.table td:last-child,
+.table th:last-child {
+    padding-right: 1.5rem;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
     }
-
-    .symbol {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    .symbol-35px {
-        width: 35px;
-        height: 35px;
-    }
+#bulk-actions-bar {
+    animation: slideDown 0.2s ease;
+}
 
-    .symbol-45px {
-        width: 45px;
-        height: 45px;
-    }
+/* Card */
+.card {
+    transition: all 0.3s ease;
+}
 
-    .symbol-55px {
-        width: 55px;
-        height: 55px;
-    }
+/* Alert */
+.alert {
+    border-left-width: 4px !important;
+}
 
-    .symbol-80px {
-        width: 80px;
-        height: 80px;
-    }
+/* Button Icons */
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
 
-    .bg-light-primary { background-color: rgba(13, 110, 253, 0.1) !important; }
-    .bg-light-success { background-color: rgba(25, 135, 84, 0.1) !important; }
-    .bg-light-info { background-color: rgba(13, 202, 240, 0.1) !important; }
-
-    .designation-row:hover {
-        background-color: #f8fafd;
-    }
-
-    .btn-icon {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-    }
-
-    .btn-outline-gray-400 {
-        border-color: #dee2e6;
-        color: #6c757d;
-    }
-
-    .btn-outline-gray-400:hover {
-        background-color: #f8f9fa;
-        border-color: #adb5bd;
-        color: #495057;
-    }
-
-    .card {
-        border-radius: 12px;
-    }
-
-    .table {
-        margin-bottom: 0;
-    }
-
-    .table th {
-        font-weight: 600;
-        color: #374151;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 1rem 0.75rem;
-        border-bottom: 2px solid #e5e7eb;
-        background-color: #f9fafb;
-    }
-
-    .table td {
-        padding: 1.25rem 0.75rem;
-        vertical-align: middle;
-        border-bottom: 1px solid #f3f4f6;
-        color: #4b5563;
-    }
-
-    .table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .form-check-input {
-        width: 18px;
-        height: 18px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-
-    .badge {
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
-
-    .dropdown-menu {
-        border: 1px solid rgba(0,0,0,0.08);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        border-radius: 10px;
-        padding: 8px;
-    }
-
-    .dropdown-item {
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        margin: 2px 0;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .dropdown-item:hover {
-        background-color: rgba(13, 110, 253, 0.1);
-    }
-
-    .alert {
-        border-radius: 10px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    #bulk-actions-bar {
-        animation: slideDown 0.2s ease;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .level-filter-btn.active {
-        background-color: #0d6efd;
-        color: white;
-        border-color: #0d6efd;
-    }
-
-    .btn-group .btn {
-        border-radius: 6px !important;
-    }
-
-    .vr {
-        width: 1px;
-        height: 24px;
-        background-color: #dee2e6;
-    }
-
-    .text-gray-600 { color: #6c757d !important; }
-    .text-gray-800 { color: #343a40 !important; }
-    .bg-light { background-color: #f8f9fa !important; }
-
-    .hover-text-danger:hover {
-        color: #dc3545 !important;
-        border-color: #dc3545 !important;
-    }
-
-    .pagination {
-        margin-bottom: 0;
-    }
-
-    .page-link {
-        border-radius: 6px !important;
-        margin: 0 3px;
-        min-width: 32px;
-        text-align: center;
-    }
-
-    .page-item.active .page-link {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
+.btn-icon:hover {
+    background: #faf5ff !important;
+    border-color: #8b5cf6 !important;
+}
 </style>
+
 @endsection
 
 @push('js')
 <script>
 $(document).ready(function() {
-    // Show Entries dropdown functionality
+    // Show Entries dropdown
     $('#showEntries').on('change', function() {
         var perPage = $(this).val();
         var currentUrl = window.location.href;
@@ -694,7 +670,7 @@ $(document).ready(function() {
         window.location.href = url.toString();
     });
 
-    // Initialize DataTable without pagination (since we're using Laravel pagination)
+    // DataTable
     var table = $('#designationTable').DataTable({
         dom: '<"d-none"lBf>rt',
         paging: false,
@@ -707,88 +683,41 @@ $(document).ready(function() {
             zeroRecords: "No matching records found",
         },
         initComplete: function() {
-            // Hide default search
             $('.dataTables_filter').hide();
-        },
-        buttons: [
-            {
-                extend: 'csv',
-                text: '<i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV',
-                className: 'btn btn-outline-secondary btn-sm'
-            },
-            {
-                extend: 'excel',
-                text: '<i class="bi bi-file-excel me-1"></i> Excel',
-                className: 'btn btn-outline-secondary btn-sm'
-            },
-            {
-                extend: 'pdf',
-                text: '<i class="bi bi-file-pdf me-1"></i> PDF',
-                className: 'btn btn-outline-secondary btn-sm'
-            }
-        ]
+        }
     });
 
-    // Custom search functionality
+    // Custom search
     $('#designationSearch').on('keyup', function() {
         table.search(this.value).draw();
     });
 
-    // // Level filter buttons
-    // $('.level-filter-btn').on('click', function() {
-    //     $('.level-filter-btn').removeClass('active');
-    //     $(this).addClass('active');
-    //     var level = $(this).data('level');
-    //     table.column(3).search('^' + level + '$', true, false).draw();
-    // });
-
     // Level filter buttons
-        $('.level-filter-btn').on('click', function() {
-            $('.level-filter-btn').removeClass('active');
-            $(this).addClass('active');
-            var level = $(this).data('level');
-
-            // Clear other filters
-            table.search('').draw();
-
-            // Show only rows with matching level
-            $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex) {
-                    var rowLevel = table.row(dataIndex).data()[3]; // Level is in 4th column (index 3)
-                    // Extract the number from L0, L1, etc.
-                    var rowLevelNum = rowLevel.match(/L(\d+)/);
-                    if (rowLevelNum && rowLevelNum[1] == level) {
-                        return true;
-                    }
-                    return false;
-                }
-            );
-
-            table.draw();
-
-            // Remove the filter function so it doesn't accumulate
-            $.fn.dataTable.ext.search.pop();
+    $('.level-filter-btn').on('click', function() {
+        $('.level-filter-btn').removeClass('active');
+        $(this).addClass('active');
+        var level = $(this).data('level');
+        table.search('').draw();
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            var rowLevel = table.row(dataIndex).data()[3];
+            var rowLevelNum = rowLevel.match(/L(\d+)/);
+            if (rowLevelNum && rowLevelNum[1] == level) {
+                return true;
+            }
+            return false;
         });
+        table.draw();
+        $.fn.dataTable.ext.search.pop();
+    });
 
-    // // Reset filters
-    // window.resetFilters = function() {
-    //     $('.level-filter-btn').removeClass('active');
-    //     table.search('').columns().search('').draw();
-    //     $('#designationSearch').val('');
-    // };
-
-
-            // Reset filters
-        window.resetFilters = function() {
-            $('.level-filter-btn').removeClass('active');
-            table.search('').columns().search('').draw();
-            $('#designationSearch').val('');
-
-            // Clear any custom filters
-            $.fn.dataTable.ext.search = [];
-            table.draw();
-        };
-
+    // Reset filters
+    window.resetFilters = function() {
+        $('.level-filter-btn').removeClass('active');
+        table.search('').columns().search('').draw();
+        $('#designationSearch').val('');
+        $.fn.dataTable.ext.search = [];
+        table.draw();
+    };
 
     // Get selected IDs
     function getSelectedIds() {
@@ -797,7 +726,7 @@ $(document).ready(function() {
         }).get();
     }
 
-    // Update UI based on selection
+    // Update UI
     function updateUI() {
         var count = getSelectedIds().length;
         var bulkBar = $('#bulk-actions-bar');
@@ -812,7 +741,7 @@ $(document).ready(function() {
         $('#bulk-delete-btn').prop('disabled', count === 0);
     }
 
-    // Individual checkbox change
+    // Checkbox change
     $(document).on('change', '.select-item', function() {
         updateUI();
     });
@@ -871,8 +800,8 @@ $(document).ready(function() {
                 html: `You are about to delete <b>${ids.length}</b> designation(s).<br><small class="text-muted">This action cannot be undone.</small>`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
+                confirmButtonColor: '#8b5cf6',
+                cancelButtonColor: '#9ca3af',
                 confirmButtonText: 'Yes, delete them!',
                 cancelButtonText: 'Cancel',
                 reverseButtons: true,
@@ -890,59 +819,52 @@ $(document).ready(function() {
         }
     };
 
-   function submitBulkDelete(ids) {
-    // Create a hidden form to submit
-    var form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("designations.bulk-delete") }}';
-    form.style.display = 'none';
+    function submitBulkDelete(ids) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("designations.bulk-delete") }}';
+        form.style.display = 'none';
 
-    var csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = '_token';
-    csrfToken.value = '{{ csrf_token() }}';
-    form.appendChild(csrfToken);
+        var csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        form.appendChild(csrfToken);
 
-    // FIX: Add method spoofing for DELETE
-    var methodInput = document.createElement('input');
-    methodInput.type = 'hidden';
-    methodInput.name = '_method';
-    methodInput.value = 'DELETE';
-    form.appendChild(methodInput);
+        var methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
 
-    // FIX: Send array properly
-    ids.forEach(function(id) {
-        var idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'ids[]';
-        idInput.value = id;
-        form.appendChild(idInput);
-    });
+        ids.forEach(function(id) {
+            var idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'ids[]';
+            idInput.value = id;
+            form.appendChild(idInput);
+        });
 
-    document.body.appendChild(form);
-    form.submit();
-}
-    // Show toast notification
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Show toast
     function showToast(message, type = 'info') {
         if (typeof toastr !== 'undefined') {
             toastr[type](message);
         } else {
-            // Fallback alert
             alert(message);
         }
     }
 
     // Initialize tooltips
-    function initializeTooltips() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 
-    initializeTooltips();
-
-    // Toastr notifications
+    // Toastr options
     if (typeof toastr !== 'undefined') {
         toastr.options = {
             "closeButton": true,
@@ -954,9 +876,9 @@ $(document).ready(function() {
         };
     }
 
-    // Row click for viewing
+    // Row click
     $('.designation-row').on('click', function(e) {
-        if (!$(e.target).closest('input, a, button, .dropdown').length) {
+        if (!$(e.target).closest('input, a, button, .dropdown, .form-check').length) {
             var designationId = $(this).find('.select-item').val();
             window.location.href = "{{ route('designations.show', '') }}/" + designationId;
         }

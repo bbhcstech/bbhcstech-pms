@@ -138,7 +138,7 @@
         </div>
 
         <!-- Interns Card -->
-        <div class="stat-card interns animate-slideUp" style="animation-delay: 0.5s;">
+        <!-- <div class="stat-card interns animate-slideUp" style="animation-delay: 0.5s;">
             <div class="stat-icon">
                 <i class="fas fa-user-graduate"></i>
             </div>
@@ -147,7 +147,7 @@
                 <span class="stat-value">{{ $internEmployees }}</span>
             </div>
             <div class="stat-glow"></div>
-        </div>
+        </div> -->
     </div>
 
     {{-- Invite Modal - FUNCTIONALITY UNCHANGED --}}
