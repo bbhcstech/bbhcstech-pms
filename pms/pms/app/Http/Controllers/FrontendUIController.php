@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class FrontendController extends Controller
+class FrontendUIController extends Controller
 {
     // ===========================================
     // Home Page
@@ -156,16 +156,17 @@ class FrontendController extends Controller
 
     public function contactSubmit(Request $request)
     {
-        // Add your contact form logic here
+        // Validate the request
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'message' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string',
         ]);
 
-        // Send email or save to database
+        // Here you can add code to send email or save to database
+        // For now, we'll just redirect with success message
 
-        return redirect()->back()->with('success', 'Thank you for contacting us!');
+        return redirect()->back()->with('success', 'Thank you for contacting us! We will get back to you soon.');
     }
 
     public function privacy()

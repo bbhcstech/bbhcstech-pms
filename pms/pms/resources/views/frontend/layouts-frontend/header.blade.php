@@ -1,137 +1,229 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-  <title>Dashboard - Doctors A2Z Admin</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
- 
-  <link href="admin/assets/img/favicon.png" rel="icon">
-  <link href="admin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-<!-- Bootstrap CSS -->
-<link href="{{ asset('admin/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-
-<!-- Vendor CSS -->
-<link href="{{ asset('admin/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-<link href="{{ asset('admin/assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-<link href="{{ asset('admin/assets/vendor/quill/quill.snow.css') }}" rel="stylesheet">
-<link href="{{ asset('admin/assets/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
-<link href="{{ asset('admin/assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
-
-
-<!-- Owl Carousel CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
-<link href="{{ asset('admin/assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
-
-
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
-
-
-
-<!-- Summernote CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
-
-<!-- Custom Template Main CSS -->
-<link href="{{ asset('admin/assets/css/style.css') }}" rel="stylesheet">
-
-</head>
-
-<body>
-
-  <!-- ======= Header ======= -->
-  <header id="header" class="header fixed-top d-flex align-items-center">
-
-    <div class="d-flex align-items-center justify-content-between">
-    <!-- @php  echo Auth::user()->role;@endphp  -->
-    @if(Auth::check())
-        @if(Auth::user()->role === 'admin')
-
-        <a href="{{route('admin.dashboard')}}" class="logo d-flex align-items-center">
-          <img src="admin/assets/img/.png" alt="">
-          <span class="d-none d-lg-block">Doctor Listing Admin</span>
+<!-- Premium Navbar -->
+<nav class="bbh-navbar navbar navbar-expand-lg" id="bbhNavbar">
+    <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand" href="{{ url('/') }}">
+            <div class="brand-logo">
+                <span class="brand-icon">
+                    <i class="fas fa-cube"></i>
+                </span>
+                <span class="brand-text">BBH<span class="text-purple">PMS</span></span>
+            </div>
         </a>
-        <!-- @elseif(Auth::user()->role === 'manager')
 
-        <a href="{{route('manager.dashboard')}}" class="logo d-flex align-items-center">
-          <img src="assets/img/logo.png" alt="">
-          <span class="d-none d-lg-block">Micro Poem Manager</span>
-        </a>-->
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </button>
 
-         @endif 
-        @endif
-      <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
+        <!-- Navbar Items -->
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto">
+                <!-- Product Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Product <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="dropdown-menu mega-menu">
+                        <div class="mega-menu-grid">
+                            <div class="mega-menu-col">
+                                <h6 class="dropdown-header">Project Management</h6>
+                                <a class="dropdown-item" href="{{ route('product.tasks') }}">
+                                    <i class="fas fa-tasks"></i>
+                                    <div>
+                                        <span>Task Management</span>
+                                        <small>Organize and track tasks</small>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="{{ route('product.gantt') }}">
+                                    <i class="fas fa-chart-line"></i>
+                                    <div>
+                                        <span>Gantt Charts</span>
+                                        <small>Visual project timelines</small>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="{{ route('product.kanban') }}">
+                                    <i class="fas fa-columns"></i>
+                                    <div>
+                                        <span>Kanban Boards</span>
+                                        <small>Agile workflow</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mega-menu-col">
+                                <h6 class="dropdown-header">HR Management</h6>
+                                <a class="dropdown-item" href="{{ route('product.attendance') }}">
+                                    <i class="fas fa-clock"></i>
+                                    <div>
+                                        <span>Attendance</span>
+                                        <small>Track employee hours</small>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="{{ route('product.leave') }}">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <div>
+                                        <span>Leave Management</span>
+                                        <small>Manage time off</small>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="{{ route('product.performance') }}">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <div>
+                                        <span>Performance</span>
+                                        <small>Employee reviews</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mega-menu-col">
+                                <h6 class="dropdown-header">Analytics</h6>
+                                <a class="dropdown-item" href="{{ route('product.reports') }}">
+                                    <i class="fas fa-file-alt"></i>
+                                    <div>
+                                        <span>Reports</span>
+                                        <small>Custom reporting</small>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="{{ route('product.dashboard') }}">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <div>
+                                        <span>Dashboard</span>
+                                        <small>Real-time insights</small>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="{{ route('product.analytics') }}">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <div>
+                                        <span>Analytics</span>
+                                        <small>Data visualization</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
 
-  
+                <!-- Solutions Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Solutions <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ route('solutions.enterprise') }}">
+                            <i class="fas fa-building"></i> For Enterprises
+                        </a>
+                        <a class="dropdown-item" href="{{ route('solutions.startups') }}">
+                            <i class="fas fa-rocket"></i> For Startups
+                        </a>
+                        <a class="dropdown-item" href="{{ route('solutions.hr') }}">
+                            <i class="fas fa-users"></i> For HR Teams
+                        </a>
+                        <a class="dropdown-item" href="{{ route('solutions.developers') }}">
+                            <i class="fas fa-code"></i> For Developers
+                        </a>
+                        <a class="dropdown-item" href="{{ route('solutions.remote') }}">
+                            <i class="fas fa-home"></i> For Remote Teams
+                        </a>
+                    </div>
+                </li>
 
-    <nav class="header-nav ms-auto">
-      <ul class="d-flex align-items-center">
+                <!-- Features -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('features') }}">Features</a>
+                </li>
 
-      
+                <!-- Pricing -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('pricing') }}">Pricing</a>
+                </li>
 
+                <!-- Resources Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Resources <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ route('resources.blog') }}">
+                            <i class="fas fa-blog"></i> Blog
+                        </a>
+                        <a class="dropdown-item" href="{{ route('resources.docs') }}">
+                            <i class="fas fa-book"></i> Documentation
+                        </a>
+                        <a class="dropdown-item" href="{{ route('resources.api') }}">
+                            <i class="fas fa-code-branch"></i> API
+                        </a>
+                        <a class="dropdown-item" href="{{ route('resources.help') }}">
+                            <i class="fas fa-question-circle"></i> Help Center
+                        </a>
+                        <a class="dropdown-item" href="{{ route('resources.faq') }}">
+                            <i class="fas fa-comments"></i> FAQ
+                        </a>
+                    </div>
+                </li>
 
-        <li class="nav-item dropdown pe-3">
+                <!-- Company Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Company <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ route('company.about') }}">
+                            <i class="fas fa-info-circle"></i> About Us
+                        </a>
+                        <a class="dropdown-item" href="{{ route('company.careers') }}">
+                            <i class="fas fa-briefcase"></i> Careers
+                        </a>
+                        <a class="dropdown-item" href="{{ route('company.contact') }}">
+                            <i class="fas fa-envelope"></i> Contact
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ route('company.privacy') }}">
+                            <i class="fas fa-shield-alt"></i> Privacy Policy
+                        </a>
+                        <a class="dropdown-item" href="{{ route('company.terms') }}">
+                            <i class="fas fa-file-contract"></i> Terms
+                        </a>
+                    </div>
+                </li>
+            </ul>
 
-          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="https://doctora2z.com/public/admin/assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">Admin</span>
-          </a><!-- End Profile Iamge Icon -->
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li class="dropdown-header">
-              <h6>Admin</h6>
-             
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{ route('profile.edit') }}">
-                <i class="bi bi-person"></i>
-                <span>My Profile</span>
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            
-
-            <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </x-dropdown-link>
-                        </form>
-            </li>
-
-          </ul><!-- End Profile Dropdown Items -->
-        </li><!-- End Profile Nav -->
-
-      </ul>
-    </nav><!-- End Icons Navigation -->
-
-  </header><!-- End Header -->
-
-   
+            <!-- Right Side Buttons -->
+            <div class="navbar-actions">
+                @auth
+                    <div class="dropdown">
+                        <button class="btn btn-outline-purple dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ Auth::user()->name }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                <i class="fas fa-user-edit"></i> Profile
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-outline-purple">
+                        <i class="fas fa-lock"></i> Login
+                    </a>
+                    <a href="{{ route('register') }}" class="btn btn-purple btn-glow">
+                        Get Started <i class="fas fa-arrow-right"></i>
+                    </a>
+                @endauth
+            </div>
+        </div>
+    </div>
+</nav>
